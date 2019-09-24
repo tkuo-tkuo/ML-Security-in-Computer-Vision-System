@@ -27,33 +27,57 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
   - (Give mathmatical definition with appropriate notations) 
 
 
-#### RQ1.1, (With training datasets extracted from different distribution)
+#### RQ1.1, (Different distribution / Same architecture / Non-multimedia classification task)
 
-(description for RQ1.1, about experimental settings for RQ1.1) <br />
-(S_{A} and S_{B} should have distinct differences in terms of distribution in the input space, but the architecture should be the same for f_{A} and f_{B}) 
+Specify 
+1. number of samples used in computing attack success rate
+2. architecture
+3. distribution of S_{A} and S_{B} 
 
-Experimental Settings | Match ratio | Time (sta_adv_r) | Time (sucess rate) | # of pairs | size(S) | S_A | S_B | Attack | Defense | eps
---- | --- | --- | --- |--- |--- |--- |--- |--- |--- |---
-Trail 1 | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 | 272 | 276 
-Trail 2 | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 | 272 | 276 
-Trail 3 | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 | 272 | 276 
-Trail 4 | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 | 272 | 276 
-Trail 5 | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 | 272 | 276 
+Experimental Settings | Match ratio | Time (sta_adv_r) | Time (sucess rate) | # of pairs | size(S) | Attack | Defense | eps
+--- | --- | --- | --- |--- |--- |--- |--- |--- 
+Trail 1 | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 
+Trail 2 | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 
+Trail 3 | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 
 
-(Specify number of samples used in computing attack success rate and architecture here)
+#### RQ1.2, (Same distribution / Same architecture / Non-multimedia classification task)
 
-#### RQ1.2 (With training datasets extracted from same distribution)  
+Specify 
+1. number of samples used in computing attack success rate
+2. architecture
+3. distribution of S_{A} and S_{B} 
 
-(description for RQ1.2, about experimental settings for RQ1.2) <br />
-(S_{A} and S_{B} should have be sampled from the same distribution in the input space. Also, architecture should remain the same for f_{A} and f_{B}) 
+Experimental Settings | Match ratio | Time (sta_adv_r) | Time (sucess rate) | # of pairs | size(S) | Attack | Defense | eps
+--- | --- | --- | --- |--- |--- |--- |--- |--- 
+Trail 1 | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 
+Trail 2 | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 
+Trail 3 | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 
 
-Experimental Settings | Match ratio | Time (sta_adv_r) | Time (sucess rate) | # of pairs | size(S) | S_A | S_B | Attack | Defense | eps
---- | --- | --- | --- |--- |--- |--- |--- |--- |--- |---
-Trail 1 | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 | 272 | 276 
-Trail 2 | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 | 272 | 276 
-Trail 3 | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 | 272 | 276 
-Trail 4 | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 | 272 | 276 
-Trail 5 | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 | 272 | 276 
+#### RQ1.3, (Different distribution / Same architecture / Multimedia classification task)
+
+Specify 
+1. number of samples used in computing attack success rate
+2. architecture
+3. distribution of S_{A} and S_{B} 
+
+Experimental Settings | Match ratio | Time (sta_adv_r) | Time (sucess rate) | # of pairs | size(S) | Attack | Defense | eps
+--- | --- | --- | --- |--- |--- |--- |--- |--- 
+Trail 1 | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 
+Trail 2 | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 
+Trail 3 | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 
+
+#### RQ1.4, (Same distribution / Same architecture / Multimedia classification task)
+
+Specify 
+1. number of samples used in computing attack success rate
+2. architecture
+3. distribution of S_{A} and S_{B} 
+
+Experimental Settings | Match ratio | Time (sta_adv_r) | Time (sucess rate) | # of pairs | size(S) | Attack | Defense | eps
+--- | --- | --- | --- |--- |--- |--- |--- |--- 
+Trail 1 | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 
+Trail 2 | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 
+Trail 3 | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 
 
 ## References 
 
