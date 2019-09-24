@@ -15,7 +15,7 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 (Description the mathematical formula here)
 
 Notations <br />
-  - The metric for adversarial robustness approximation is denoted as ***static estimation of adversarial risk***, <img src="README_images/sta_adv_r_est_formula.png" align="center" border="0" alt="sta\_adv\_r = static\_adv\_rob\_estimation\big(S, f\big) " width="386" height="21" />, where <img src="README_images/S.png" align="center" border="0" alt="S" width="44" height="19" /> and <img src="README_images/f.png" align="center" border="0" alt="f" width="44" height="19" /> indicate the training dataset and neural network trained. 
+  - The metric for adversarial robustness approximation is denoted as ***static estimation of adversarial risk***, <img src="README_images/sta_adv_r_est_formula.png" align="center" border="0" alt="sta\_adv\_r = static\_adv\_rob\_estimation\big(S, f\big) " width="386" height="18" />, where <img src="README_images/S.png" align="center" border="0" alt="S" width="20" height="18" /> and <img src="README_images/f.png" align="center" border="0" alt="f" width="20" height="18" /> indicate the training dataset and neural network trained. 
   - For each pair of machine learning models (<img src="README_images/f_A.png" align="center" border="0" alt=" f_{A}" width="21" height="19" />, <img src="README_images/f_B.png" align="center" border="0" alt=" f_{B}" width="21" height="19" />), they are trained on individual datasets <img src="README_images/S_A.png" align="center" border="0" alt="S_{A}" width="24" height="18" /> and <img src="README_images/S_B.png" align="center" border="0" alt="S_{B}" width="24" height="18" />.
   
 Purpose of experiments <br />
