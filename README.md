@@ -73,11 +73,17 @@ Specify
 2. architecture
 3. distribution of S_{A} and S_{B} 
 
-Experimental Settings | Match ratio | Time (sta_adv_r) | Time (sucess rate) | # of pairs | size(S) | Attack | Defense | eps
+Experimental Settings | Match ratio | Time (sta_adv_r) | Time(r) | # of pairs | size(S) | Attack | Defense | eps
 --- | --- | --- | --- |--- |--- |--- |--- |--- 
-Trail 1 | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 
+Trail 1 | 0.7000 | 0.00528 | 0.43242 | 100 | 500 | FGSM | None | 0.001  
 Trail 2 | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 
 Trail 3 | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 
+
+(Describle how eps is related to the FGSM -> refer to the official Pytorch website) <br />
+(Describle that the unit of Time is second) <br />
+(Describle that r is actually 1 - attack sucess rate) <br />
+(Descirble that attack success rate is based on adversarial attacks genereated by test dataset, where we randomly select 1000 samples.) 
+
 
 ## References 
 
