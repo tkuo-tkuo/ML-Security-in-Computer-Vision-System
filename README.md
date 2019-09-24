@@ -19,7 +19,7 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
   
 **Purpose of experiments** <br />
 
-  - For each pair of machine learning models (<img src="http://www.sciweavers.org/tex2img.php?eq=%20f_%7BA%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0" align="center" border="0" alt=" f_{A}" width="21" height="19" />, we would liked to experiment whether the relationship between (sta_adv_r_{A} and sta_adv_r_{B}) indicates the relationship between actual adversarial robustness against state-of-art adversarial attacks. 
+  - For each pair of machine learning models (<img src="README_images/f_A.png" align="center" border="0" alt=" f_{A}" width="21" height="19" />, <img src="README_images/f_B.png" align="center" border="0" alt=" f_{B}" width="21" height="19" />), we would like to experiment whether the relationship between <img src="README_images/sta_adv_r_A.png" align="center" border="0" alt="sta\_adv\_r_{A}" width="99" height="19" /> and <img src="README_images/sta_adv_r_B.png" align="center" border="0" alt="sta\_adv\_r_{B}" width="99" height="19" /> can indicate the relationship between actual adversarial robustness <img src="README_images/r_A.png" align="center" border="0" alt="r_{A}" width="21" height="15" /> and <img src="README_images/r_B.png" align="center" border="0" alt="r_{B}" width="21" height="15" /> (against state-of-art adversarial attacks). 
   
 **Mathematical definition for** ***static estimatino of adversarial risk*** **function** <br />
 
