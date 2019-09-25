@@ -62,7 +62,7 @@ Specify
 
 Experimental Settings | Match ratio | Time (sta_adv_r) | Time (sucess rate) | # of pairs | size(S) | Attack | Defense | eps
 --- | --- | --- | --- |--- |--- |--- |--- |--- 
-Trail 1 | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 
+Trail 1 | ? | ? | ? | 100 | 300 | FGSM | None | 0.5 
 Trail 2 | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 
 Trail 3 | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 
 
@@ -82,7 +82,9 @@ Trail 3 | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287
 (Describle how eps is related to the FGSM -> refer to the official Pytorch website) <br />
 (Describle that the unit of Time is second) <br />
 (Describle that r is actually 1 - attack sucess rate) <br />
-(Descirble that attack success rate is based on adversarial attacks genereated by test dataset, where we randomly select 1000 samples.) 
+(Descirble that attack success rate is based on adversarial attacks genereated by test dataset, where we randomly select 1000 samples.) <br />
+(Descirble that you should ensure both f_{A} and f_{B} have similar capability, which is simply accurancy. In our experiments, one feasible approach is to train models approachine 100% accurancy) <br />
+(Same test dataset should be applied to verify f_{A} and f_{B})
 
 
 ## References 
