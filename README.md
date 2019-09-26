@@ -6,11 +6,7 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 
 ### RQ1: Can we design a metric to approximate the adversarial robustness efficiently?  
 
-(Talk about the inspiration about relevant work) 
-1. Dimensionality 
-2. Distance to decision boundary (in various directions like benign, adversarial, random)
-3. Non-robust features 
-4. Some theoretical metrics. For instance, local intrinsic dimensionality and adversarial risk by the concentration of measure.
+There are related papers, which aim to define (theoretical) metrix that highly correlated to robustness. I place description of relevant work in Appendix 1.1. 
 
 **Notations** <br />
 
@@ -86,7 +82,20 @@ Trail 3 | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287
 (Descirble that you should ensure both f_{A} and f_{B} have similar capability, which is simply accurancy. In our experiments, one feasible approach is to train models approachine 100% accurancy) <br />
 (Same test dataset should be applied to verify f_{A} and f_{B})
 
+## Appendix 
+
+#### Appendix 1.1 
+Here we list out self-defined (related to our work) metrics that are correlated to (adversarial) robustness. 
+
+1. Dimensionality [1]
+2. Distance to decision boundary (in various directions like benign, adversarial, random)
+3. Non-robust features [2]
+4. Local intrinsic dimensionality [3]
+5. Adversarial risk by the concentration of measure [4]
 
 ## References 
 
-some citations (or links)
+[1] Florian Tramer, Nicolas Papernot, Ian Goodfellow, Dan Boneh, and Patrick McDaniel. The space of transferable adversarial examples. arXiv preprint arXiv:1704.03453, 2017. <br />
+[2] Ilyas, A., Santurkar, S., Tsipras, D., Engstrom, L., Tran, B., and Madry, A. Adversarial examples are not bugs, they are features. arXiv preprint arXiv:1905.02175, 2019. <br />
+[3] Ma, X., Li, B., Wang, Y., Erfani, S. M., Wijewickrema, S., Schoenebeck, G., Houle, M. E., Song, D., and Bailey, J. Characterizing adversarial subspaces using local intrinsic dimensionality. <br />
+[4] Mahloujifar, S., Zhang, X., Mahmoody, M., and Evans, D. Empirically measuring concentration: Fundamental limits on intrinsic robustness. Safe Machine Learning workshop at ICLR, 2019. <br />
