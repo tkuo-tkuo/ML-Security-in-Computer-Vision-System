@@ -51,30 +51,26 @@ Implementation Details:
 
 \|S\| | \|S5\| | \|S7\| | \|P5\| | \|P7\| | Benign Indentification Rate | Adversarial Indentification Rate | Noised Inputs Included?
 --- | --- | --- | --- | --- | --- | --- | ---  
-500 | 227 | 273 | 71.090(8.321) | 123.320(14.118) | 63.8(4.8)% | 32.3(21.6)% | None
-3000 (500+2500) | 1368 | 1632 | 289.090(24.717) | 644.110(51.828) | 68.0(3.5)% | 17.5(12.0)% | Yes (Approach 1)
-3000 (500+2500) | 1362 | 1638 | 365.170(40.151) | 742.320(93.065) | 68.3(3.6)% | 14.8(10.5)% | Yes (Approach 2)
-1500 | 674 | 826 | 164.680(28.098) | 223.410(38.993) | 79.6(4.2)% | 67.5(17.4)% | None
-9000 (1500+7500) | 4044 | 4956 | 574.650(82.479) | 1090.800(186.220) | 83.7(3.6)% | 52.4(17.2)% | Yes (Approach 1)
-9000 (1500+7500) | 4044 | 4956 | 682.920(102.169) | 1378.340(216.134) | 84.8(3.4)% | 45.9(15.8)% | Yes (Approach 2)
-3000 | 1364 | 1636 | 425.950(95.574) | 716.310(145.208) | 69.6(6.3)% | 97.9(3)% | None
-18000 (3000+15000) | 8185 | 9815 | 1226.650(331.550) | 329.960(682.530) | 74.5(5.8)% | 92.7(6.7)% | Yes (Approach 1)
-18000 (3000+15000) | ? | ? | ? | ? | ?% | ?% | Yes (Approach 2)
+500 | 227 | 273 | 71.090 (8.321) | 123.320 (14.118) | 63.8 (4.8)% | 32.3 (21.6)% | None
+3000 (500+2500) | 1368 | 1632 | 289.090 (24.717) | 644.110 (51.828) | 68.0 (3.5)% | 17.5 (12.0)% | Yes (Approach1)
+3000 (500+2500) | 1362 | 1638 | 365.170 (40.151) | 742.320 (93.065) | 68.3 (3.6)% | 14.8 (10.5)% | Yes (Approach2)
+1500 | 674 | 826 | 164.680 (28.098) | 223.410 (38.993) | 79.6 (4.2)% | 67.5 (17.4)% | None
+9000 (1500+7500) | 4044 | 4956 | 574.650 (82.479) | 1090.800 (186.220) | 83.7 (3.6)% | 52.4 (17.2)% | Yes (Approach1)
+9000 (1500+7500) | 4044 | 4956 | 682.920 (102.169) | 1378.340 (216.134) | 84.8 (3.4)% | 45.9 (15.8)% | Yes (Approach2)
+3000 | 1364 | 1636 | 425.950 (95.574) | 716.310 (145.208) | 69.6 (6.3)% | 97.9 (3)% | None
+18000 (3000+15000) | 8185 | 9815 | 1226.650 (331.550) | 329.960 (682.530) | 74.5 (5.8)% | 92.7 (6.7)% | Yes (Approach1)
+18000 (3000+15000) | ? | ? | ? | ? | ?% | ?% | Yes (Approach2)
 
 Implementation Deatils:
 1. All bengin and adversarial samples are generated according to MNIST dataset (size of 100)
+2. Values in () indicate standard deviation 
+3. Approach1 - append noise ~ uniform(lower_bound=-0.1, uppper_bound=0.1); 5 perturbed inputs are generated per input 
+4. Approach2 - append noise ~ normal(mean=0, std=0.1); 5 perturbed inputs are generated per input 
+5. Architecture: Two layer (one hidden layer) ReLU (fully-connected) neural netowrk  
+6. Attack: iterative FGSM (attack until the perturbed input is misclassified)
 
-(Approach 1 for augementing perturbed images: noise is append, where noise ~ uniform_dis [-0.1, 0.1]. Note values beyond 0 and 1 will be reset to 0 and 1 & 5 perturbed images are generated per original image) <br />
-(Approach 2 for augementing perturbed images: noise is append, where noise ~ normal(mean=0, std=0.1). Note values beyond 0 and 1 will be reset to 0 and 1 & 5 perturbed images are generated per original image)
-
-(Currently, noise is added by uniform distribution & perturbed images are based on images from test dataset)
-(Should try: normal distribution & FGSM generated from pure random images)
-
-(Talk about the attack: iterative FGSM instead of fix-epi FGSM attack) <br />
-(Talk about the model used) <br />
-(Talk about what is purely noised inputs) <br />
-(Talk about False positive (judge benign as adversarial) and False negative (judge adversarial as benign)) <br />
-(Talk about that actucally False negative is way more important than False positive) <br />
+Objective: 
+It should be able to achieve <b>low false negative (adversarial but regarded as benign) and acceptable false positive (benign but regarded as adversarial), which means that adversarial indentification rate should approach 100% and bengin indentification rate should acceptable.</b> 
 
 ## Appendix 
 
