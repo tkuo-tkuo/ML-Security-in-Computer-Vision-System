@@ -40,19 +40,29 @@ Implementation Details:
 
 #### Binary classification task (5 vs 7)
 
-num of train set | num of test set | num of samples for 5 | num of samples for 7 | num of precondition set for 5 | num of precondition set for 7 | Benign Indentification Rate | Adversarial Indentification Rate | Is Purely Noised Inputs Included?
---- | --- | --- | --- |--- |--- |--- |--- |--- 
-500 | 100 | 227 | 273 | 71.090(8.321) | 123.320(14.118) | 63.8(4.8)% | 32.3(21.6)% | None
-3000 (500+2500) | 100 | 1368 | 1632 | 289.090(24.717) | 644.110(51.828) | 68.0(3.5)% | 17.5(12.0)% | Yes (Approach 1)
-3000 (500+2500) | 100 | 1362 | 1638 | 365.170(40.151) | 742.320(93.065) | 68.3(3.6)% | 14.8(10.5)% | Yes (Approach 2)
-1500 | 100 | 674 | 826 | 164.680(28.098) | 223.410(38.993) | 79.6(4.2)% | 67.5(17.4)% | None
-9000 (1500+7500) | 100 | 4044 | 4956 | 574.650(82.479) | 1090.800(186.220) | 83.7(3.6)% | 52.4(17.2)% | Yes (Approach 1)
-9000 (1500+7500) | 100 | 4044 | 4956 | 682.920(102.169) | 1378.340(216.134) | 84.8(3.4)% | 45.9(15.8)% | Yes (Approach 2)
-3000 | 100 | 1364 | 1636 | 425.950(95.574) | 716.310(145.208) | 69.6(6.3)% | 97.9(3)% | None
+**Notations** <br />
 
-18000 (3000+15000) | 100 | 9970 | 8030 | 1539 | 750 | 82% | 81% | Yes (Approach 1)
-7500 | 100 | 3495 | 4005 | 1690 | 2037 | 63% | 100% | None
-45000 (7500+37500) | 100 | 31159 | 13841 | 7173 | 3618 | 63% | 97% | Yes 
+- Training set: <img src="README_images/S.png" align="center" border="0" alt="S" width="17" height="15" />
+- Subset (first class) of training set: S5
+- Subset (second class) of training set: S7
+- Precondition set: P
+- Subset (first class) of precondition set: P5
+- Subset (second class) of precondition set: P7
+
+\|S\| | \|S5\| | \|S7\| | \|P5\| | \|P7\| | Benign Indentification Rate | Adversarial Indentification Rate | Noised Inputs Included?
+--- | --- | --- | --- | --- | --- | --- | ---  
+500 | 227 | 273 | 71.090(8.321) | 123.320(14.118) | 63.8(4.8)% | 32.3(21.6)% | None
+3000 (500+2500) | 1368 | 1632 | 289.090(24.717) | 644.110(51.828) | 68.0(3.5)% | 17.5(12.0)% | Yes (Approach 1)
+3000 (500+2500) | 1362 | 1638 | 365.170(40.151) | 742.320(93.065) | 68.3(3.6)% | 14.8(10.5)% | Yes (Approach 2)
+1500 | 674 | 826 | 164.680(28.098) | 223.410(38.993) | 79.6(4.2)% | 67.5(17.4)% | None
+9000 (1500+7500) | 4044 | 4956 | 574.650(82.479) | 1090.800(186.220) | 83.7(3.6)% | 52.4(17.2)% | Yes (Approach 1)
+9000 (1500+7500) | 4044 | 4956 | 682.920(102.169) | 1378.340(216.134) | 84.8(3.4)% | 45.9(15.8)% | Yes (Approach 2)
+3000 | 1364 | 1636 | 425.950(95.574) | 716.310(145.208) | 69.6(6.3)% | 97.9(3)% | None
+18000 (3000+15000) | 8185 | 9815 | 1226.650(331.550) | 329.960(682.530) | 74.5(5.8)% | 92.7(6.7)% | Yes (Approach 1)
+18000 (3000+15000) | ? | ? | ? | ? | ?% | ?% | Yes (Approach 2)
+
+Implementation Deatils:
+1. All bengin and adversarial samples are generated according to MNIST dataset (size of 100)
 
 (Approach 1 for augementing perturbed images: noise is append, where noise ~ uniform_dis [-0.1, 0.1]. Note values beyond 0 and 1 will be reset to 0 and 1 & 5 perturbed images are generated per original image) <br />
 (Approach 2 for augementing perturbed images: noise is append, where noise ~ normal(mean=0, std=0.1). Note values beyond 0 and 1 will be reset to 0 and 1 & 5 perturbed images are generated per original image)
