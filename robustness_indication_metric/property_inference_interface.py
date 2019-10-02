@@ -21,6 +21,19 @@ class NaiveC(nn.Module):
         output = self.relu(self.layer1(x))
         return self.layer2(output)
 
+class NormalC(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.layer1 = nn.Linear(784, 64)
+        self.layer2 = nn.Linear(64, 10)
+        self.layer3 = nn.Linear(10, 2)
+        self.relu = nn.ReLU()
+
+    def forward(self, x):
+        h1 = self.relu(self.layer1(x))
+        h2 = self.relu(self.layer2(h1))
+        return self.layer3(h2)
+
 class PropertyInferenceInterface():
 
     def __init__(self):
@@ -106,7 +119,13 @@ class PropertyInferenceInterface():
         plt.show()
 
     def generate_model(self):
-        model = NaiveC()
+        if self.meta_params['model_type'] == 'naive':
+            model = NaiveC()
+        elif self.meta_params['model_type'] == 'normal':
+            model = NormalC()
+        else:
+            pass 
+        
         X, Y = self.train_dataset
 
         # Optimizer parameters
@@ -199,7 +218,19 @@ class PropertyInferenceInterface():
             # Normal 
             elif random_distribution == 'normal':
                 normal_std = self.meta_params['normal_std']
-                print('normal distribution is under construction')
+                for i in range(len(X)):
+                    for _ in range(5):
+                        x, y = X[i], Y[i]
+                        random_x = x + np.random.normal(0, normal_std, 784)
+                        random_x[random_x >= 1] = 1.0
+                        random_x[random_x <= 0] = 0.0
+                        output = model.forward(torch.from_numpy(np.expand_dims(random_x, axis=0).astype(np.float32)))
+                        y = (output.max(1, keepdim=True)[1]).item() # get the index of the max log-probability
+                        precondition = self.extract_precondition(random_x, y)
+                        if y == 0:
+                            first_F.append(precondition)
+                        else: 
+                            second_F.append(precondition)
                 pass 
             else: 
                 pass 
