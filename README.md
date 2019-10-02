@@ -1,6 +1,5 @@
-# FYT
+# Final Year Thesis
 Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
-
 
 ## Research Questions (RQs)
 
@@ -17,13 +16,13 @@ There are related papers, which aim to define (theoretical) metrix that highly c
   
 **Mathematical definition for** <img src="README_images/sta_adv_r_est_func.png" align="center" border="0" alt="static\_adv\_rob\_estimation\big(S, f\big)" width="278" height="21" /> **function** <br />
 
-  - (Give mathmatical definition with appropriate notations) 
+  - <img src="README_images/est_func.png" align="center" border="0" alt="S_{B}" width="300" height="42" />
   
 **Purpose of experiments** <br />
 
   - For each pair of machine learning models (<img src="README_images/f_A.png" align="center" border="0" alt=" f_{A}" width="21" height="19" />, <img src="README_images/f_B.png" align="center" border="0" alt=" f_{B}" width="21" height="19" />), we would like to experiment whether the relationship between <img src="README_images/sta_adv_r_A.png" align="center" border="0" alt="sta\_adv\_r_{A}" width="99" height="19" /> and <img src="README_images/sta_adv_r_B.png" align="center" border="0" alt="sta\_adv\_r_{B}" width="99" height="19" /> can indicate the relationship between actual adversarial robustness <img src="README_images/r_A.png" align="center" border="0" alt="r_{A}" width="21" height="15" /> and <img src="README_images/r_B.png" align="center" border="0" alt="r_{B}" width="21" height="15" /> (against state-of-art adversarial attacks). <br/> For instance, if <img src="README_images/sta_adv_r_A.png" align="center" border="0" alt="sta\_adv\_r_{A}" width="99" height="19" /> < <img src="README_images/sta_adv_r_B.png" align="center" border="0" alt="sta\_adv\_r_{B}" width="99" height="19" />, we expect to observe attack success rate on <img src="README_images/f_A.png" align="center" border="0" alt=" f_{A}" width="21" height="19" /> is higher than that of <img src="README_images/f_B.png" align="center" border="0" alt=" f_{B}" width="21" height="19" />.
-  - (Define indicator function for match ratio)
-
+  - Indicator function: <img src="README_images/indicator_func.png" align="center" border="0" alt="S_{B}" width="900" height="24" />
+  
 #### Multimedia classification task, MNIST
 
 Specify 
@@ -51,11 +50,13 @@ Trail 3 | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287
 num of train set | num of test set | num of samples for 5 | num of samples for 7 | num of precondition set for 5 | num of precondition set for 7 | Benign Indentification Rate | Adversarial Indentification Rate | Is Purely Noised Inputs Included?
 --- | --- | --- | --- |--- |--- |--- |--- |--- 
 500 | 100 | 227 | 273 | 71.090(8.321) | 123.320(14.118) | 63.8(4.8)% | 32.3(21.6)% | None
-3000 (500+2500) | 100 | 1362 | 1638 | 289.090(24.717) | 644.110(51.828) | 68.0(3.5)% | 17.5(12.0)% | Yes (Approach 1)
+3000 (500+2500) | 100 | 1368 | 1632 | 289.090(24.717) | 644.110(51.828) | 68.0(3.5)% | 17.5(12.0)% | Yes (Approach 1)
 3000 (500+2500) | 100 | 1362 | 1638 | 365.170(40.151) | 742.320(93.065) | 68.3(3.6)% | 14.8(10.5)% | Yes (Approach 2)
 1500 | 100 | 674 | 826 | 164.680(28.098) | 223.410(38.993) | 79.6(4.2)% | 67.5(17.4)% | None
-9000 (1500+7500) | 100 | 4393 | 4607 | 890 | 225 | 85% | 23% | Yes (Approach 1)
-3000 | 100 | 1364 | 1636 | 374 | 643 | 79% | 100% | None
+9000 (1500+7500) | 100 | 4044 | 4956 | 574.650(82.479) | 1090.800(186.220) | 83.7(3.6)% | 52.4(17.2)% | Yes (Approach 1)
+9000 (1500+7500) | 100 | 4044 | 4956 | 682.920(102.169) | 1378.340(216.134) | 84.8(3.4)% | 45.9(15.8)% | Yes (Approach 2)
+3000 | 100 | 1364 | 1636 | 425.950(95.574) | 716.310(145.208) | 69.6(6.3)% | 97.9(3)% | None
+
 18000 (3000+15000) | 100 | 9970 | 8030 | 1539 | 750 | 82% | 81% | Yes (Approach 1)
 7500 | 100 | 3495 | 4005 | 1690 | 2037 | 63% | 100% | None
 45000 (7500+37500) | 100 | 31159 | 13841 | 7173 | 3618 | 63% | 97% | Yes 
