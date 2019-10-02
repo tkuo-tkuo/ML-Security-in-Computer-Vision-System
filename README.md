@@ -37,8 +37,12 @@ Implementation Details:
 5. Both <img src="README_images/f_A.png" align="center" border="0" alt=" f_{A}" width="21" height="19" /> and <img src="README_images/f_B.png" align="center" border="0" alt=" f_{B}" width="21" height="19" /> are trained by the same architecture (include preprocess and activation functions). 
 
 Next Steps: 
-1. (next step)
-2. (further next step)
+1. **(Running Experiment)** Measure on a set of architectures (Compare distribution instead of applying indicator function)
+2. Use statistical approach (instead of simple match ratio
+
+Discussion: 
+1. Design a dataset to have high sta_adv_r and another dataset to have low std_adv_r (Completed, but not actually meaningful) 
+2. How to become more 'software-enginnering'?
 
 #### _Approach 2: Leverage preconditions for the prediction postcondition in adversarial detection [5]_
 
@@ -74,8 +78,11 @@ Implementation Deatils:
 6. Attack: iterative FGSM (attack until the perturbed input is misclassified)
 
 Next Steps: 
-1. (next step)
-2. (further next step)
+1. Experiment on a bigger (one hidden layer -> two hidden layer) ReLU neural network
+2. Exploit layer feature 
+
+Discussion: 
+1. Is it a potential direction? 
 
 **Objective** <br />
 
