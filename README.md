@@ -52,7 +52,15 @@ num of train set | num of test set | num of samples for 5 | num of samples for 7
 --- | --- | --- | --- |--- |--- |--- |--- |--- 
 500 | 100 | 227 | 273 | 74 | 105 | 65% | 31% | None
 3000 (500+2500) | 100 | 1368 | 1632 | 485 | 129 | 65% | 43% | Yes (5 per original input)
-1500 | 100 | ? | ? | ? | ? | ?% | ?% | None
+1500 | 100 | 674 | 826 | 168 | 200 | 82% | 52% | None
+9000 (1500+7500) | 100 | 4393 | 4607 | 890 | 225 | 85% | 23% | Yes (5 per original input)
+3000 | 100 | 1364 | 1636 | 374 | 643 | 79% | 100% | None
+18000 (3000+15000) | 100 | 9970 | 8030 | 1539 | 750 | 82% | 81% | Yes (5 per original input)
+7500 | 100 | 3495 | 4005 | 1690 | 2037 | 63% | 100% | None
+45000 (7500+37500) | 100 | 31159 | 13841 | 7173 | 3618 | 63% | 97% | Yes (5 per original input)
+
+(Currently, noise is added by uniform distribution & perturbed images are based on images from test dataset)
+(Should try: normal distribution & FGSM generated from pure random images)
 
 (Talk about the attack: iterative FGSM instead of fix-epi FGSM attack) <br />
 (Talk about the model used) <br />
