@@ -27,14 +27,18 @@ There are related papers, which aim to define (theoretical) metrix that highly c
 
 Experimental Settings | Match ratio | Time (sta_adv_r) | Time(r) | # of pairs | size(S) | Attack | Defense | eps
 --- | --- | --- | --- |--- |--- |--- |--- |--- 
-Trail 1 | 0.7000 | 0.00528 | 0.43242 | 100 | 500 | FGSM | None | 0.001  
+Trail 1 | 0.7000 | 0.00528 | 0.43242 | 100 | 600 | FGSM | None | 0.001  
 
 Implementation Details:
 1. Number of samples used for computing attack success rate: 1000
 2. Architecture: Two layer (one hidden layer) ReLU (fully-connected) neural netowrk  
-3. FGSM is generated according to the [Pytorch official website](https://pytorch.org/tutorials/beginner/fgsm_tutorial.html). For more effective attacks, I will conduct those once I receive the accessibility of hardware resource. 
+3. FGSM is generated according to the [Pytorch Official Website](https://pytorch.org/tutorials/beginner/fgsm_tutorial.html). For more effective attacks, I will conduct those once I receive the accessibility of hardware resource. 
 4. Actuacl robustness is calculated by 1 - attack sucess rate 
 5. Both <img src="README_images/f_A.png" align="center" border="0" alt=" f_{A}" width="21" height="19" /> and <img src="README_images/f_B.png" align="center" border="0" alt=" f_{B}" width="21" height="19" /> are trained by the same architecture (include preprocess and activation functions). 
+
+Next Steps: 
+1. (next step)
+2. (further next step)
 
 #### _Approach 2: Leverage preconditions for the prediction postcondition in adversarial detection [5]_
 
@@ -58,16 +62,20 @@ Implementation Details:
 9000 (1500+7500) | 4044 | 4956 | 574.650 (82.479) | 1090.800 (186.220) | 83.7 (3.6)% | 52.4 (17.2)% | Yes (Approach1)
 9000 (1500+7500) | 4044 | 4956 | 682.920 (102.169) | 1378.340 (216.134) | 84.8 (3.4)% | 45.9 (15.8)% | Yes (Approach2)
 3000 | 1364 | 1636 | 425.950 (95.574) | 716.310 (145.208) | 69.6 (6.3)% | 97.9 (3)% | None
-18000 (3000+15000) | 8185 | 9815 | 1226.650 (331.550) | 329.960 (682.530) | 74.5 (5.8)% | 92.7 (6.7)% | Yes (Approach1)
-18000 (3000+15000) | ? | ? | ? | ? | ?% | ?% | Yes (Approach2)
+18000 (3000+15000) | 8185 | 9815 | 1226.650 (331.550) | 3299.600 (682.530) | 74.5 (5.8)% | 92.7 (6.7)% | Yes (Approach1)
+18000 (3000+15000) | 8185 | 9815 | 1548.330 (359.290) | 3975.600 (833.274) | 74.7 (5.5)% | 89.2 (8.3)% | Yes (Approach2)
 
 Implementation Deatils:
 1. All bengin and adversarial samples are generated according to MNIST dataset (size of 100)
 2. Values in () indicate standard deviation 
-3. Approach1 - append noise ~ uniform(lower_bound=-0.1, uppper_bound=0.1); 5 perturbed inputs are generated per input 
-4. Approach2 - append noise ~ normal(mean=0, std=0.1); 5 perturbed inputs are generated per input 
+3. Approach1 - append noise _~Uniform(lower_bound=-0.1, uppper_bound=0.1)_; 5 perturbed inputs are generated per input 
+4. Approach2 - append noise _~Normal(mean=0, std=0.1)_; 5 perturbed inputs are generated per input 
 5. Architecture: Two layer (one hidden layer) ReLU (fully-connected) neural netowrk  
 6. Attack: iterative FGSM (attack until the perturbed input is misclassified)
+
+Next Steps: 
+1. (next step)
+2. (further next step)
 
 **Objective** <br />
 
