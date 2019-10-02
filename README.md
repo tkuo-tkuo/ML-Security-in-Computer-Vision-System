@@ -25,23 +25,16 @@ There are related papers, which aim to define (theoretical) metrix that highly c
   
 #### Multimedia classification task, MNIST
 
-Specify 
-1. number of samples used in computing attack success rate
-2. architecture
-3. distribution of S_{A} and S_{B} 
-
 Experimental Settings | Match ratio | Time (sta_adv_r) | Time(r) | # of pairs | size(S) | Attack | Defense | eps
 --- | --- | --- | --- |--- |--- |--- |--- |--- 
 Trail 1 | 0.7000 | 0.00528 | 0.43242 | 100 | 500 | FGSM | None | 0.001  
-Trail 2 | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 
-Trail 3 | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 
 
-(Describle how eps is related to the FGSM -> refer to the official Pytorch website) <br />
-(Describle that the unit of Time is second) <br />
-(Describle that r is actually 1 - attack sucess rate) <br />
-(Descirble that attack success rate is based on adversarial attacks genereated by test dataset, where we randomly select 1000 samples.) <br />
-(Descirble that you should ensure both f_{A} and f_{B} have similar capability, which is simply accurancy. In our experiments, one feasible approach is to train models approachine 100% accurancy) <br />
-(Same test dataset should be applied to verify f_{A} and f_{B})
+Implementation Details:
+1. Number of samples used for computing attack success rate: 1000
+2. Architecture: Two layer (one hidden layer) ReLU (fully-connected) neural netowrk  
+3. FGSM is generated according to the [Pytorch official website](https://pytorch.org/tutorials/beginner/fgsm_tutorial.html). For more effective attacks, I will conduct those once I receive the accessibility of hardware resource. 
+4. Actuacl robustness is calculated by 1 - attack sucess rate 
+5. Both <img src="README_images/f_A.png" align="center" border="0" alt=" f_{A}" width="21" height="19" /> and <img src="README_images/f_B.png" align="center" border="0" alt=" f_{B}" width="21" height="19" /> are trained by the same architecture (include preprocess and activation functions). 
 
 #### Approach 2: Leverage preconditions for the prediction postcondition in adversarial detection [5]
 
