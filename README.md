@@ -5,7 +5,7 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 
 ### RQ1: Can we design a metric to approximate the adversarial robustness efficiently?  
 
-#### Approach 1: Directly estimate the training dataset
+#### _Approach 1: Directly estimate the training dataset_ 
 
 There are related papers, which aim to define (theoretical) metrix that highly correlated to robustness. I place description of relevant work in Appendix 1.1. 
 
@@ -36,7 +36,7 @@ Implementation Details:
 4. Actuacl robustness is calculated by 1 - attack sucess rate 
 5. Both <img src="README_images/f_A.png" align="center" border="0" alt=" f_{A}" width="21" height="19" /> and <img src="README_images/f_B.png" align="center" border="0" alt=" f_{B}" width="21" height="19" /> are trained by the same architecture (include preprocess and activation functions). 
 
-#### Approach 2: Leverage preconditions for the prediction postcondition in adversarial detection [5]
+#### _Approach 2: Leverage preconditions for the prediction postcondition in adversarial detection [5]_
 
 #### Binary classification task (5 vs 7)
 
@@ -69,7 +69,8 @@ Implementation Deatils:
 5. Architecture: Two layer (one hidden layer) ReLU (fully-connected) neural netowrk  
 6. Attack: iterative FGSM (attack until the perturbed input is misclassified)
 
-Objective: 
+**Objective** <br />
+
 It should be able to achieve <b>low false negative (adversarial but regarded as benign) and acceptable false positive (benign but regarded as adversarial), which means that adversarial indentification rate should approach 100% and bengin indentification rate should acceptable.</b> 
 
 ## Appendix 
