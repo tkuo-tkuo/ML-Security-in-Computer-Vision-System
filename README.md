@@ -38,7 +38,7 @@ Implementation Details:
 
 Next Steps: 
 1. **(Running Experiment)** Measure on a set of architectures (Compare distribution instead of applying indicator function)
-2. Use statistical approach (instead of simple match ratio
+2. Use statistical approach (e.g., null test) instead of simple match ratio
 
 Discussion: 
 1. Design a dataset to have high sta_adv_r and another dataset to have low std_adv_r (Completed, but not actually meaningful) 
