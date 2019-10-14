@@ -57,6 +57,8 @@ Discussion:
 - Subset (first class) of precondition set: P5
 - Subset (second class) of precondition set: P7
 
+(One hidden layer ReLU network with input preconditions)
+
 \|S\| | \|S5\| | \|S7\| | \|P5\| | \|P7\| | Benign Indentification Rate | Adversarial Indentification Rate | Noised Inputs Included?
 --- | --- | --- | --- | --- | --- | --- | ---  
 500 | 227 | 273 | 71.090 (8.321) | 123.320 (14.118) | 63.8 (4.8)% | 32.3 (21.6)% | None
@@ -68,6 +70,8 @@ Discussion:
 3000 | 1364 | 1636 | 425.950 (95.574) | 716.310 (145.208) | 69.6 (6.3)% | 97.9 (3)% | None
 18000 (3000+15000) | 8185 | 9815 | 1226.650 (331.550) | 3299.600 (682.530) | 74.5 (5.8)% | 92.7 (6.7)% | Yes (Approach1)
 18000 (3000+15000) | 8185 | 9815 | 1548.330 (359.290) | 3975.600 (833.274) | 74.7 (5.5)% | 89.2 (8.3)% | Yes (Approach2)
+
+(Two hidden layer ReLU network with input preconditions)
 
 \|S\| | \|S5\| | \|S7\| | \|P5\| | \|P7\| | Benign Indentification Rate | Adversarial Indentification Rate | Noised Inputs Included?
 --- | --- | --- | --- | --- | --- | --- | ---  
@@ -81,9 +85,12 @@ Discussion:
 18000 (3000+15000) | 8185 | 9815 | 1205.820 (332.480) | 2549.280 (701.297) | 76.0 (6.3)% | 95.6 (6.9)% | Yes (Approach1)
 18000 (3000+15000) | 8185 | 9815 | 1427.990 (383.569) | 3360.290 (995.905) | 76.0 (7.4)% | 91.7 (8.3)% | Yes (Approach2)
 
+(Two hidden layer ReLU network with input+layer preconditions)
+
 \|S\| | \|S5\| | \|S7\| | \|P5\| | \|P7\| | Benign Indentification Rate | Adversarial Indentification Rate | Noised Inputs Included?
 --- | --- | --- | --- | --- | --- | --- | ---  
 500 | 227 | 273 | 105.100 (23.483) | 142.540 (26.623) | 57.9 (9.0)% | 51.1 (23.4)% | None
+3000 (500+2500) | 1362 | 1638 | 281.740 (65.357) | 533.430 (132.925) | 66.6 (7.6)% | 33.2 (17.2)% | Yes (Approach1)
 
 Implementation Deatils:
 1. All bengin and adversarial samples are generated according to MNIST dataset (size of 100)
