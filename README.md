@@ -62,7 +62,7 @@ Discussion:
 
   ## 
   
-  \|S\| | \|S5\| | \|S7\| | \|P5\| | \|P7\| | FPR | FNR | Input Augmentation
+  \|S\| | \|S5\| | \|S7\| | \|P5\| | \|P7\| | 1 - FPR | 1 - FNR | Input Augmentation
   --- | --- | --- | --- | --- | --- | --- | ---  
   500 | 227 | 273 | 71.090 (8.321) | 123.320 (14.118) | 63.8 (4.8)% | 32.3 (21.6)% | None
   3000 (500+2500) | 1362 | 1638 | 289.090 (24.717) | 644.110 (51.828) | 68.0 (3.5)% | 17.5 (12.0)% | Yes (Approach1)
@@ -77,11 +77,11 @@ Discussion:
 </details>
 
 <details>
-  <summary>Experiment 1: Detection via input preconditions on 2 hidden layer ReLU network</summary>
+  <summary>Experiment 2: Detection via input preconditions on 2 hidden layer ReLU network</summary>
 
   ## 
 
-  \|S\| | \|S5\| | \|S7\| | \|P5\| | \|P7\| | FPR | FNR | Input Augmentation
+  \|S\| | \|S5\| | \|S7\| | \|P5\| | \|P7\| | 1 - FPR | 1 - FNR | Input Augmentation
   --- | --- | --- | --- | --- | --- | --- | ---  
   500 | 227 | 273 | 102.920 (22.191) | 145.07 (27.156) | 57.9 (10.1)% | 46.8 (22.6)% | None
   3000 (500+2500) | 1362 | 1638 | 272.770 (63.876) | 469.120 (152.296) | 69.3 (7.3)% | 28.2 (16.0)% | Yes (Approach1)
@@ -96,13 +96,13 @@ Discussion:
 </details>
 
 <details>
-  <summary>Experiment 3: Detection via input preconditions on 3 layer ReLU network</summary>
+  <summary>Experiment 3: Detection via input preconditions on 3 hidden layer ReLU network</summary>
 
   ## 
 
-  \|S\| | \|S5\| | \|S7\| | \|P5\| | \|P7\| | FPR | FNR | Input Augmentation
+  \|S\| | \|S5\| | \|S7\| | \|P5\| | \|P7\| | 1 - FPR | 1 - FNR | Input Augmentation
   --- | --- | --- | --- | --- | --- | --- | ---  
-  500 | ? | ? | ? (?) | ? (?) | ? (?)% | ? (?)% | None
+  500 | 227 | 273 | 102.490 (22.727) | 126.32 (29.038) | 60.4 (8.6)% | 68.5 (21.1)% | None
 
 </details>
 
@@ -114,6 +114,25 @@ Implementation Deatils:
 4. Approach2 - append noise _~Normal(mean=0, std=0.1)_; 5 perturbed inputs are generated per input 
 5. Architecture: Two layer (one hidden layer) ReLU (fully-connected) neural netowrk  
 6. Attack: iterative FGSM (attack until the perturbed input is misclassified)
+
+Interesting Observations
+<details>
+  <summary>Observation 1: In the similar ReLU neural networks, we can observe the performance of detection increase dramatically with the increase of the complexity. To be more concise, when the model becomes more complicated, this approach can achieve lower FPR and FNR (by using provenance of the first layer).</summary>
+    
+  \|S\| | \|S5\| | \|S7\| | \|P5\| | \|P7\| | 1 - FPR | 1 - FNR | Input Augmentation | num of hidden layers
+  --- | --- | --- | --- | --- | --- | --- | --- | ---
+  500 | 227 | 273 | 71.090 (8.321) | 123.320 (14.118) | 63.8 (4.8)% | 32.3 (21.6)% | None | 1
+  500 | 227 | 273 | 102.920 (22.191) | 145.07 (27.156) | 57.9 (10.1)% | 46.8 (22.6)% | None | 2
+  500 | 227 | 273 | 102.490 (22.727) | 126.32 (29.038) | 60.4 (8.6)% | 68.5 (21.1)% | None | 3
+  1500 | 674 | 826 | 164.680 (28.098) | 223.410 (38.993) | 79.6 (4.2)% | 67.5 (17.4)% | None | 1
+  1500 | 674 | 826 | 199.360 (62.468) | 279.480 (71.816) | 76.9 (7.5)% | 79.8 (18.7)% | None | 2
+  1500 | 674 | 826 | 204.580 (58.297) | 299.240 (96.728( | 73.7 (7.2)% | 94.0 (14.7)% | None | 3
+  3000 | 1364 | 1636 | 425.950 (95.574) | 716.310 (145.208) | 69.6 (6.3)% | 97.9 (3)% | None | 1
+  3000 | 1364 | 1636 | 477.190 (121.253) | 683.120 (173.366) | 70.6 (6.6)% | 99.1 (2)% | None | 2
+  3000 | 1364 | 1636 | 502.220 (123.755) | 644.740 (170.400) | 70.7 (7.0)% | 99.96 (0.2%) | None | 3
+  
+</details>
+
 
 **Objective** <br />
 
@@ -136,4 +155,6 @@ Here we list out self-defined (related to our work) metrics that are correlated 
 [2] Ilyas, A., Santurkar, S., Tsipras, D., Engstrom, L., Tran, B., and Madry, A. Adversarial examples are not bugs, they are features. arXiv preprint arXiv:1905.02175, 2019. <br />
 [3] Ma, X., Li, B., Wang, Y., Erfani, S. M., Wijewickrema, S., Schoenebeck, G., Houle, M. E., Song, D., and Bailey, J. Characterizing adversarial subspaces using local intrinsic dimensionality. <br />
 [4] Mahloujifar, S., Zhang, X., Mahmoody, M., and Evans, D. Empirically measuring concentration: Fundamental limits on intrinsic robustness. Safe Machine Learning workshop at ICLR, 2019. <br />
-[5] Divya Gopinath, Hayes Converse, Corina S. Pasareanu, and Ankur Taly. Property Inference for Deep Neural Networks. ASE, 2019. 
+[5] Divya Gopinath, Hayes Converse, Corina S. Pasareanu, and Ankur Taly. Property Inference for Deep Neural Networks. ASE, 2019. <br />
+[6] NIC. <br />
+[7] Exploiting the Inherent Limitation of L0 Adversarial Examples <br />
