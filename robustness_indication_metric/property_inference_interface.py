@@ -25,14 +25,16 @@ class NormalC(nn.Module):
     def __init__(self):
         super().__init__()
         self.layer1 = nn.Linear(784, 64)
-        self.layer2 = nn.Linear(64, 10)
-        self.layer3 = nn.Linear(10, 2)
+        self.layer2 = nn.Linear(64, 32)
+        self.layer3 = nn.Linear(32, 10)
+        self.layer4 = nn.Linear(10, 2)
         self.relu = nn.ReLU()
 
     def forward(self, x):
         h1 = self.relu(self.layer1(x))
         h2 = self.relu(self.layer2(h1))
-        return self.layer3(h2)
+        h3 = self.relu(self.layer3(h2))
+        return self.layer4(h3)
 
 class PropertyInferenceInterface():
 
@@ -125,7 +127,7 @@ class PropertyInferenceInterface():
             model = NormalC()
         else:
             pass 
-        
+
         X, Y = self.train_dataset
 
         # Optimizer parameters
@@ -175,18 +177,36 @@ class PropertyInferenceInterface():
         # Grab the information
         x = torch.from_numpy(np.expand_dims(x, axis=0).astype(np.float32))
         h1 = model.relu(model.layer1(x))
-        
+
         h1[h1>0] = True
         precondition = h1.detach().numpy().astype(np.int64)
-        
-        # Return the extracted property 
-        return list(precondition[0])
+
+        set_of_precondition = list(precondition[0])
+
+        return set_of_precondition
+
+        # h2 = model.relu(model.layer2(h1))
+        # h2[h2>0] = True
+        # precondition = h2.detach().numpy().astype(np.int64)
+
+        # # concat set_of_precondition and list(precondition[0])
+        # set_of_precondition = set_of_precondition + list(precondition[0])
+
+        # # Return the extracted property 
+        # return set_of_precondition
 
     def generate_set_of_preconditions(self):
         X, Y = self.train_dataset
         model = self.model
         is_random_perturbed_inputs_included = self.meta_params['is_ran_per_included']
         random_distribution = self.meta_params['ran_dist']
+
+        # Subsample the training dataset if indicated 
+        if not (self.meta_params['subsample_ratio'] is None):
+            import math
+            ratio = self.meta_params['subsample_ratio']
+            new_train_dataset_size = math.floor(len(X) * ratio)
+            X, Y = X[:new_train_dataset_size], Y[:new_train_dataset_size] 
 
         first_F, second_F = [], []
         for i in range(len(X)):
@@ -277,7 +297,7 @@ class PropertyInferenceInterface():
             result = self.property_match(x, y)
             valid_count += result
 
-        assert valid_count == num_of_count
+        # assert valid_count == num_of_count
         # print('Evaluate on benign samples within train set (should acheieve 100%)')
         # print(valid_count, num_of_count, valid_count/num_of_count)
 
