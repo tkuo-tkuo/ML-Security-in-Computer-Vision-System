@@ -106,7 +106,6 @@ Discussion:
 
 </details>
 
-
 Implementation Deatils:
 1. All bengin and adversarial samples are generated according to MNIST dataset (size of 100)
 2. Values in () indicate standard deviation 
@@ -122,15 +121,18 @@ Interesting Observations
   \|S\| | \|S5\| | \|S7\| | \|P5\| | \|P7\| | 1 - FPR | 1 - FNR | Input Augmentation | num of hidden layers
   --- | --- | --- | --- | --- | --- | --- | --- | ---
   500 | 227 | 273 | 71.090 (8.321) | 123.320 (14.118) | 63.8 (4.8)% | 32.3 (21.6)% | None | 1
-  500 | 227 | 273 | 102.920 (22.191) | 145.07 (27.156) | 57.9 (10.1)% | 46.8 (22.6)% | None | 2
-  500 | 227 | 273 | 102.490 (22.727) | 126.32 (29.038) | 60.4 (8.6)% | 68.5 (21.1)% | None | 3
+  500 | 227 | 273 | 102.920 (22.191) | 145.070 (27.156) | 57.9 (10.1)% | 46.8 (22.6)% | None | 2
+  500 | 227 | 273 | 102.490 (22.727) | 126.320 (29.038) | 60.4 (8.6)% | 68.5 (21.1)% | None | 3
+  500 | 227 | 273 | 97.380 (26.759) | 114.860 (34.343) | 63.6 (9.5)% | 72.6 (24.6)% | None | 4
   1500 | 674 | 826 | 164.680 (28.098) | 223.410 (38.993) | 79.6 (4.2)% | 67.5 (17.4)% | None | 1
   1500 | 674 | 826 | 199.360 (62.468) | 279.480 (71.816) | 76.9 (7.5)% | 79.8 (18.7)% | None | 2
-  1500 | 674 | 826 | 204.580 (58.297) | 299.240 (96.728( | 73.7 (7.2)% | 94.0 (14.7)% | None | 3
+  1500 | 674 | 826 | 204.580 (58.297) | 299.240 (96.728) | 73.7 (7.2)% | 94.0 (14.7)% | None | 3
+  1500 | 674 | 826 | 205.300 (54.620) | 268.710 (80.692) | 74.5 (6.9)% | 98.6 (4.3)% | None | 4
   3000 | 1364 | 1636 | 425.950 (95.574) | 716.310 (145.208) | 69.6 (6.3)% | 97.9 (3)% | None | 1
   3000 | 1364 | 1636 | 477.190 (121.253) | 683.120 (173.366) | 70.6 (6.6)% | 99.1 (2)% | None | 2
-  3000 | 1364 | 1636 | 502.220 (123.755) | 644.740 (170.400) | 70.7 (7.0)% | 99.96 (0.2%) | None | 3
-  
+  3000 | 1364 | 1636 | 502.220 (123.755) | 644.740 (170.400) | 70.7 (7.0)% | 99.96 (0.2)% | None | 3
+  3000 | 1364 | 1636 | 523.530 (136.136) | 652.190 (203.043) | 69.8 (6.3)% | 99.91 (0.3)% | None | 4
+
   Jotting for architectures
   - 784 64 2 (1)
   - 784 64 10 2 (2)
@@ -139,9 +141,10 @@ Interesting Observations
   
 </details>
 
-**Objective** <br />
-
-It should be able to achieve <b>low false negative (adversarial but regarded as benign) and acceptable false positive (benign but regarded as adversarial), which means that adversarial indentification rate should approach 100% and bengin indentification rate should acceptable.</b> 
+<details>
+  <summary>Observation 2: We can observe the performance of detection increase dramatically with the increase of the size of training dataset. (Also use th table in Observation 1 to draw comparision between the same nn but different size of training dataset)</summary>
+  
+</details>
 
 ## Appendix 
 
