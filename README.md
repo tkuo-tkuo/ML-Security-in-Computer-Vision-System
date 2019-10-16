@@ -57,40 +57,55 @@ Discussion:
 - Subset (first class) of precondition set: P5
 - Subset (second class) of precondition set: P7
 
-(One hidden layer ReLU network with input preconditions)
+<details>
+  <summary>Experiment 1: Detection via input preconditions on 1 hidden layer ReLU network</summary>
 
-\|S\| | \|S5\| | \|S7\| | \|P5\| | \|P7\| | Benign Indentification Rate | Adversarial Indentification Rate | Noised Inputs Included?
---- | --- | --- | --- | --- | --- | --- | ---  
-500 | 227 | 273 | 71.090 (8.321) | 123.320 (14.118) | 63.8 (4.8)% | 32.3 (21.6)% | None
-3000 (500+2500) | 1362 | 1638 | 289.090 (24.717) | 644.110 (51.828) | 68.0 (3.5)% | 17.5 (12.0)% | Yes (Approach1)
-3000 (500+2500) | 1362 | 1638 | 365.170 (40.151) | 742.320 (93.065) | 68.3 (3.6)% | 14.8 (10.5)% | Yes (Approach2)
-1500 | 674 | 826 | 164.680 (28.098) | 223.410 (38.993) | 79.6 (4.2)% | 67.5 (17.4)% | None
-9000 (1500+7500) | 4044 | 4956 | 574.650 (82.479) | 1090.800 (186.220) | 83.7 (3.6)% | 52.4 (17.2)% | Yes (Approach1)
-9000 (1500+7500) | 4044 | 4956 | 682.920 (102.169) | 1378.340 (216.134) | 84.8 (3.4)% | 45.9 (15.8)% | Yes (Approach2)
-3000 | 1364 | 1636 | 425.950 (95.574) | 716.310 (145.208) | 69.6 (6.3)% | 97.9 (3)% | None
-18000 (3000+15000) | 8185 | 9815 | 1226.650 (331.550) | 3299.600 (682.530) | 74.5 (5.8)% | 92.7 (6.7)% | Yes (Approach1)
-18000 (3000+15000) | 8185 | 9815 | 1548.330 (359.290) | 3975.600 (833.274) | 74.7 (5.5)% | 89.2 (8.3)% | Yes (Approach2)
+  ## 
+  
+  \|S\| | \|S5\| | \|S7\| | \|P5\| | \|P7\| | FPR | FNR | Input Augmentation
+  --- | --- | --- | --- | --- | --- | --- | ---  
+  500 | 227 | 273 | 71.090 (8.321) | 123.320 (14.118) | 63.8 (4.8)% | 32.3 (21.6)% | None
+  3000 (500+2500) | 1362 | 1638 | 289.090 (24.717) | 644.110 (51.828) | 68.0 (3.5)% | 17.5 (12.0)% | Yes (Approach1)
+  3000 (500+2500) | 1362 | 1638 | 365.170 (40.151) | 742.320 (93.065) | 68.3 (3.6)% | 14.8 (10.5)% | Yes (Approach2)
+  1500 | 674 | 826 | 164.680 (28.098) | 223.410 (38.993) | 79.6 (4.2)% | 67.5 (17.4)% | None
+  9000 (1500+7500) | 4044 | 4956 | 574.650 (82.479) | 1090.800 (186.220) | 83.7 (3.6)% | 52.4 (17.2)% | Yes (Approach1)
+  9000 (1500+7500) | 4044 | 4956 | 682.920 (102.169) | 1378.340 (216.134) | 84.8 (3.4)% | 45.9 (15.8)% | Yes (Approach2)
+  3000 | 1364 | 1636 | 425.950 (95.574) | 716.310 (145.208) | 69.6 (6.3)% | 97.9 (3)% | None
+  18000 (3000+15000) | 8185 | 9815 | 1226.650 (331.550) | 3299.600 (682.530) | 74.5 (5.8)% | 92.7 (6.7)% | Yes (Approach1)
+  18000 (3000+15000) | 8185 | 9815 | 1548.330 (359.290) | 3975.600 (833.274) | 74.7 (5.5)% | 89.2 (8.3)% | Yes (Approach2)
+  
+</details>
 
-(Two hidden layer ReLU network with input preconditions)
+<details>
+  <summary>Experiment 1: Detection via input preconditions on 2 hidden layer ReLU network</summary>
 
-\|S\| | \|S5\| | \|S7\| | \|P5\| | \|P7\| | Benign Indentification Rate | Adversarial Indentification Rate | Noised Inputs Included?
---- | --- | --- | --- | --- | --- | --- | ---  
-500 | 227 | 273 | 102.920 (22.191) | 145.07 (27.156) | 57.9 (10.1)% | 46.8 (22.6)% | None
-3000 (500+2500) | 1362 | 1638 | 272.770 (63.876) | 469.120 (152.296) | 69.3 (7.3)% | 28.2 (16.0)% | Yes (Approach1)
-3000 (500+2500) | 1362 | 1638 | 338.890 (97.934) | 584.250 (181.626) | 68.0 (8.8)% | 28.2 (14.9)% | Yes (Approach2)
-1500 | 674 | 826 | 199.360 (62.468) | 279.480 (71.816) | 76.9 (7.5)% | 79.8 (18.7)% | None
-9000 (1500+7500) | 4044 | 4956 | 524.450 (161.528) | 914.390 (239.864) | 82.9 (5.3)% | 64.7 (22.9)% | Yes (Approach1)
-9000 (1500+7500) | 4044 | 4956 | 651.990 (205.734) | 1189.720 (363.669) | 82.9 (5.8)% | 58.7 (19.8)% | Yes (Approach2)
-3000 | 1364 | 1636 | 477.190 (121.253) | 683.120 (173.366) | 70.6 (6.6)% | 99.1 (2)% | None
-18000 (3000+15000) | 8185 | 9815 | 1205.820 (332.480) | 2549.280 (701.297) | 76.0 (6.3)% | 95.6 (6.9)% | Yes (Approach1)
-18000 (3000+15000) | 8185 | 9815 | 1427.990 (383.569) | 3360.290 (995.905) | 76.0 (7.4)% | 91.7 (8.3)% | Yes (Approach2)
+  ## 
 
-(Two hidden layer ReLU network with input+layer preconditions)
+  \|S\| | \|S5\| | \|S7\| | \|P5\| | \|P7\| | FPR | FNR | Input Augmentation
+  --- | --- | --- | --- | --- | --- | --- | ---  
+  500 | 227 | 273 | 102.920 (22.191) | 145.07 (27.156) | 57.9 (10.1)% | 46.8 (22.6)% | None
+  3000 (500+2500) | 1362 | 1638 | 272.770 (63.876) | 469.120 (152.296) | 69.3 (7.3)% | 28.2 (16.0)% | Yes (Approach1)
+  3000 (500+2500) | 1362 | 1638 | 338.890 (97.934) | 584.250 (181.626) | 68.0 (8.8)% | 28.2 (14.9)% | Yes (Approach2)
+  1500 | 674 | 826 | 199.360 (62.468) | 279.480 (71.816) | 76.9 (7.5)% | 79.8 (18.7)% | None
+  9000 (1500+7500) | 4044 | 4956 | 524.450 (161.528) | 914.390 (239.864) | 82.9 (5.3)% | 64.7 (22.9)% | Yes (Approach1)
+  9000 (1500+7500) | 4044 | 4956 | 651.990 (205.734) | 1189.720 (363.669) | 82.9 (5.8)% | 58.7 (19.8)% | Yes (Approach2)
+  3000 | 1364 | 1636 | 477.190 (121.253) | 683.120 (173.366) | 70.6 (6.6)% | 99.1 (2)% | None
+  18000 (3000+15000) | 8185 | 9815 | 1205.820 (332.480) | 2549.280 (701.297) | 76.0 (6.3)% | 95.6 (6.9)% | Yes (Approach1)
+  18000 (3000+15000) | 8185 | 9815 | 1427.990 (383.569) | 3360.290 (995.905) | 76.0 (7.4)% | 91.7 (8.3)% | Yes (Approach2)
 
-\|S\| | \|S5\| | \|S7\| | \|P5\| | \|P7\| | Benign Indentification Rate | Adversarial Indentification Rate | Noised Inputs Included?
---- | --- | --- | --- | --- | --- | --- | ---  
-500 | 227 | 273 | 105.100 (23.483) | 142.540 (26.623) | 57.9 (9.0)% | 51.1 (23.4)% | None
-3000 (500+2500) | 1362 | 1638 | 281.740 (65.357) | 533.430 (132.925) | 66.6 (7.6)% | 33.2 (17.2)% | Yes (Approach1)
+</details>
+
+<details>
+  <summary>Experiment 3: Detection via input preconditions on 3 layer ReLU network</summary>
+
+  ## 
+
+  \|S\| | \|S5\| | \|S7\| | \|P5\| | \|P7\| | FPR | FNR | Input Augmentation
+  --- | --- | --- | --- | --- | --- | --- | ---  
+  500 | ? | ? | ? (?) | ? (?) | ? (?)% | ? (?)% | None
+
+</details>
+
 
 Implementation Deatils:
 1. All bengin and adversarial samples are generated according to MNIST dataset (size of 100)
@@ -99,13 +114,6 @@ Implementation Deatils:
 4. Approach2 - append noise _~Normal(mean=0, std=0.1)_; 5 perturbed inputs are generated per input 
 5. Architecture: Two layer (one hidden layer) ReLU (fully-connected) neural netowrk  
 6. Attack: iterative FGSM (attack until the perturbed input is misclassified)
-
-Next Steps: 
-1. Experiment on a bigger (one hidden layer -> two hidden layer) ReLU neural network
-2. Exploit layer feature 
-
-Discussion: 
-1. Is it a potential direction? 
 
 **Objective** <br />
 
