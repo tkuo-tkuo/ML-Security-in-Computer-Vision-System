@@ -162,8 +162,8 @@ Interesting Observations
 </details>
 
 To-Do 
-- Complexity of model vs distribution of FPR and FNR
-- Size of train dataset vs distribution of FPR and FNR
+- CNN 
+- Consider the correlation between size of |P5| and |P7| with (1_FPR) and (1-FNR)
 - Augmentation of train dataset vs distribution of FPR and FNR
 - Unify the format of citations
 - Enlarge the table to include 0qr(min)/1qr/2qr(medium)/3qr/4qr(max)
