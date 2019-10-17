@@ -67,10 +67,10 @@ Discussion:
   500 | 227 | 273 | 70.850 (9.358) | 121.430 (15.163) | 64.0 (4.3)% | 34.5 (21.7)% | None 
   3000 (500+2500) | 1362 | 1638 | 289.090 (24.717) | 644.110 (51.828) | 68.0 (3.5)% | 17.5 (12.0)% | Yes (Approach1)
   3000 (500+2500) | 1362 | 1638 | 365.170 (40.151) | 742.320 (93.065) | 68.3 (3.6)% | 14.8 (10.5)% | Yes (Approach2)
-  1500 | 674 | 826 | 164.680 (28.098) | 223.410 (38.993) | 79.6 (4.2)% | 67.5 (17.4)% | None
+  1500 | 674 | 826 | 162.900 (24.819) | 223.570 (38.956) | 79.7 (4.3)% | 65.2 (16.1)% | None
   9000 (1500+7500) | 4044 | 4956 | 574.650 (82.479) | 1090.800 (186.220) | 83.7 (3.6)% | 52.4 (17.2)% | Yes (Approach1)
   9000 (1500+7500) | 4044 | 4956 | 682.920 (102.169) | 1378.340 (216.134) | 84.8 (3.4)% | 45.9 (15.8)% | Yes (Approach2)
-  3000 | 1364 | 1636 | 425.950 (95.574) | 716.310 (145.208) | 69.6 (6.3)% | 97.9 (3)% | None
+  3000 | 1364 | 1636 | 432.980 (93.588) | 738.560 (175.844) | 68.8 (6.5)% | 98.2 (3)% | None 
   18000 (3000+15000) | 8185 | 9815 | 1226.650 (331.550) | 3299.600 (682.530) | 74.5 (5.8)% | 92.7 (6.7)% | Yes (Approach1)
   18000 (3000+15000) | 8185 | 9815 | 1548.330 (359.290) | 3975.600 (833.274) | 74.7 (5.5)% | 89.2 (8.3)% | Yes (Approach2)
   
@@ -83,7 +83,7 @@ Discussion:
 
   \|S\| | \|S5\| | \|S7\| | \|P5\| | \|P7\| | 1 - FPR | 1 - FNR | Input Augmentation
   --- | --- | --- | --- | --- | --- | --- | ---  
-  500 | 227 | 273 | 102.920 (22.191) | 145.07 (27.156) | 57.9 (10.1)% | 46.8 (22.6)% | None
+  500 | 227 | 273 | 99.480 (21.718) | 141.360 (29.135) | 59.1 (9.2)% | 43.2 (21.9)% | None 
   3000 (500+2500) | 1362 | 1638 | 272.770 (63.876) | 469.120 (152.296) | 69.3 (7.3)% | 28.2 (16.0)% | Yes (Approach1)
   3000 (500+2500) | 1362 | 1638 | 338.890 (97.934) | 584.250 (181.626) | 68.0 (8.8)% | 28.2 (14.9)% | Yes (Approach2)
   1500 | 674 | 826 | 199.360 (62.468) | 279.480 (71.816) | 76.9 (7.5)% | 79.8 (18.7)% | None
@@ -105,19 +105,21 @@ Implementation Deatils:
 
 Interesting Observations
 <details>
-  <summary>Observation 1: In the similar ReLU neural networks, we can observe the performance of detection increase dramatically with the increase of the complexity. To be more concise, when the model becomes more complicated, this approach can achieve lower FPR and FNR (by using provenance of the first layer).</summary>
+  <summary>Observation 1: Relationship between the complexity of neural networks and detection performance in terms FPR and FNR.</summary>
+  
+  In the similar ReLU neural networks, we can observe the performance of detection increase dramatically with the increase of the complexity. To be more concise, when the model becomes more complicated, this approach can achieve lower FPR and FNR (by using provenance of the first layer).
     
   \|S\| | \|S5\| | \|S7\| | \|P5\| | \|P7\| | 1 - FPR | 1 - FNR | Input Augmentation | num of hidden layers
   --- | --- | --- | --- | --- | --- | --- | --- | ---
   500 | 227 | 273 | 70.850 (9.358) | 121.430 (15.163) | 64.0 (4.3)% | 34.5 (21.7)% | None | 1
-  500 | 227 | 273 | 102.920 (22.191) | 145.070 (27.156) | 57.9 (10.1)% | 46.8 (22.6)% | None | 2
+  500 | 227 | 273 | 99.480 (21.718) | 141.360 (29.135) | 59.1 (9.2)% | 43.2 (21.9)% | None | 2
   500 | 227 | 273 | 102.490 (22.727) | 126.320 (29.038) | 60.4 (8.6)% | 68.5 (21.1)% | None | 3
   500 | 227 | 273 | 97.380 (26.759) | 114.860 (34.343) | 63.6 (9.5)% | 72.6 (24.6)% | None | 4
-  1500 | 674 | 826 | 164.680 (28.098) | 223.410 (38.993) | 79.6 (4.2)% | 67.5 (17.4)% | None | 1
+  1500 | 674 | 826 | 162.900 (24.819) | 223.570 (38.956) | 79.7 (4.3)% | 65.2 (16.1)% | None | 1
   1500 | 674 | 826 | 199.360 (62.468) | 279.480 (71.816) | 76.9 (7.5)% | 79.8 (18.7)% | None | 2
   1500 | 674 | 826 | 204.580 (58.297) | 299.240 (96.728) | 73.7 (7.2)% | 94.0 (14.7)% | None | 3
   1500 | 674 | 826 | 205.300 (54.620) | 268.710 (80.692) | 74.5 (6.9)% | 98.6 (4.3)% | None | 4
-  3000 | 1364 | 1636 | 425.950 (95.574) | 716.310 (145.208) | 69.6 (6.3)% | 97.9 (3)% | None | 1
+  3000 | 1364 | 1636 | 432.980 (93.588) | 738.560 (175.844) | 68.8 (6.5)% | 98.2 (3)% | None | 1
   3000 | 1364 | 1636 | 477.190 (121.253) | 683.120 (173.366) | 70.6 (6.6)% | 99.1 (2)% | None | 2
   3000 | 1364 | 1636 | 502.220 (123.755) | 644.740 (170.400) | 70.7 (7.0)% | 99.96 (0.2)% | None | 3
   3000 | 1364 | 1636 | 523.530 (136.136) | 652.190 (203.043) | 69.8 (6.3)% | 99.91 (0.3)% | None | 4
@@ -134,6 +136,12 @@ Interesting Observations
   <summary>Observation 2: We can observe the performance of detection increase dramatically with the increase of the size of training dataset. (Also use th table in Observation 1 to draw comparision between the same nn but different size of training dataset)</summary>
   
 </details>
+
+To-Do 
+- Complexity of model vs distribution of FPR and FNR
+- Size of train dataset vs distribution of FPR and FNR
+- Augmentation of train dataset vs distribution of FPR and FNR
+- Unify the format of citations
 
 ## Appendix 
 
