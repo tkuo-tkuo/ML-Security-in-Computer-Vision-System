@@ -58,7 +58,7 @@ Discussion:
 - Subset (second class) of precondition set: P7
 
 <details>
-  <summary>Experiment 1: Detection via input preconditions on 1 hidden layer ReLU network</summary>
+  <summary>Table 1: Detection via input preconditions on 1 hidden layer ReLU network</summary>
 
   ## 
   
@@ -77,7 +77,7 @@ Discussion:
 </details>
 
 <details>
-  <summary>Experiment 2: Detection via input preconditions on 2 hidden layer ReLU network</summary>
+  <summary>Table 2: Detection via input preconditions on 2 hidden layer ReLU network</summary>
 
   ## 
 
@@ -105,7 +105,7 @@ Implementation Deatils:
 
 Interesting Observations
 <details>
-  <summary>Observation 1: Relationship between the complexity (depth) of ReLU neural networks and detection performance (FPR & FNR)</summary>
+  <summary>Experiment 1: Relationship between the complexity (depth) of ReLU neural networks and detection performance (FPR & FNR)</summary>
   
   In the similar ReLU neural networks, we can observe the performance of detection increase dramatically with the increase of the complexity. To be more concise, when the model becomes more complicated, this approach can achieve lower FPR and FNR (by using provenance of the first layer).
     
@@ -127,37 +127,37 @@ Interesting Observations
   <div align="center">
   FPR & FNR of adversarial detection among ReLU neural networks with various depth (|S| = 500) 
   </div>
-  <img src="Images/Exp1/exp1_500.png" align="center" border="0" width="1200" height="150"/>
+  <img src="Images/Exp1/exp1_500.png" align="center" border="0" width="1200" height="170"/>
   <div align="center">
   FPR & FNR of adversarial detection among ReLU neural networks with various depth (|S| = 1500) 
   </div>
-  <img src="Images/Exp1/exp1_1500.png" align="center" border="0" width="1200" height="150"/>
+  <img src="Images/Exp1/exp1_1500.png" align="center" border="0" width="1200" height="170"/>
   <div align="center">
   FPR & FNR of adversarial detection among ReLU neural networks with various depth (|S| = 3500) 
   </div>
-  <img src="Images/Exp1/exp1_3000.png" align="center" border="0" width="1200" height="150"/>
+  <img src="Images/Exp1/exp1_3000.png" align="center" border="0" width="1200" height="170"/>
   
 </details>
 
 <details>
-  <summary>Observation 2: Relationship between the size of training set and detection performance (FPR & FNR)</summary>
+  <summary>Experiment 2: Relationship between the size of training set and detection performance (FPR & FNR)</summary>
   
   <div align="center">
   FPR & FNR of adversarial detection among ReLU neural networks trained with various |S| (# of hidden layers = 1) 
   </div>
-  <img src="Images/Exp2/exp2_1.png" align="center" border="0" width="1200" height="150"/>
+  <img src="Images/Exp2/exp2_1.png" align="center" border="0" width="1200" height="170"/>
   <div align="center">
   FPR & FNR of adversarial detection among ReLU neural networks trained with various |S| (# of hidden layers = 2) 
   </div>
-  <img src="Images/Exp2/exp2_2.png" align="center" border="0" width="1200" height="150"/>
+  <img src="Images/Exp2/exp2_2.png" align="center" border="0" width="1200" height="170"/>
   <div align="center">
   FPR & FNR of adversarial detection among ReLU neural networks trained with various |S| (# of hidden layers = 3) 
   </div>
-  <img src="Images/Exp2/exp2_3.png" align="center" border="0" width="1200" height="150"/>
+  <img src="Images/Exp2/exp2_3.png" align="center" border="0" width="1200" height="170"/>
   <div align="center">
   FPR & FNR of adversarial detection among ReLU neural networks trained with various |S| (# of hidden layers = 4) 
   </div>
-  <img src="Images/Exp2/exp2_4.png" align="center" border="0" width="1200" height="150"/>  
+  <img src="Images/Exp2/exp2_4.png" align="center" border="0" width="1200" height="170"/>  
   
 </details>
 
