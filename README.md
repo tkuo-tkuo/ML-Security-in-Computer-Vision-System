@@ -105,7 +105,7 @@ Implementation Deatils:
 
 Interesting Observations
 <details>
-  <summary>Observation 1: Relationship between the complexity of neural networks and detection performance in terms FPR and FNR.</summary>
+  <summary>Observation 1: Relationship between the complexity (depth) of ReLU neural networks and detection performance (FPR & FNR)</summary>
   
   In the similar ReLU neural networks, we can observe the performance of detection increase dramatically with the increase of the complexity. To be more concise, when the model becomes more complicated, this approach can achieve lower FPR and FNR (by using provenance of the first layer).
     
@@ -124,15 +124,40 @@ Interesting Observations
   3000 | 1364 | 1636 | 502.220 (123.755) | 644.740 (170.400) | 70.7 (7.0)% | 99.96 (0.2)% | None | 3
   3000 | 1364 | 1636 | 523.530 (136.136) | 652.190 (203.043) | 69.8 (6.3)% | 99.91 (0.3)% | None | 4
 
-  Draw a chart to compare same |S| but different number of hidden layers 
-  - (chart 1)
-  - (chart 2)
-  - (chart 3)
+  <div align="center">
+  FPR & FNR of adversarial detection among ReLU neural networks with various depth (|S| = 500) 
+  </div>
+  <img src="Images/Exp1/exp1_500.png" align="center" border="0" width="1200" height="150"/>
+  <div align="center">
+  FPR & FNR of adversarial detection among ReLU neural networks with various depth (|S| = 1500) 
+  </div>
+  <img src="Images/Exp1/exp1_1500.png" align="center" border="0" width="1200" height="150"/>
+  <div align="center">
+  FPR & FNR of adversarial detection among ReLU neural networks with various depth (|S| = 3500) 
+  </div>
+  <img src="Images/Exp1/exp1_3000.png" align="center" border="0" width="1200" height="150"/>
   
 </details>
 
 <details>
-  <summary>Observation 2: We can observe the performance of detection increase dramatically with the increase of the size of training dataset. (Also use th table in Observation 1 to draw comparision between the same nn but different size of training dataset)</summary>
+  <summary>Observation 2: Relationship between the size of training set and detection performance (FPR & FNR)</summary>
+  
+  <div align="center">
+  FPR & FNR of adversarial detection among ReLU neural networks trained with various |S| (# of hidden layers = 1) 
+  </div>
+  <img src="Images/Exp2/exp2_1.png" align="center" border="0" width="1200" height="150"/>
+  <div align="center">
+  FPR & FNR of adversarial detection among ReLU neural networks trained with various |S| (# of hidden layers = 2) 
+  </div>
+  <img src="Images/Exp2/exp2_2.png" align="center" border="0" width="1200" height="150"/>
+  <div align="center">
+  FPR & FNR of adversarial detection among ReLU neural networks trained with various |S| (# of hidden layers = 3) 
+  </div>
+  <img src="Images/Exp2/exp2_3.png" align="center" border="0" width="1200" height="150"/>
+  <div align="center">
+  FPR & FNR of adversarial detection among ReLU neural networks trained with various |S| (# of hidden layers = 4) 
+  </div>
+  <img src="Images/Exp2/exp2_4.png" align="center" border="0" width="1200" height="150"/>  
   
 </details>
 
@@ -141,6 +166,7 @@ To-Do
 - Size of train dataset vs distribution of FPR and FNR
 - Augmentation of train dataset vs distribution of FPR and FNR
 - Unify the format of citations
+- Enlarge the table to include 0qr(min)/1qr/2qr(medium)/3qr/4qr(max)
 
 Jotting for architectures (Move them to appendix in the future)
 - 784 64 2 (1)
