@@ -187,6 +187,8 @@ Trivial
 - None
 
 To-Do 
+- Update all h=3 & h=4
+- Update all figures in exp1 and exp2
 - CNN 
 - Conduct experiments on 10-classes 
 - Consider the correlation between size of |P5| and |P7| with (1_FPR) and (1-FNR)
