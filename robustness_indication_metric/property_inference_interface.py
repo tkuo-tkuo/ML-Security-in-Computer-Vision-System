@@ -25,16 +25,38 @@ class NormalC(nn.Module):
     def __init__(self):
         super().__init__()
         self.layer1 = nn.Linear(784, 64)
-        self.layer2 = nn.Linear(64, 32)
-        self.layer3 = nn.Linear(32, 10)
-        self.layer4 = nn.Linear(10, 2)
+        self.layer2 = nn.Linear(64, 10)
+        self.layer3 = nn.Linear(10, 2)
+        # self.layer3 = nn.Linear(32, 20)
+        # self.layer4 = nn.Linear(20, 10)
+        # self.layer5 = nn.Linear(10, 2)
         self.relu = nn.ReLU()
 
     def forward(self, x):
         h1 = self.relu(self.layer1(x))
         h2 = self.relu(self.layer2(h1))
-        h3 = self.relu(self.layer3(h2))
-        return self.layer4(h3)
+        # h3 = self.relu(self.layer3(h2))
+        # h4 = self.relu(self.layer4(h3))
+        # return self.layer5(h4)
+        return self.layer3(h2)
+
+class CNN(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.conv1 = nn.Conv2d(1, 16, kernel_size=5)
+        self.conv2 = nn.Conv2d(16, 16, kernel_size=5)
+        self.conv3 = nn.Conv2d(16, 32, kernel_size=5)
+        self.fc1 = nn.Linear(3*3*32, 64)
+        self.fc2 = nn.Linear(64, 2)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x)) # (24, 24, 16)
+        x = F.relu(F.max_pool2d(self.conv2(x), 2)) # (20, 20, 16) -> (10, 10, 16)
+        x = F.relu(F.max_pool2d(self.conv3(x), 2)) # (6, 6, 32) -> (3, 3, 32)
+        x = x.view(-1, 3*3*32)
+        x = F.relu(self.fc1(x))
+        x = self.fc2(x)
+        return F.log_softmax(x, dim=1)
 
 class PropertyInferenceInterface():
 
@@ -70,7 +92,11 @@ class PropertyInferenceInterface():
         size_of_dataset = self.meta_params['size_of_train_set']        
         
         for (samples, labels) in self.train_loader:
-            X = samples.reshape(-1, 784).numpy()
+            if self.meta_params['flatten'] is True:
+                X = samples.reshape(-1, 784).numpy()
+            else:
+                # X = samples.reshape(-1, 28, 28, 1).numpy()
+                X = samples.numpy()
             Y = (labels.numpy())
         
             X = np.array([x for (idx, x) in enumerate(X) if (Y[idx]==first_class or Y[idx]==second_class)])[:size_of_dataset]
@@ -87,7 +113,11 @@ class PropertyInferenceInterface():
         size_of_dataset = self.meta_params['size_of_test_set']
 
         for (samples, labels) in self.test_loader:
-            X = samples.reshape(-1, 784).numpy()
+            if self.meta_params['flatten'] is True:
+                X = samples.reshape(-1, 784).numpy()
+            else:
+                # X = samples.reshape(-1, 28, 28, 1).numpy()
+                X = samples.numpy()
             Y = (labels.numpy())
         
             X = np.array([x for (idx, x) in enumerate(X) if (Y[idx]==first_class or Y[idx]==second_class)])[:size_of_dataset]
@@ -120,13 +150,13 @@ class PropertyInferenceInterface():
                 
         plt.show()
 
-    def generate_model(self):
+    def generate_model(self, num_of_epochs=15):
         if self.meta_params['model_type'] == 'naive':
             model = NaiveC()
         elif self.meta_params['model_type'] == 'normal':
             model = NormalC()
-        else:
-            pass 
+        elif self.meta_params['model_type'] == 'CNN':
+            model = CNN()
 
         X, Y = self.train_dataset
 
@@ -136,7 +166,6 @@ class PropertyInferenceInterface():
         optimizer = torch.optim.Adam(model.parameters(), lr=lr)
         
         # Training
-        num_of_epochs = 15
         for epoch in range(num_of_epochs):
             for idx, data in enumerate(X):
 
@@ -160,7 +189,7 @@ class PropertyInferenceInterface():
 
         datas = torch.from_numpy(X.astype(np.float32))
         labels = torch.from_numpy(Y.astype(np.int64))
-
+        
         # Forwarding
         outputs = model.forward(datas).detach().numpy()
         predictions = np.argmax(outputs, axis=1)
@@ -168,32 +197,32 @@ class PropertyInferenceInterface():
         total = labels.shape[0]
         correct = (predictions == labels.numpy()).sum().item()
         acc = correct/total
-        
+            
         print('Model (train) accurancy:', acc)
+        return acc
 
     def extract_precondition(self, x, y):
-        model = self.model
+        model = self.model 
 
         # Grab the information
-        x = torch.from_numpy(np.expand_dims(x, axis=0).astype(np.float32))
-        h1 = model.relu(model.layer1(x))
-
-        h1[h1>0] = True
-        precondition = h1.detach().numpy().astype(np.int64)
-
-        set_of_precondition = list(precondition[0])
+        if self.meta_params['model_type'] == 'CNN':
+            x = torch.from_numpy(np.expand_dims(x, axis=0).astype(np.float32))
+            x = F.relu(model.conv1(x))
+            x = F.relu(F.max_pool2d(model.conv2(x), 2))
+            x = F.relu(F.max_pool2d(model.conv3(x), 2))
+            x = x.view(-1, 3*3*64)
+            h1 = F.relu(model.fc1(x))
+            h1[h1>0] = True
+            precondition = h1.reshape(-1).detach().numpy().astype(np.int64)
+            set_of_precondition = list(precondition)
+        else:
+            x = torch.from_numpy(np.expand_dims(x, axis=0).astype(np.float32))
+            h1 = model.relu(model.layer1(x))
+            h1[h1>0] = True
+            precondition = h1.detach().numpy().astype(np.int64)
+            set_of_precondition = list(precondition[0])
 
         return set_of_precondition
-
-        # h2 = model.relu(model.layer2(h1))
-        # h2[h2>0] = True
-        # precondition = h2.detach().numpy().astype(np.int64)
-
-        # # concat set_of_precondition and list(precondition[0])
-        # set_of_precondition = set_of_precondition + list(precondition[0])
-
-        # # Return the extracted property 
-        # return set_of_precondition
 
     def generate_set_of_preconditions(self):
         X, Y = self.train_dataset
@@ -264,6 +293,7 @@ class PropertyInferenceInterface():
         self.property_set = [uniq_first_F, uniq_second_F]
 
     def print_set_of_preconditions(self):
+        print('Length of each precondition (provenance):', len(self.first_F[0]))
         print('Total Input Properties extracted for the first class:', len(self.first_F))
         print('Total Input Properties extracted for the second class:', len(self.second_F))
         print('Total Input Properties extracted for the first class (unique):', len(self.uniq_first_F))
@@ -325,6 +355,7 @@ class PropertyInferenceInterface():
         valid_count = 0        
         success_count = 0
         for i in range(num_of_count):
+            print(i)
             x, y = test_X[i], test_Y[i]
 
             is_attack_successful = False 
