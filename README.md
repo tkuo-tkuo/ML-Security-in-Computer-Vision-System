@@ -58,7 +58,7 @@ Discussion:
 - Subset (second class) of precondition set: P7
 
 <details>
-  <summary>Table 1: Detection via input preconditions on 1 hidden layer ReLU network</summary>
+  <summary>Table 1: Detection via input preconditions on 1 hidden layer ReLU network (with data augmentation)</summary>
 
   ## 
   
@@ -77,7 +77,7 @@ Discussion:
 </details>
 
 <details>
-  <summary>Table 2: Detection via input preconditions on 2 hidden layer ReLU network</summary>
+  <summary>Table 2: Detection via input preconditions on 2 hidden layer ReLU network (with data augmentation)</summary>
 
   ## 
 
@@ -95,20 +95,11 @@ Discussion:
 
 </details>
 
-Implementation Deatils:
-1. All bengin and adversarial samples are generated according to MNIST dataset (size of 100)
-2. Values in () indicate standard deviation 
-3. Approach1 - append noise _~Uniform(lower_bound=-0.1, uppper_bound=0.1)_; 5 perturbed inputs are generated per input 
-4. Approach2 - append noise _~Normal(mean=0, std=0.1)_; 5 perturbed inputs are generated per input 
-5. Architecture: Two layer (one hidden layer) ReLU (fully-connected) neural netowrk  
-6. Attack: iterative FGSM (attack until the perturbed input is misclassified)
-
-Interesting Observations
 <details>
-  <summary>Experiment 1: Relationship between the complexity (depth) of ReLU neural networks and detection performance (FPR & FNR)</summary>
-  
-  In the similar ReLU neural networks, we can observe the performance of detection increase dramatically with the increase of the complexity. To be more concise, when the model becomes more complicated, this approach can achieve lower FPR and FNR (by using provenance of the first layer).
-    
+  <summary>Table 3: Detection via input preconditions on 1-4 hidden layer ReLU network</summary>
+
+  ## 
+
   \|S\| | \|S5\| | \|S7\| | \|P5\| | \|P7\| | 1 - FPR | 1 - FNR | Input Augmentation | num of hidden layers
   --- | --- | --- | --- | --- | --- | --- | --- | ---
   500 | 227 | 273 | 70.850 (9.358) | 121.430 (15.163) | 64.0 (4.3)% | 34.5 (21.7)% | None | 1
@@ -123,6 +114,21 @@ Interesting Observations
   3000 | 1364 | 1636 | 463.520 (100.624) | 674.400 (170.379) | 71.4 (6.6)% | 99.1 (2.1)% | None | 2
   3000 | 1364 | 1636 | 502.220 (123.755) | 644.740 (170.400) | 70.7 (7.0)% | 99.96 (0.2)% | None | 3
   3000 | 1364 | 1636 | 523.530 (136.136) | 652.190 (203.043) | 69.8 (6.3)% | 99.91 (0.3)% | None | 4
+</details>
+
+Implementation Deatils:
+1. All bengin and adversarial samples are generated according to MNIST dataset (size of 100)
+2. Values in () indicate standard deviation 
+3. Approach1 - append noise _~Uniform(lower_bound=-0.1, uppper_bound=0.1)_; 5 perturbed inputs are generated per input 
+4. Approach2 - append noise _~Normal(mean=0, std=0.1)_; 5 perturbed inputs are generated per input 
+5. Architecture: Two layer (one hidden layer) ReLU (fully-connected) neural netowrk  
+6. Attack: iterative FGSM (attack until the perturbed input is misclassified)
+
+Interesting Observations
+<details>
+  <summary>Experiment 1: Relationship between the complexity (depth) of ReLU neural networks and detection performance (FPR & FNR)</summary>
+  
+  Note that only leverage the first ReLU layer, which consists of 64 neurons for all models. 
 
   <div align="center">
   FPR & FNR of adversarial detection among ReLU neural networks with various depth (|S| = 500) 
