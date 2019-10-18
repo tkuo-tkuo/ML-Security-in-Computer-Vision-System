@@ -167,6 +167,22 @@ Interesting Observations
   
 </details>
 
+<details>
+  <summary>Experiment 3: Case study on multiple hidden layers ReLU neural networks</summary>
+  
+  Do we actually need to use every layer to achieve promising AEDR (Adversarial Example Detection Rate)? 
+  - Based on 4 hidden layers networks, investigate the performance by using different combination of layer provenance. 
+  - l1, l1+l2, l1+l2+l3, l1+l2+l3+l4, l2, l2+l3, ...
+  
+</details>
+
+<details>
+  <summary>Experiment 4: Case study on convolutional network</summary>
+  
+  (study NIC on CNN)
+  
+</details>
+
 To-Do 
 - CNN 
 - Consider the correlation between size of |P5| and |P7| with (1_FPR) and (1-FNR)
