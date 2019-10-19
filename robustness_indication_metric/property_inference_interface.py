@@ -26,15 +26,17 @@ class NormalC(nn.Module):
         super().__init__()
         self.layer1 = nn.Linear(784, 64)
         self.layer2 = nn.Linear(64, 32)
-        self.layer3 = nn.Linear(32, 10)
-        self.layer4 = nn.Linear(10, 2)
+        self.layer3 = nn.Linear(32, 20)
+        self.layer4 = nn.Linear(20, 10)
+        self.layer5 = nn.Linear(10, 2)
         self.relu = nn.ReLU()
 
     def forward(self, x):
         h1 = self.relu(self.layer1(x))
         h2 = self.relu(self.layer2(h1))
         h3 = self.relu(self.layer3(h2))
-        return self.layer4(h3)
+        h4 = self.relu(self.layer4(h3))
+        return self.layer5(h4)
 
 class CNN(nn.Module):
     def __init__(self):
@@ -214,14 +216,16 @@ class PropertyInferenceInterface():
         else:
             x = torch.from_numpy(np.expand_dims(x, axis=0).astype(np.float32))
             h1 = model.relu(model.layer1(x))
+            h1 = h1.detach().numpy()
             h1[h1>0] = True
-            precondition = h1.detach().numpy().astype(np.int64)
+            precondition = h1.astype(np.int64)
             set_of_precondition = list(precondition[0])
 
-            h2 = model.relu(model.layer2(h1))
-            h2[h2 > 0] = True
-            precondition = h2.detach().numpy().astype(np.int64)
-            set_of_precondition = set_of_precondition + list(precondition[0])
+            # h2 = model.relu(model.layer2(h1))
+            # h2[h2 > 0] = True
+            # precondition = h2.detach().numpy().astype(np.int64)
+            # set_of_precondition = set_of_precondition + list(precondition[0])
+
 
         return set_of_precondition
 
@@ -356,7 +360,6 @@ class PropertyInferenceInterface():
         valid_count = 0        
         success_count = 0
         for i in range(num_of_count):
-            print(i)
             x, y = test_X[i], test_Y[i]
 
             is_attack_successful = False 
