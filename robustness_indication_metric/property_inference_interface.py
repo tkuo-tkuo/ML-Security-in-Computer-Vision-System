@@ -216,16 +216,16 @@ class PropertyInferenceInterface():
         else:
             x = torch.from_numpy(np.expand_dims(x, axis=0).astype(np.float32))
             h1 = model.relu(model.layer1(x))
-            h1 = h1.detach().numpy()
-            h1[h1>0] = True
-            precondition = h1.astype(np.int64)
+            h1_ = h1.detach().numpy()
+            h1_[h1_>0] = True
+            precondition = h1_.astype(np.int64)
             set_of_precondition = list(precondition[0])
 
-            # h2 = model.relu(model.layer2(h1))
-            # h2[h2 > 0] = True
-            # precondition = h2.detach().numpy().astype(np.int64)
-            # set_of_precondition = set_of_precondition + list(precondition[0])
-
+            h2 = model.relu(model.layer2(h1))
+            h2_ = h2.detach().numpy()
+            h2_[h2_ > 0] = True
+            precondition = h2_.astype(np.int64)
+            set_of_precondition = set_of_precondition + list(precondition[0])
 
         return set_of_precondition
 
