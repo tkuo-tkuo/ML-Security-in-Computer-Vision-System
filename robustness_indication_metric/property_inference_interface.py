@@ -222,9 +222,21 @@ class PropertyInferenceInterface():
             set_of_precondition = list(precondition[0])
 
             h2 = model.relu(model.layer2(h1))
-            h2_ = h2.detach().numpy()
-            h2_[h2_ > 0] = True
-            precondition = h2_.astype(np.int64)
+            # h2_ = h2.detach().numpy()
+            # h2_[h2_ > 0] = True
+            # precondition = h2_.astype(np.int64)
+            # set_of_precondition = set_of_precondition + list(precondition[0])
+
+            h3 = model.relu(model.layer3(h2))
+            # h3_ = h3.detach().numpy()
+            # h3_[h3_ > 0] = True
+            # precondition = h3_.astype(np.int64)
+            # set_of_precondition = set_of_precondition + list(precondition[0])
+
+            h4 = model.relu(model.layer4(h3))
+            h4_ = h4.detach().numpy()
+            h4_[h4_ > 0] = True
+            precondition = h4_.astype(np.int64)
             set_of_precondition = set_of_precondition + list(precondition[0])
 
         return set_of_precondition
