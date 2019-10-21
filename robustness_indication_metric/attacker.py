@@ -10,6 +10,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 
+'''
+Improved version of the classicial FGSM (Fast Gradient Sign Method) attack
+Category: Targeted, Gradient-based
+'''
 class iterative_FGSM_attacker():
 
     def fgsm_attack(self, image, epsilon, data_grad):
@@ -37,7 +41,6 @@ class iterative_FGSM_attacker():
 
         # Have to be different
         output = model.forward(perturbed_data)
-
         final_pred = output.max(1, keepdim=True)[1] # get the index of the max log-probability
         
         if final_pred.item() == target.item():
@@ -45,6 +48,10 @@ class iterative_FGSM_attacker():
         else:
             return perturbed_data, 1
 
+'''
+Jacobian Saliency Map Attack
+Category: L0, Targeted, Gradient-based
+'''
 class JSMA_attacker():
 
     def __init__(self):
@@ -74,4 +81,31 @@ class JSMA_attacker():
         else:
             return perturbed_data, 1
         
+'''
+CarliniWagner L2 Attack
+Category: L2, Untargeted, Gradient-based
+Illustration: Currently, the most powerful attack among widely-adopted adversarial attacks 
+'''
+class CW_L2_attacker():
+    
+    def __init__(self):
+        self.num_classes = 2
+
+    def create_adv_input(self, x, y, model, epsilon):
+        data = torch.from_numpy(np.expand_dims(x, axis=0).astype(np.float32))
+        target = np.array([y]).astype(np.int64)
+        target = torch.from_numpy(target)
+        data.requires_grad = True
         
+        from advertorch.attacks import CarliniWagnerL2Attack
+        adversary = CarliniWagnerL2Attack(model, self.num_classes, loss_fn=nn.CrossEntropyLoss())
+        perturbed_data = adversary.perturb(data, target)
+
+        # Have to be different
+        output = model.forward(perturbed_data)
+        final_pred = output.max(1, keepdim=True)[1] # get the index of the max log-probability
+        
+        if final_pred.item() == target.item():
+            return perturbed_data, 0
+        else:
+            return perturbed_data, 1
