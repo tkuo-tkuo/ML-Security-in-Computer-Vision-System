@@ -77,6 +77,11 @@ Discussion:
   3000 | 1364/1636 | 506.940 (127.957) | 674.990 (182.066) | 69.5 (7.2)% | 99.9 (0.5)% | None | 3
   3000 | 1364/1636 | 490.720 (141.795) | 596.430 (180.541) | 71.9 (7.7)% | 99.9 (0.6)% | None | 4
   
+</details> 
+
+<details>
+  <summary>Table 2: Detection via various combinations of layer provenance on 1-4 hidden layer ReLU network</summary>
+
   \|S\| | \|S5\|/\|S7\| | \|P5\| | \|P7\| | 1 - FPR | 1 - FNR | Property layer(s) | num of hidden layers
   --- | --- | --- | --- | --- | --- | --- | ---
   500 | 227/273 | 96.940 (19.057) | 110.090 (29.264) | 65.1 (7.3)% | 72.9 (20.9)% | 1 | 4
@@ -99,15 +104,15 @@ Discussion:
   3000 | 1364/1636 | 514.680 (125.926) | 612.620 (189.286) | 70.5 (7.4)% | 100.0 (0.2)% | 1/2 | 4
   3000 | 1364/1636 | 521.110 (139.460) | 586.970 (179.797) | 71.1 (7.0)% | 100.0 (0.2)% | 1/2/3 | 4 
   3000 | 1364/1636 | 479.630 (127.896) | 590.500 (163.437) | 73.0 (6.9)% | 99.9 (0.3)% | 1/2/3/4 | 4
+  3000 | 1364/1636 | 525.580 (161.507) | 617.430 (196.814) | 69.8 (8.2)% | 100.0 (0.3)% | 1/4 | 4 (working)
   3000 | 1364/1636 | 25.500 (15.411) | 24.680 (14.115) | 98.8 (1.1)% | 81.8 (27.6)% | 2 | 4
   3000 | 1364/1636 | 5.510 (4.001) | 5.120 (3.179) | 99.8 (0.5)% | 88.8 (23.8)% | 3 | 4
-  3000 | 1364/1636 | 5.510 (4.001) | 5.120 (3.179) | 99.8 (0.5)% | 88.8 (23.8)% | 4 | 4 (working)
-  3000 | 1364/1636 | 5.510 (4.001) | 5.120 (3.179) | 99.8 (0.5)% | 88.8 (23.8)% | 1/4 | 4 (working)
-  
+  3000 | 1364/1636 | 1.770 (1.256) | 1.840 (1.111) | 99.9 (0.3)% | 95.7 (17.1)% | 4 | 4 
+
 </details>
 
 <details>
-  <summary>Table 2: Detection via input preconditions on 1 hidden layer ReLU network (with data augmentation)</summary>
+  <summary>Table 3: Detection via input preconditions on 1 hidden layer ReLU network (with data augmentation)</summary>
 
   ## 
   
@@ -126,7 +131,7 @@ Discussion:
 </details>
 
 <details>
-  <summary>Table 3: Detection via input preconditions on 2 hidden layer ReLU network (with data augmentation)</summary>
+  <summary>Table 4: Detection via input preconditions on 2 hidden layer ReLU network (with data augmentation)</summary>
 
   ## 
 
