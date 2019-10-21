@@ -1,52 +1,9 @@
 # Final Year Thesis
 Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 
-## Research Questions (RQs)
+## Study on adversarial detection via LP (Layer Provenance)
 
-### RQ1: Can we design a metric to approximate the adversarial robustness efficiently?  
-
-#### _Approach 1: Directly estimate the training dataset_ 
-
-There are related papers, which aim to define (theoretical) metrix that highly correlated to robustness. I place description of relevant work in Appendix 1.1. 
-
-**Notations** <br />
-
-  - The metric for adversarial robustness approximation is denoted as ***static estimation of adversarial risk***, <img src="README_images/sta_adv_r_est_formula.png" align="center" border="0" alt="sta\_adv\_r = static\_adv\_rob\_estimation\big(S, f\big) " width="369" height="21" />, where <img src="README_images/S.png" align="center" border="0" alt="S" width="17" height="15" /> and <img src="README_images/f.png" align="center" border="0" alt="f" width="12" height="19" /> indicate the training dataset and neural network trained. 
-  - For each pair of machine learning models (<img src="README_images/f_A.png" align="center" border="0" alt=" f_{A}" width="21" height="19" />, <img src="README_images/f_B.png" align="center" border="0" alt=" f_{B}" width="21" height="19" />), they are trained on individual datasets <img src="README_images/S_A.png" align="center" border="0" alt="S_{A}" width="24" height="18" /> and <img src="README_images/S_B.png" align="center" border="0" alt="S_{B}" width="24" height="18" />.
-  
-**Mathematical definition for** <img src="README_images/sta_adv_r_est_func.png" align="center" border="0" alt="static\_adv\_rob\_estimation\big(S, f\big)" width="278" height="21" /> **function** <br />
-
-  - <img src="README_images/est_func.png" align="center" border="0" alt="S_{B}" width="300" height="42" />
-  
-**Purpose of experiments** <br />
-
-  - For each pair of machine learning models (<img src="README_images/f_A.png" align="center" border="0" alt=" f_{A}" width="21" height="19" />, <img src="README_images/f_B.png" align="center" border="0" alt=" f_{B}" width="21" height="19" />), we would like to experiment whether the relationship between <img src="README_images/sta_adv_r_A.png" align="center" border="0" alt="sta\_adv\_r_{A}" width="99" height="19" /> and <img src="README_images/sta_adv_r_B.png" align="center" border="0" alt="sta\_adv\_r_{B}" width="99" height="19" /> can indicate the relationship between actual adversarial robustness <img src="README_images/r_A.png" align="center" border="0" alt="r_{A}" width="21" height="15" /> and <img src="README_images/r_B.png" align="center" border="0" alt="r_{B}" width="21" height="15" /> (against state-of-art adversarial attacks). <br/> For instance, if <img src="README_images/sta_adv_r_A.png" align="center" border="0" alt="sta\_adv\_r_{A}" width="99" height="19" /> < <img src="README_images/sta_adv_r_B.png" align="center" border="0" alt="sta\_adv\_r_{B}" width="99" height="19" />, we expect to observe attack success rate on <img src="README_images/f_A.png" align="center" border="0" alt=" f_{A}" width="21" height="19" /> is higher than that of <img src="README_images/f_B.png" align="center" border="0" alt=" f_{B}" width="21" height="19" />.
-  - Indicator function: <img src="README_images/indicator_func.png" align="center" border="0" alt="S_{B}" width="900" height="24" />
-  
-#### Multimedia classification task, MNIST
-
-Experimental Settings | Match ratio | Time (sta_adv_r) | Time(r) | # of pairs | size(S) | Attack | Defense | eps
---- | --- | --- | --- |--- |--- |--- |--- |--- 
-Trail 1 | 0.7000 | 0.00528 | 0.43242 | 100 | 600 | FGSM | None | 0.001  
-
-Implementation Details:
-1. Number of samples used for computing attack success rate: 1000
-2. Architecture: Two layer (one hidden layer) ReLU (fully-connected) neural netowrk  
-3. FGSM is generated according to the [Pytorch Official Website](https://pytorch.org/tutorials/beginner/fgsm_tutorial.html). For more effective attacks, I will conduct those once I receive the accessibility of hardware resource. 
-4. Actuacl robustness is calculated by 1 - attack sucess rate 
-5. Both <img src="README_images/f_A.png" align="center" border="0" alt=" f_{A}" width="21" height="19" /> and <img src="README_images/f_B.png" align="center" border="0" alt=" f_{B}" width="21" height="19" /> are trained by the same architecture (include preprocess and activation functions). 
-
-Next Steps: 
-1. **(Running Experiment)** Measure on a set of architectures (Compare distribution instead of applying indicator function)
-2. Use statistical approach (e.g., null test) instead of simple match ratio
-
-Discussion: 
-1. Design a dataset to have high sta_adv_r and another dataset to have low std_adv_r (Completed, but not actually meaningful) 
-2. How to become more 'software-enginnering'?
-
-#### _Approach 2: Leverage preconditions for the prediction postcondition in adversarial detection [5]_
-
-#### Binary classification task (5 vs 7)
+All the following tables and experiments are computed for naive (experimental) binary classification task: MNIST 5 vs MNIST 7
 
 **Notations** <br />
 
@@ -77,6 +34,25 @@ Discussion:
   3000 | 1364/1636 | 506.940 (127.957) | 674.990 (182.066) | 69.5 (7.2)% | 99.9 (0.5)% | None | 3
   3000 | 1364/1636 | 490.720 (141.795) | 596.430 (180.541) | 71.9 (7.7)% | 99.9 (0.6)% | None | 4
   
+  \|S\| | \|S5\|/\|S7\| | \|P5\| | \|P7\| | 1 - FPR | 1 - FNR | Input Augmentation | num of hidden layers | y or y_
+  --- | --- | --- | --- | --- | --- | --- | --- | --- 
+  500 | 227/273 | 70.850 (9.358) | 121.430 (15.163) | 64.0 (4.3)% | 34.5 (21.7)% | None | 1 | y
+  500 | 227/273 | 99.480 (21.718) | 141.360 (29.135) | 59.1 (9.2)% | 43.2 (21.9)% | None | 2 | y
+  500 | 227/273 | 103.550 (17.698) | 129.930 (26.887) | 59.9 (7.1)% | 70.0 (23.9)% | None | 3 | y
+  500 | 227/273 | 96.940 (19.057) | 110.090 (29.264) | 65.1 (7.3)% | 72.9 (20.9)% | None | 4 | y
+  500 | 227/273 | 70.480 (7.882) | 122.130 (14.576) | 64.1 (3.8)% | 18.6 (12.5)% | None | 1 | y_
+  500 | 227/273 | 100.280 (20.691) | 145.170 (27.773) | 58.3 (9.7)% | 30.7 (18.5)% | None | 2 | y_
+  500 | 227/273 | 106.030 (25.253) | 129.530 (28.993) | 59.2 (9.0)% | 55.4 (24.6)% | None | 3 | y_
+  500 | 227/273 | 95.130 (21.880) | 108.630 (27.240) | 65.9 (8.1)% | 64.0 (25.0)% | None | 4 | y_
+  1500 | 674/826 | 162.900 (24.819) | 223.570 (38.956) | 79.7 (4.3)% | 65.2 (16.1)% | None | 1 | y 
+  1500 | 674/826 | 200.250 (52.630) | 262.800 (58.982) | 77.7 (5.8)% | 79.9 (19.8)% | None | 2 | y 
+  1500 | 674/826 | 202.130 (59.237) | 301.580 (82.210) | 73.5 (6.7)% | 98.3 (3.1)% | None | 3 | y 
+  1500 | 674/826 | 212.660 (57.575) | 279.020 (71.900) | 74.2 (6.6)% | 98.5 (3.8)% | None | 4 | y
+  1500 | 674/826 | 160.620 (27.222) | 223.630 (36.443) | 80.3 (3.6)% | 59.2 (18.2)% | None | 1 | y_
+  1500 | 674/826 | 193.210 (56.364) | 285.100 (72.268) | 76.7 (7.4)% | 75.1 (20.8)% | None | 2 | y_ 
+  1500 | 674/826 | 209.590 (56.449) | 273.070 (77.071) | 74.3 (5.8)% | 95.9 (8.4)% | None | 3 | y_ 
+ 
+
 </details> 
 
 <details>
@@ -220,8 +196,6 @@ Trivial
 - None
 
 To-Do 
-- Update all h=3 & h=4
-- Update all figures in exp1 and exp2
 - CNN 
 - Conduct experiments on 10-classes 
 - Consider the correlation between size of |P5| and |P7| with (1_FPR) and (1-FNR)
