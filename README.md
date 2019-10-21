@@ -7,19 +7,18 @@ All the following tables and experiments are computed for naive (experimental) b
 
 **Notations** <br />
 
-- Training set: <img src="README_images/S.png" align="center" border="0" alt="S" width="17" height="15" />
-- Subset (first class) of training set: S5
-- Subset (second class) of training set: S7
-- Precondition set: P
-- Subset (first class) of precondition set: P5
-- Subset (second class) of precondition set: P7
+- **S**: training set; **P**: provenance set;
+- **S1**: subset (first class) within training set; **S2**: subset (second class) within training set;
+- **P1**: subset (first class) within provenance set; **P2**: subset (second class) within provenance set;
+- **FPR**: False Positive Rate (benign samples are considered as adversarial)
+- **FNR**: Flase Negative Rate (adversarial samples are considered as benign)
 
 <details>
   <summary>Table 1: Detection via input preconditions on 1-4 hidden layer ReLU network</summary>
 
   ## 
 
-  \|S\| | \|S5\|/\|S7\| | \|P5\| | \|P7\| | 1 - FPR | 1 - FNR | Input Augmentation | num of hidden layers
+  \|S\| | \|S1\|/\|S2\| | \|P1\| | \|P2\| | 1 - FPR | 1 - FNR | Input Augmentation | num of hidden layers
   --- | --- | --- | --- | --- | --- | --- | ---
   500 | 227/273 | 70.850 (9.358) | 121.430 (15.163) | 64.0 (4.3)% | 34.5 (21.7)% | None | 1
   500 | 227/273 | 99.480 (21.718) | 141.360 (29.135) | 59.1 (9.2)% | 43.2 (21.9)% | None | 2
@@ -34,7 +33,7 @@ All the following tables and experiments are computed for naive (experimental) b
   3000 | 1364/1636 | 506.940 (127.957) | 674.990 (182.066) | 69.5 (7.2)% | 99.9 (0.5)% | None | 3
   3000 | 1364/1636 | 490.720 (141.795) | 596.430 (180.541) | 71.9 (7.7)% | 99.9 (0.6)% | None | 4
   
-  \|S\| | \|S5\|/\|S7\| | \|P5\| | \|P7\| | 1 - FPR | 1 - FNR | Input Augmentation | num of hidden layers | y or y_
+  \|S\| | \|S1\|/\|S2\| | \|P1\| | \|P2\| | 1 - FPR | 1 - FNR | Input Augmentation | num of hidden layers | y or y_
   --- | --- | --- | --- | --- | --- | --- | --- | --- 
   500 | 227/273 | 70.850 (9.358) | 121.430 (15.163) | 64.0 (4.3)% | 34.5 (21.7)% | None | 1 | y
   500 | 227/273 | 99.480 (21.718) | 141.360 (29.135) | 59.1 (9.2)% | 43.2 (21.9)% | None | 2 | y
@@ -51,14 +50,19 @@ All the following tables and experiments are computed for naive (experimental) b
   1500 | 674/826 | 160.620 (27.222) | 223.630 (36.443) | 80.3 (3.6)% | 59.2 (18.2)% | None | 1 | y_
   1500 | 674/826 | 193.210 (56.364) | 285.100 (72.268) | 76.7 (7.4)% | 75.1 (20.8)% | None | 2 | y_ 
   1500 | 674/826 | 209.590 (56.449) | 273.070 (77.071) | 74.3 (5.8)% | 95.9 (8.4)% | None | 3 | y_ 
+  1500 | 674/826 | 199.280 (62.882) | 282.930 (73.903) | 74.5 (5.9)% | 96.0 (7.1)% | None | 4 | y_ 
+  3000 | 1364/1636 | 432.980 (93.588) | 738.560 (175.844) | 68.8 (6.5)% | 98.2 (3)% | None | 1 | y 
+  3000 | 1364/1636 | 463.520 (100.624) | 674.400 (170.379) | 71.4 (6.6)% | 99.1 (2.1)% | None | 2 | y
+  3000 | 1364/1636 | 506.940 (127.957) | 674.990 (182.066) | 69.5 (7.2)% | 99.9 (0.5)% | None | 3 | y
+  3000 | 1364/1636 | 490.720 (141.795) | 596.430 (180.541) | 71.9 (7.7)% | 99.9 (0.6)% | None | 4 | y
+  3000 | 1364/1636 | 421.170 (102.090) | 755.510 (195.395) | 69.4 (7.2)% | 98.0 (3.9)% | None | 1 | y_
  
-
 </details> 
 
 <details>
   <summary>Table 2: Detection via various combinations of layer provenance on 1-4 hidden layer ReLU network</summary>
 
-  \|S\| | \|S5\|/\|S7\| | \|P5\| | \|P7\| | 1 - FPR | 1 - FNR | Property layer(s) | num of hidden layers
+  \|S\| | \|S1\|/\|S2\| | \|P1\| | \|P2\| | 1 - FPR | 1 - FNR | Property layer(s) | num of hidden layers
   --- | --- | --- | --- | --- | --- | --- | ---
   500 | 227/273 | 96.940 (19.057) | 110.090 (29.264) | 65.1 (7.3)% | 72.9 (20.9)% | 1 | 4
   500 | 227/273 | 99.160 (22.821) | 114.030 (29.648) | 64.0 (8.9)% | 75.8 (21.2)% | 1/2 | 4
@@ -80,7 +84,7 @@ All the following tables and experiments are computed for naive (experimental) b
   3000 | 1364/1636 | 514.680 (125.926) | 612.620 (189.286) | 70.5 (7.4)% | 100.0 (0.2)% | 1/2 | 4
   3000 | 1364/1636 | 521.110 (139.460) | 586.970 (179.797) | 71.1 (7.0)% | 100.0 (0.2)% | 1/2/3 | 4 
   3000 | 1364/1636 | 479.630 (127.896) | 590.500 (163.437) | 73.0 (6.9)% | 99.9 (0.3)% | 1/2/3/4 | 4
-  3000 | 1364/1636 | 525.580 (161.507) | 617.430 (196.814) | 69.8 (8.2)% | 100.0 (0.3)% | 1/4 | 4 (working)
+  3000 | 1364/1636 | 525.580 (161.507) | 617.430 (196.814) | 69.8 (8.2)% | 100.0 (0.3)% | 1/4 | 4 
   3000 | 1364/1636 | 25.500 (15.411) | 24.680 (14.115) | 98.8 (1.1)% | 81.8 (27.6)% | 2 | 4
   3000 | 1364/1636 | 5.510 (4.001) | 5.120 (3.179) | 99.8 (0.5)% | 88.8 (23.8)% | 3 | 4
   3000 | 1364/1636 | 1.770 (1.256) | 1.840 (1.111) | 99.9 (0.3)% | 95.7 (17.1)% | 4 | 4 
@@ -92,7 +96,7 @@ All the following tables and experiments are computed for naive (experimental) b
 
   ## 
   
-  \|S\| | \|S5\| | \|S7\| | \|P5\| | \|P7\| | 1 - FPR | 1 - FNR | Input Augmentation
+  \|S\| | \|S1\| | \|S2\| | \|P1\| | \|P2\| | 1 - FPR | 1 - FNR | Input Augmentation
   --- | --- | --- | --- | --- | --- | --- | ---  
   500 | 227 | 273 | 70.850 (9.358) | 121.430 (15.163) | 64.0 (4.3)% | 34.5 (21.7)% | None 
   3000 (500+2500) | 1362 | 1638 | 289.090 (24.717) | 644.110 (51.828) | 68.0 (3.5)% | 17.5 (12.0)% | Yes (Approach1)
@@ -111,7 +115,7 @@ All the following tables and experiments are computed for naive (experimental) b
 
   ## 
 
-  \|S\| | \|S5\| | \|S7\| | \|P5\| | \|P7\| | 1 - FPR | 1 - FNR | Input Augmentation
+  \|S\| | \|S1\| | \|S2\| | \|P1\| | \|P2\| | 1 - FPR | 1 - FNR | Input Augmentation
   --- | --- | --- | --- | --- | --- | --- | ---  
   500 | 227 | 273 | 99.480 (21.718) | 141.360 (29.135) | 59.1 (9.2)% | 43.2 (21.9)% | None 
   3000 (500+2500) | 1362 | 1638 | 272.770 (63.876) | 469.120 (152.296) | 69.3 (7.3)% | 28.2 (16.0)% | Yes (Approach1)
@@ -122,16 +126,17 @@ All the following tables and experiments are computed for naive (experimental) b
   3000 | 1364 | 1636 | 463.520 (100.624) | 674.400 (170.379) | 71.4 (6.6)% | 99.1 (2.1)% | None
   18000 (3000+15000) | 8185 | 9815 | 1205.820 (332.480) | 2549.280 (701.297) | 76.0 (6.3)% | 95.6 (6.9)% | Yes (Approach1)
   18000 (3000+15000) | 8185 | 9815 | 1427.990 (383.569) | 3360.290 (995.905) | 76.0 (7.4)% | 91.7 (8.3)% | Yes (Approach2)
+  
+  Notes: 
+  - Input augmentation approach1 - append noise _~Uniform(lower_bound=-0.1, uppper_bound=0.1)_; 5 perturbed inputs are generated per input 
+  - Input augmentation approach2 - append noise _~Normal(mean=0, std=0.1)_; 5 perturbed inputs are generated per input
+  - h=1, adv_attack=i_FGSM
 
 </details>
 
 Implementation Deatils:
-1. All bengin and adversarial samples are generated according to MNIST dataset (size of 100)
+1. A small portion (100 samples) of test dataset is used as benign samples in the evaluation; One adversarial sample is generated from one benign sample accordingly, 
 2. Values in () indicate standard deviation 
-3. Approach1 - append noise _~Uniform(lower_bound=-0.1, uppper_bound=0.1)_; 5 perturbed inputs are generated per input 
-4. Approach2 - append noise _~Normal(mean=0, std=0.1)_; 5 perturbed inputs are generated per input 
-5. Architecture: Two layer (one hidden layer) ReLU (fully-connected) neural netowrk  
-6. Attack: iterative FGSM (attack until the perturbed input is misclassified)
 
 Interesting Observations
 <details>
@@ -181,7 +186,10 @@ Interesting Observations
   
   Do we actually need to use every layer to achieve promising AEDR (Adversarial Example Detection Rate)? 
   - Based on 4 hidden layers networks, investigate the performance by using different combination of layer provenance. 
+  => Different LPs have various capability for detection
   - l1, l1+l2, l1+l2+l3, l1+l2+l3+l4, l2, l2+l3, ...
+  => Using more layers does not gunrantee the increasing performance
+  => if l1 matches, l2 is pretty likely to still be matched 
   
 </details>
 
@@ -192,40 +200,28 @@ Interesting Observations
   
 </details>
 
-Trivial
-- None
-
-To-Do 
-- CNN 
+To-Do (High Priority)
 - Conduct experiments on 10-classes 
-- Consider the correlation between size of |P5| and |P7| with (1_FPR) and (1-FNR)
-- Augmentation of train dataset vs distribution of FPR and FNR
+- Experiment on CNN models 
+- Experiment on widely-adopted models 
+- Store part of trained models as 'h5' format to preserve reproducibility
+
+To-Do (Low Priority)
 - Unify the format of citations
 - Enlarge the table to include 0qr(min)/1qr/2qr(medium)/3qr/4qr(max)
-- Experiment on widely adopted DNN
+- Document down the model architectures 
 
-Suggestions from Victor:
-- What is the advantages of my implementation over NIC?
+## Appendix 
 
-Jotting for architectures (Move them to appendix in the future)
+#### Appendix 1.1 
+
+Jotting for architectures (More specification illustration required)
 - 784 64 2 (1)
 - 784 64 10 2 (2)
 - 784 64 32 10 2 (3)
 - 784 64 32 20 10 2 (4)
 
-## Appendix 
-
-#### Appendix 1.1 
-Here we list out self-defined (related to our work) metrics that are correlated to (adversarial) robustness. 
-
-1. Dimensionality [1]
-2. Distance to decision boundary (in various directions like benign, adversarial, random)
-3. Non-robust features [2]
-4. Local intrinsic dimensionality [3]
-5. Adversarial risk by the concentration of measure [4]
-
 ## References 
-
 [1] Florian Tramer, Nicolas Papernot, Ian Goodfellow, Dan Boneh, and Patrick McDaniel. The space of transferable adversarial examples. arXiv preprint arXiv:1704.03453, 2017. <br />
 [2] Ilyas, A., Santurkar, S., Tsipras, D., Engstrom, L., Tran, B., and Madry, A. Adversarial examples are not bugs, they are features. arXiv preprint arXiv:1905.02175, 2019. <br />
 [3] Ma, X., Li, B., Wang, Y., Erfani, S. M., Wijewickrema, S., Schoenebeck, G., Houle, M. E., Song, D., and Bailey, J. Characterizing adversarial subspaces using local intrinsic dimensionality. <br />
