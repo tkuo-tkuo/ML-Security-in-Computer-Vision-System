@@ -34,7 +34,6 @@ class iterative_FGSM_attacker():
         loss.backward()
         data_grad = data.grad.data
         perturbed_data = self.fgsm_attack(data, epsilon, data_grad)
-        
 
         # Have to be different
         output = model.forward(perturbed_data)
@@ -45,3 +44,34 @@ class iterative_FGSM_attacker():
             return perturbed_data, 0
         else:
             return perturbed_data, 1
+
+class JSMA_attacker():
+
+    def __init__(self):
+        self.num_classes = 2
+
+    def create_adv_input(self, x, y, model, epsilon):
+        if y == 0:
+            target_y = 1
+        else:
+            target_y = 0
+
+        data = torch.from_numpy(np.expand_dims(x, axis=0).astype(np.float32))
+        target = np.array([target_y]).astype(np.int64)
+        target = torch.from_numpy(target)
+        data.requires_grad = True
+        
+        from advertorch.attacks import JacobianSaliencyMapAttack
+        adversary = JacobianSaliencyMapAttack(model, self.num_classes, loss_fn=nn.CrossEntropyLoss())
+        perturbed_data = adversary.perturb(data, target)
+        
+        # Have to be different
+        output = model.forward(perturbed_data)
+        final_pred = output.max(1, keepdim=True)[1] # get the index of the max log-probability
+
+        if final_pred.item() == y:
+            return perturbed_data, 0
+        else:
+            return perturbed_data, 1
+        
+        
