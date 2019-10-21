@@ -26,17 +26,21 @@ class NormalC(nn.Module):
         super().__init__()
         self.layer1 = nn.Linear(784, 64)
         self.layer2 = nn.Linear(64, 32)
-        self.layer3 = nn.Linear(32, 20)
-        self.layer4 = nn.Linear(20, 10)
-        self.layer5 = nn.Linear(10, 2)
+        self.layer3 = nn.Linear(32, 10)
+        self.layer4 = nn.Linear(10, 2)
+        # self.layer2 = nn.Linear(64, 32)
+        # self.layer3 = nn.Linear(32, 20)
+        # self.layer4 = nn.Linear(20, 10)
+        # self.layer5 = nn.Linear(10, 2)
         self.relu = nn.ReLU()
 
     def forward(self, x):
         h1 = self.relu(self.layer1(x))
         h2 = self.relu(self.layer2(h1))
         h3 = self.relu(self.layer3(h2))
-        h4 = self.relu(self.layer4(h3))
-        return self.layer5(h4)
+        # h4 = self.relu(self.layer4(h3))
+        # return self.layer5(h4)
+        return self.layer4(h3)
 
 class CNN(nn.Module):
     def __init__(self):
@@ -221,23 +225,23 @@ class PropertyInferenceInterface():
             precondition = h1_.astype(np.int64)
             set_of_precondition = list(precondition[0])
 
-            h2 = model.relu(model.layer2(h1))
+            # h2 = model.relu(model.layer2(h1))
             # h2_ = h2.detach().numpy()
             # h2_[h2_ > 0] = True
             # precondition = h2_.astype(np.int64)
             # set_of_precondition = set_of_precondition + list(precondition[0])
 
-            h3 = model.relu(model.layer3(h2))
+            # h3 = model.relu(model.layer3(h2))
             # h3_ = h3.detach().numpy()
             # h3_[h3_ > 0] = True
             # precondition = h3_.astype(np.int64)
             # set_of_precondition = set_of_precondition + list(precondition[0])
 
-            h4 = model.relu(model.layer4(h3))
-            h4_ = h4.detach().numpy()
-            h4_[h4_ > 0] = True
-            precondition = h4_.astype(np.int64)
-            set_of_precondition = set_of_precondition + list(precondition[0])
+            # h4 = model.relu(model.layer4(h3))
+            # h4_ = h4.detach().numpy()
+            # h4_[h4_ > 0] = True
+            # precondition = h4_.astype(np.int64)
+            # set_of_precondition = set_of_precondition + list(precondition[0])
 
         return set_of_precondition
 
@@ -354,7 +358,15 @@ class PropertyInferenceInterface():
         valid_count = 0 
         for i in range(num_of_count):
             x, y = test_X[i], test_Y[i]
-            result = self.property_match(x, y)
+            
+            # Use y_
+            output = self.model.forward(torch.from_numpy(np.expand_dims(x, axis=0).astype(np.float32)))
+            y_ = (output.max(1, keepdim=True)[1]).item() 
+            result = self.property_match(x, y_)
+
+            # Use y_
+            # result = self.property_match(x, y)
+
             valid_count += result
 
         if verbose:
@@ -364,7 +376,15 @@ class PropertyInferenceInterface():
 
     def _evaluate_adversarial_samples(self, verbose):
         import attacker
-        A = attacker.iterative_FGSM_attacker()
+        if self.meta_params['adv_attack'] == 'i_FGSM':
+            A = attacker.iterative_FGSM_attacker()
+        elif self.meta_params['adv_attack'] == 'JSMA':
+            A = attacker.JSMA_attacker()
+        elif self.meta_params['adv_attack'] == 'CW_L2':
+            A = attacker.CW_L2_attacker()
+        else:
+            A = NotImplemented
+
         test_X, test_Y = self.test_dataset
         model = self.model
 
@@ -372,6 +392,7 @@ class PropertyInferenceInterface():
         valid_count = 0        
         success_count = 0
         for i in range(num_of_count):
+            print('Conduct', i, 'th attack:', self.meta_params['adv_attack'])
             x, y = test_X[i], test_Y[i]
 
             is_attack_successful = False 
@@ -384,8 +405,26 @@ class PropertyInferenceInterface():
                     is_attack_successful = True
                     adv_x = adv_x.detach().numpy()
                     adv_x = adv_x[0]
+
+                    if i == 0 and verbose:
+                        import matplotlib.pyplot as plt
+                        img = adv_x.reshape(28, 28)
+                        plt.imshow(img, cmap='gray')
+                        plt.show()
+
+                        img = x.reshape(28, 28)
+                        plt.imshow(img, cmap='gray')
+                        plt.show()
+
                     
-            result = self.property_match(adv_x, y)
+            # Use y_
+            output = self.model.forward(torch.from_numpy(np.expand_dims(adv_x, axis=0).astype(np.float32)))
+            y_ = (output.max(1, keepdim=True)[1]).item()
+            result = self.property_match(adv_x, y_) 
+
+            # Use y 
+            # result = self.property_match(adv_x, y)
+            
             valid_count += result
         
         assert success_count == num_of_count 
