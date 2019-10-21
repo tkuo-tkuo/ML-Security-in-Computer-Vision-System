@@ -172,23 +172,45 @@ All the following tables and experiments are computed for experimental binary cl
 </details>
 
 <details>
-  <summary>Experiment 3 (WORKING): Relationship between LP_i combinations and FPR & FNR (adv_a=i_FGSM, y/y'=y)</summary>
+  <summary>Experiment 3 <b>(WORKING)</b>: Relationship between single LP_i and FPR & FNR (adv_a=i_FGSM, y/y'=y)</summary>
   
-  Do we actually need to use every layer to achieve promising AEDR (Adversarial Example Detection Rate)? 
-  - Based on 4 hidden layers networks, investigate the performance by using different combination of layer provenance. 
+  Based on 4 hidden layers networks, investigate the performance by using different combination of layer provenance. 
   => Different LPs have various capability for detection
-  - l1, l1+l2, l1+l2+l3, l1+l2+l3+l4, l2, l2+l3, ...
+  
+</details>
+
+<details>
+  <summary>Experiment 4 <b>(WORKING)</b>: Relationship between LP_i combinations and FPR & FNR (adv_a=i_FGSM, y/y'=y)</summary>
+  
+  l1, l1+l2, l1+l2+l3, l1+l2+l3+l4, l2, l2+l3, ...
   => Using more layers does not gunrantee the increasing performance
   => if l1 matches, l2 is pretty likely to still be matched 
   
 </details>
 
 <details>
-  <summary>Experiment 4: Case study on CNN</summary>
+  <summary>Experiment 5 <b>(WORKING)</b>: Relationship between input augmentation and FPR & FNR (adv_a=i_FGSM, LPs=1, y/y'=y)</summary>
+  
+  l1, l1+l2, l1+l2+l3, l1+l2+l3+l4, l2, l2+l3, ...
+  => Using more layers does not gunrantee the increasing performance
+  => if l1 matches, l2 is pretty likely to still be matched 
+  
+</details>
+
+<details>
+  <summary>Experiment 6: Case study on CNN</summary>
   
   (study LPS on CNN)
   
 </details>
+
+**Statements** <br/>
+1. We do not need to leverage all LPs. Single LP can achieve similar capability in terms of adversarial detection. 
+2. Position of layers can influence detection capability. 
+3. Different type of layers also have different detection capability. 
+4. If LP_i is matched, LP_i+1 is extremely likely to be matched.
+5. An adversarial sample does not belong to either the provenance set of the ground-truth label or the provenance set of the predicted label
+6. (more description)
 
 To-Do (High Priority)
 - Conduct experiments on 10-classes 
@@ -205,11 +227,30 @@ To-Do (Low Priority)
 
 #### Appendix 1.1 
 
-Jotting for architectures (More specification illustration required)
-- 784 64 2 (1)
-- 784 64 10 2 (2)
-- 784 64 32 10 2 (3)
-- 784 64 32 20 10 2 (4)
+<details>
+  <summary>Architectures of models (all ReLU networks)</summary>
+  
+  Jotting for architectures (More specification illustration required)
+  - 784 64 2 (1)
+  - 784 64 10 2 (2)
+  - 784 64 32 10 2 (3)
+  - 784 64 32 20 10 2 (4)
+  
+</details>
+
+<details>
+  <summary>Architectures of models (all CNN networks)</summary>
+  
+  (more)
+  
+</details>
+
+<details>
+  <summary>List of widely-adopted networks examinated</summary>
+  
+  (more)
+  
+</details>
 
 ## References 
 [1] Florian Tramer, Nicolas Papernot, Ian Goodfellow, Dan Boneh, and Patrick McDaniel. The space of transferable adversarial examples. arXiv preprint arXiv:1704.03453, 2017. <br />
