@@ -17,6 +17,8 @@ All the following tables and experiments are computed for experimental binary cl
 - **FPR**: False Positive Rate (benign samples are considered as adversarial)
 - **FNR**: Flase Negative Rate (adversarial samples are considered as benign)
 - **h**: Number of hidden layers (specifically for ReLU neural networks). For instance, h=1 indicates the neural network is a ReLU network with only one hidden layer 
+- **adv_a**: adversarial attack
+- **i_FGSM**: Iterative Fast Gradient Sign Method, **JSMA**: Jacobian Saliency Map Attack, **CWL2**: CarliniWagner L2 Attack
 
 **Expressions** <br/> 
 - **()** indicate standard deviation. 
@@ -27,7 +29,7 @@ All the following tables and experiments are computed for experimental binary cl
 **Data collections** <br/>
 
 <details>
-  <summary>Table 1: TPR & TNR by LP_1</summary>
+  <summary>Table 1: TPR & TNR by LP_1 (adv_a=i_FGSM)</summary>
     
   \|S\| | \|S1\|/\|S2\| | \|P1\| | \|P2\| | TPR | TNR | h | y/y'
   --- | --- | --- | --- | --- | --- | --- | --- 
@@ -60,9 +62,10 @@ All the following tables and experiments are computed for experimental binary cl
 </details> 
 
 <details>
-  <summary>Table 2: Detection via various combinations of layer provenance on 1-4 hidden layer ReLU network</summary>
+  
+  <summary>Table 2: TPR & TNR by LP_i combinations (adv_a=i_FGSM, h=4, y/y'=y)</summary>
 
-  \|S\| | \|S1\|/\|S2\| | \|P1\| | \|P2\| | TPR | TNR | Property layer(s) | num of hidden layers
+  \|S\| | \|S1\|/\|S2\| | \|P1\| | \|P2\| | TPR | TNR | LP(s) | h
   --- | --- | --- | --- | --- | --- | --- | ---
   500 | 227/273 | 96.940 (19.057) | 110.090 (29.264) | 65.1 (7.3)% | 72.9 (20.9)% | 1 | 4
   500 | 227/273 | 99.160 (22.821) | 114.030 (29.648) | 64.0 (8.9)% | 75.8 (21.2)% | 1/2 | 4
@@ -92,94 +95,84 @@ All the following tables and experiments are computed for experimental binary cl
 </details>
 
 <details>
-  <summary>Table 3: Detection via input preconditions on 1 hidden layer ReLU network (with data augmentation)</summary>
-
-  ## 
+  <summary>Table 3: TPR & TNR by input augmentation (adv_a=i_FGSM, LPs=1, y/y'=y)</summary>
   
-  \|S\| | \|S1\|/\|S2\| | \|P1\| | \|P2\| | TPR | TNR | Input Augmentation
-  --- | --- | --- | --- | --- | --- | ---  
-  500 | 227/273 | 70.850 (9.358) | 121.430 (15.163) | 64.0 (4.3)% | 34.5 (21.7)% | None 
-  3000 (500+2500) | 1362/1638 | 289.090 (24.717) | 644.110 (51.828) | 68.0 (3.5)% | 17.5 (12.0)% | Yes (Approach1)
-  3000 (500+2500) | 1362/1638 | 365.170 (40.151) | 742.320 (93.065) | 68.3 (3.6)% | 14.8 (10.5)% | Yes (Approach2)
-  1500 | 674/826 | 162.900 (24.819) | 223.570 (38.956) | 79.7 (4.3)% | 65.2 (16.1)% | None
-  9000 (1500+7500) | 4044/4956 | 574.650 (82.479) | 1090.800 (186.220) | 83.7 (3.6)% | 52.4 (17.2)% | Yes (Approach1)
-  9000 (1500+7500) | 4044/4956 | 682.920 (102.169) | 1378.340 (216.134) | 84.8 (3.4)% | 45.9 (15.8)% | Yes (Approach2)
-  3000 | 1364/1636 | 432.980 (93.588) | 738.560 (175.844) | 68.8 (6.5)% | 98.2 (3)% | None 
-  18000 (3000+15000) | 8185/9815 | 1226.650 (331.550) | 3299.600 (682.530) | 74.5 (5.8)% | 92.7 (6.7)% | Yes (Approach1)
-  18000 (3000+15000) | 8185/9815 | 1548.330 (359.290) | 3975.600 (833.274) | 74.7 (5.5)% | 89.2 (8.3)% | Yes (Approach2)
+  **Notations** <br/>
+  - **App_i**: Approach i
+  - **Input_Aug**: Input Augmentation
   
-</details>
+  **Implementation details** <br/>
+  - 5 perturbed inputs are generated per benign input
+  - Input augmentation approach1 - append noise _~Uniform(lower_bound=-0.1, uppper_bound=0.1)_
+  - Input augmentation approach2 - append noise _~Normal(mean=0, std=0.1)_
 
-<details>
-  <summary>Table 4: Detection via input preconditions on 2 hidden layer ReLU network (with data augmentation)</summary>
-
-  ## 
-
-  \|S\| | \|S1\|/\|S2\| | \|P1\| | \|P2\| | TPR | TNR | Input Augmentation
-  --- | --- | --- | --- | --- | --- | ---  
-  500 | 227/273 | 99.480 (21.718) | 141.360 (29.135) | 59.1 (9.2)% | 43.2 (21.9)% | None 
-  3000 (500+2500) | 1362/1638 | 272.770 (63.876) | 469.120 (152.296) | 69.3 (7.3)% | 28.2 (16.0)% | Yes (Approach1)
-  3000 (500+2500) | 1362/1638 | 338.890 (97.934) | 584.250 (181.626) | 68.0 (8.8)% | 28.2 (14.9)% | Yes (Approach2)
-  1500 | 674/826 | 200.250 (52.630) | 262.800 (58.982) | 77.7 (5.8)% | 79.9 (19.8)% | None 
-  9000 (1500+7500) | 4044/4956 | 524.450 (161.528) | 914.390 (239.864) | 82.9 (5.3)% | 64.7 (22.9)% | Yes (Approach1)
-  9000 (1500+7500) | 4044/4956 | 651.990 (205.734) | 1189.720 (363.669) | 82.9 (5.8)% | 58.7 (19.8)% | Yes (Approach2)
-  3000 | 1364/1636 | 463.520 (100.624) | 674.400 (170.379) | 71.4 (6.6)% | 99.1 (2.1)% | None
-  18000 (3000+15000) | 8185/9815 | 1205.820 (332.480) | 2549.280 (701.297) | 76.0 (6.3)% | 95.6 (6.9)% | Yes (Approach1)
-  18000 (3000+15000) | 8185/9815 | 1427.990 (383.569) | 3360.290 (995.905) | 76.0 (7.4)% | 91.7 (8.3)% | Yes (Approach2)
+  \|S\| | \|S1\|/\|S2\| | \|P1\| | \|P2\| | TPR | TNR | Input_Aug | h
+  --- | --- | --- | --- | --- | --- | --- | --- 
+  500 | 227/273 | 70.850 (9.358) | 121.430 (15.163) | 64.0 (4.3)% | 34.5 (21.7)% | None | 1
+  3000 (500+2500) | 1362/1638 | 289.090 (24.717) | 644.110 (51.828) | 68.0 (3.5)% | 17.5 (12.0)% | App_1 | 1
+  3000 (500+2500) | 1362/1638 | 365.170 (40.151) | 742.320 (93.065) | 68.3 (3.6)% | 14.8 (10.5)% | App_2 | 1
+  1500 | 674/826 | 162.900 (24.819) | 223.570 (38.956) | 79.7 (4.3)% | 65.2 (16.1)% | None | 1
+  9000 (1500+7500) | 4044/4956 | 574.650 (82.479) | 1090.800 (186.220) | 83.7 (3.6)% | 52.4 (17.2)% | App_1 | 1
+  9000 (1500+7500) | 4044/4956 | 682.920 (102.169) | 1378.340 (216.134) | 84.8 (3.4)% | 45.9 (15.8)% | App_2 | 1
+  3000 | 1364/1636 | 432.980 (93.588) | 738.560 (175.844) | 68.8 (6.5)% | 98.2 (3)% | None | 1 
+  18000 (3000+15000) | 8185/9815 | 1226.650 (331.550) | 3299.600 (682.530) | 74.5 (5.8)% | 92.7 (6.7)% | App_1 | 1
+  18000 (3000+15000) | 8185/9815 | 1548.330 (359.290) | 3975.600 (833.274) | 74.7 (5.5)% | 89.2 (8.3)% | App_2 | 1
+  500 | 227/273 | 99.480 (21.718) | 141.360 (29.135) | 59.1 (9.2)% | 43.2 (21.9)% | None | 2
+  3000 (500+2500) | 1362/1638 | 272.770 (63.876) | 469.120 (152.296) | 69.3 (7.3)% | 28.2 (16.0)% | App_1 | 2
+  3000 (500+2500) | 1362/1638 | 338.890 (97.934) | 584.250 (181.626) | 68.0 (8.8)% | 28.2 (14.9)% | App_2 | 2
+  1500 | 674/826 | 200.250 (52.630) | 262.800 (58.982) | 77.7 (5.8)% | 79.9 (19.8)% | None | 2
+  9000 (1500+7500) | 4044/4956 | 524.450 (161.528) | 914.390 (239.864) | 82.9 (5.3)% | 64.7 (22.9)% | App_1 | 2
+  9000 (1500+7500) | 4044/4956 | 651.990 (205.734) | 1189.720 (363.669) | 82.9 (5.8)% | 58.7 (19.8)% | App_2 | 2
+  3000 | 1364/1636 | 463.520 (100.624) | 674.400 (170.379) | 71.4 (6.6)% | 99.1 (2.1)% | None | 2
+  18000 (3000+15000) | 8185/9815 | 1205.820 (332.480) | 2549.280 (701.297) | 76.0 (6.3)% | 95.6 (6.9)% | App_1 | 2
+  18000 (3000+15000) | 8185/9815 | 1427.990 (383.569) | 3360.290 (995.905) | 76.0 (7.4)% | 91.7 (8.3)% | App_2 | 2
   
-  Notes: 
-  - Input augmentation approach1 - append noise _~Uniform(lower_bound=-0.1, uppper_bound=0.1)_; 5 perturbed inputs are generated per input 
-  - Input augmentation approach2 - append noise _~Normal(mean=0, std=0.1)_; 5 perturbed inputs are generated per input
-  - h=1, adv_attack=i_FGSM
-
 </details>
 
 **Experiments** 
 
 <details>
-  <summary>Experiment 1: Relationship between the complexity (depth) of ReLU neural networks and detection performance (FPR & FNR)</summary>
+  <summary>Experiment 1: Relationship between h and FPR & FNR (adv_a=i_FGSM, LPs=1, y/y'=y)</summary>
   
-  Note that only leverage the first ReLU layer, which consists of 64 neurons for all models. 
-
   <div align="center">
-  FPR & FNR of adversarial detection among ReLU neural networks with various depth (|S| = 500) 
+  FPR & FNR of adversarial detection with |S|=500 (h={1,2,3,4}) 
   </div>
   <img src="Images/Exp1/exp1_500.png" align="center" border="0" width="1200" height="170"/>
   <div align="center">
-  FPR & FNR of adversarial detection among ReLU neural networks with various depth (|S| = 1500) 
+  FPR & FNR of adversarial detection with |S|=1500 (h={1,2,3,4}) 
   </div>
   <img src="Images/Exp1/exp1_1500.png" align="center" border="0" width="1200" height="170"/>
   <div align="center">
-  FPR & FNR of adversarial detection among ReLU neural networks with various depth (|S| = 3500) 
+  FPR & FNR of adversarial detection with |S|=3000 (h={1,2,3,4}) 
   </div>
   <img src="Images/Exp1/exp1_3000.png" align="center" border="0" width="1200" height="170"/>
   
 </details>
 
 <details>
-  <summary>Experiment 2: Relationship between the size of training set and detection performance (FPR & FNR)</summary>
+  <summary>Experiment 2: Relationship between |S| and FPR & FNR (adv_a=i_FGSM, LPs=1, y/y'=y)</summary>
   
   <div align="center">
-  FPR & FNR of adversarial detection among ReLU neural networks trained with various |S| (# of hidden layers = 1) 
+  FPR & FNR of adversarial detection with h=1 (|S|={500,1500,3000}) 
   </div>
   <img src="Images/Exp2/exp2_1.png" align="center" border="0" width="1200" height="170"/>
   <div align="center">
-  FPR & FNR of adversarial detection among ReLU neural networks trained with various |S| (# of hidden layers = 2) 
+  FPR & FNR of adversarial detection with h=2 (|S|={500,1500,3000}) 
   </div>
   <img src="Images/Exp2/exp2_2.png" align="center" border="0" width="1200" height="170"/>
   <div align="center">
-  FPR & FNR of adversarial detection among ReLU neural networks trained with various |S| (# of hidden layers = 3) 
+  FPR & FNR of adversarial detection with h=3 (|S|={500,1500,3000}) 
   </div>
   <img src="Images/Exp2/exp2_3.png" align="center" border="0" width="1200" height="170"/>
   <div align="center">
-  FPR & FNR of adversarial detection among ReLU neural networks trained with various |S| (# of hidden layers = 4) 
+  FPR & FNR of adversarial detection with h=4 (|S|={500,1500,3000}) 
   </div>
   <img src="Images/Exp2/exp2_4.png" align="center" border="0" width="1200" height="170"/>  
   
 </details>
 
 <details>
-  <summary>Experiment 3: Case study on multiple hidden layers ReLU neural networks</summary>
+  <summary>Experiment 3 (WORKING): Relationship between LP_i combinations and FPR & FNR (adv_a=i_FGSM, y/y'=y)</summary>
   
   Do we actually need to use every layer to achieve promising AEDR (Adversarial Example Detection Rate)? 
   - Based on 4 hidden layers networks, investigate the performance by using different combination of layer provenance. 
@@ -191,7 +184,7 @@ All the following tables and experiments are computed for experimental binary cl
 </details>
 
 <details>
-  <summary>Experiment 4: Case study on convolutional network</summary>
+  <summary>Experiment 4: Case study on CNN</summary>
   
   (study LPS on CNN)
   
