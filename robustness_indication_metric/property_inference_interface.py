@@ -325,7 +325,7 @@ class PropertyInferenceInterface():
     def info_about_set_of_preconditions(self):
         return (len(self.first_F), len(self.second_F), len(self.uniq_first_F), len(self.uniq_second_F))
 
-    def property_match(self, x, y):
+    def property_match(self, x, y, verbose=True, alpha=None,):
         Py = self.property_set[y]
         precondition = self.extract_precondition(x)
 
@@ -333,27 +333,54 @@ class PropertyInferenceInterface():
         # Experimental
         #############################################
         Prob_Py = self.prob_property_set[y]
+
+        offset = 0.3
+        weights = np.array(Prob_Py) 
+        weights[weights <= (0.5-offset)] = -1
+        weights[weights >= (0.5+offset)] = -1
+        weights[weights != -1] = 0
+        weights[weights == -1] = 1
+
+        Prob_Py[Prob_Py==1.0] = 1.0 - 1/(Prob_Py.shape[0] + 1)
+        Prob_Py[Prob_Py==0.0] = 0.0 + 1/(Prob_Py.shape[0] + 1)
+        Prob_Py_ = 1 - Prob_Py
         np_precondition = np.array(precondition)
 
-        diff = Prob_Py - np_precondition
-        absolute_diff = np.absolute(diff)
-        risk_score = np.sum(absolute_diff)
+        benign_prob = 1
+        for i, ele in enumerate(np_precondition):
+            if weights[i] == 0:
+                continue
 
+            if ele == 1:
+                benign_prob *= Prob_Py[i]
+            else:
+                benign_prob *= Prob_Py_[i]
+
+        # print('benign_prob:', benign_prob)
+
+        if alpha == None:
+            alpha = 5e-8
+
+        # 0 indicates adversarial 
+        # 1 indicates benign 
         result = 0
-        if risk_score < 15:
+        if benign_prob > alpha:
             result = 1
+
+        if verbose: 
+            print(benign_prob, alpha, result)
         #############################################
 
         # result = 0
         # if precondition in Py:
-        #     result = 1
+            # result = 1
         
         return result
 
-    def evaluate_algorithm_on_test_set(self, verbose=True):
+    def evaluate_algorithm_on_test_set(self, alpha=None, verbose=True):
         # self._double_check_on_train_set()
-        benign_detect_ratio = self._evaluate_benign_samples(verbose)
-        adversarial_detect_ratio = self._evaluate_adversarial_samples(verbose)
+        benign_detect_ratio = self._evaluate_benign_samples(alpha, verbose)
+        adversarial_detect_ratio = self._evaluate_adversarial_samples(alpha, verbose)
         return (benign_detect_ratio, adversarial_detect_ratio)
 
     def _double_check_on_train_set(self):
@@ -369,7 +396,7 @@ class PropertyInferenceInterface():
         # print('Evaluate on benign samples within train set (should acheieve 100%)')
         # print(valid_count, num_of_count, valid_count/num_of_count)
 
-    def _evaluate_benign_samples(self, verbose):
+    def _evaluate_benign_samples(self, alpha, verbose):
         test_X, test_Y = self.test_dataset
         num_of_count = len(test_X)
         valid_count = 0 
@@ -379,10 +406,12 @@ class PropertyInferenceInterface():
             # Use y_
             output = self.model.forward(torch.from_numpy(np.expand_dims(x, axis=0).astype(np.float32)))
             y_ = (output.max(1, keepdim=True)[1]).item() 
-            result = self.property_match(x, y_)
+            if verbose:
+                print('Benign input matching...')
+            result = self.property_match(x, y_, verbose, alpha)
 
             # Use y_
-            # result = self.property_match(x, y)
+            # result = self.property_match(x, y, verbose)
 
             valid_count += result
 
@@ -391,7 +420,7 @@ class PropertyInferenceInterface():
             print(valid_count, num_of_count, (valid_count/num_of_count))
         return (valid_count/num_of_count)
 
-    def _evaluate_adversarial_samples(self, verbose):
+    def _evaluate_adversarial_samples(self, alpha, verbose):
         import attacker
         if self.meta_params['adv_attack'] == 'i_FGSM':
             A = attacker.iterative_FGSM_attacker()
@@ -437,10 +466,12 @@ class PropertyInferenceInterface():
             # Use y_
             output = self.model.forward(torch.from_numpy(np.expand_dims(adv_x, axis=0).astype(np.float32)))
             y_ = (output.max(1, keepdim=True)[1]).item()
-            result = self.property_match(adv_x, y_) 
+            if verbose:
+                print('Adversarial input matching...')
+            result = self.property_match(adv_x, y_, verbose, alpha) 
 
             # Use y 
-            # result = self.property_match(adv_x, y)
+            # result = self.property_match(adv_x, y, verbose)
             
             valid_count += result
         
