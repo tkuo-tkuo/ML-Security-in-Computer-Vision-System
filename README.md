@@ -5,7 +5,7 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 
 All the following tables and experiments are computed for experimental binary classification task: MNIST 5 vs MNIST 7
 
-**Notations** <br />
+### Notations
 
 - **LP_i**: Layer Provenance of the i-th hidden layer
 - **y**: ground-truth label, **y'** predicted label
@@ -20,12 +20,16 @@ All the following tables and experiments are computed for experimental binary cl
 - **adv_a**: adversarial attack
 - **i_FGSM**: Iterative Fast Gradient Sign Method, **JSMA**: Jacobian Saliency Map Attack, **CWL2**: CarliniWagner L2 Attack
 
-**Expressions** <br/> 
+### Expressions
+
 - **()** indicate standard deviation. 
 
-**Common rules <b>(this part should be modified frequently)</b>** <br/> 
+### Common Rules 
+
 - All evaluations (TPR, TNR, FPR, and FNR) are examinated on 100 samples. 
 - For Table 1 to 3 and Experiment 1 to 4, if we use more than one LP, we will concatenate all LPs as one LP.  
+
+### ReLU 
 
 **Data collections (ReLU)** <br/>
 
@@ -219,6 +223,8 @@ All the following tables and experiments are computed for experimental binary cl
 - If LP_i is matched, LP_i+1 is extremely likely to be matched.
 - An adversarial sample does not belong to either the provenance set of the ground-truth label or the provenance set of the predicted label
 
+### CNN
+
 **Data collections (CNN)** 
 
 (to be updated) 
@@ -239,7 +245,9 @@ All the following tables and experiments are computed for experimental binary cl
 - If LP_i is matched, LP_i+1 is extremely likely to be matched.
 - An adversarial sample does not belong to either the provenance set of the ground-truth label or the provenance set of the predicted label
 
-To-Do (High Priority)
+### To-Do List 
+
+High Priority
 - <b>LPs separation (no concatenation)</b>
 - <b>Investigate whether most of adversarial samples fall into the same provenance (running). If it is the case, maybe we can remove the provenance where adversarial samples are potential to match.</b>
 - Conduct experiments on 10-classes 
@@ -247,7 +255,7 @@ To-Do (High Priority)
 - Experiment on widely-adopted models 
 - Store part of trained models as 'h5' format to preserve reproducibility
 
-To-Do (Low Priority)
+Low Priority
 - Unify the format of citations
 - Enlarge the table to include 0qr(min)/1qr/2qr(medium)/3qr/4qr(max)
 - Document down the model architectures 
