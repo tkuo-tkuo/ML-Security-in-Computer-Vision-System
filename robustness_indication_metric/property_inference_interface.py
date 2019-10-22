@@ -26,21 +26,17 @@ class NormalC(nn.Module):
         super().__init__()
         self.layer1 = nn.Linear(784, 64)
         self.layer2 = nn.Linear(64, 32)
-        self.layer3 = nn.Linear(32, 10)
-        self.layer4 = nn.Linear(10, 2)
-        # self.layer2 = nn.Linear(64, 32)
-        # self.layer3 = nn.Linear(32, 20)
-        # self.layer4 = nn.Linear(20, 10)
-        # self.layer5 = nn.Linear(10, 2)
+        self.layer3 = nn.Linear(32, 20)
+        self.layer4 = nn.Linear(20, 10)
+        self.layer5 = nn.Linear(10, 2)
         self.relu = nn.ReLU()
 
     def forward(self, x):
         h1 = self.relu(self.layer1(x))
         h2 = self.relu(self.layer2(h1))
         h3 = self.relu(self.layer3(h2))
-        # h4 = self.relu(self.layer4(h3))
-        # return self.layer5(h4)
-        return self.layer4(h3)
+        h4 = self.relu(self.layer4(h3))
+        return self.layer5(h4)
 
 class CNN(nn.Module):
     def __init__(self):
@@ -75,6 +71,7 @@ class PropertyInferenceInterface():
         self.first_F, self.second_F = None, None
         self.uniq_first_F, self.uniq_second_F = None, None
         self.property_set = None        
+        self.prob_property_set = None 
 
     def set_meta_params(self, meta_params):
         self.meta_params = meta_params
@@ -203,7 +200,7 @@ class PropertyInferenceInterface():
         print('Model (train) accurancy:', acc)
         return acc
 
-    def extract_precondition(self, x, y):
+    def extract_precondition(self, x):
         model = self.model 
 
         # Grab the information
@@ -261,7 +258,7 @@ class PropertyInferenceInterface():
         first_F, second_F = [], []
         for i in range(len(X)):
             x, y = X[i], Y[i]
-            precondition = self.extract_precondition(x, y)
+            precondition = self.extract_precondition(x)
             if y == 0:
                 first_F.append(precondition)
             else: 
@@ -273,13 +270,13 @@ class PropertyInferenceInterface():
                 uniform_dis_range = self.meta_params['uni_range']
                 for i in range(len(X)):
                     for _ in range(5):
-                        x, y = X[i], Y[i]
+                        x = X[i]
                         random_x = x + ((np.random.random((784)) * uniform_dis_range) - (uniform_dis_range/2))
                         random_x[random_x >= 1] = 1.0
                         random_x[random_x <= 0] = 0.0
                         output = model.forward(torch.from_numpy(np.expand_dims(random_x, axis=0).astype(np.float32)))
                         y = (output.max(1, keepdim=True)[1]).item() # get the index of the max log-probability
-                        precondition = self.extract_precondition(random_x, y)
+                        precondition = self.extract_precondition(random_x)
                         if y == 0:
                             first_F.append(precondition)
                         else: 
@@ -290,13 +287,13 @@ class PropertyInferenceInterface():
                 normal_std = self.meta_params['normal_std']
                 for i in range(len(X)):
                     for _ in range(5):
-                        x, y = X[i], Y[i]
+                        x = X[i]
                         random_x = x + np.random.normal(0, normal_std, 784)
                         random_x[random_x >= 1] = 1.0
                         random_x[random_x <= 0] = 0.0
                         output = model.forward(torch.from_numpy(np.expand_dims(random_x, axis=0).astype(np.float32)))
                         y = (output.max(1, keepdim=True)[1]).item() # get the index of the max log-probability
-                        precondition = self.extract_precondition(random_x, y)
+                        precondition = self.extract_precondition(random_x)
                         if y == 0:
                             first_F.append(precondition)
                         else: 
@@ -313,6 +310,11 @@ class PropertyInferenceInterface():
         self.uniq_first_F, self.uniq_second_F = uniq_first_F, uniq_second_F
         self.property_set = [uniq_first_F, uniq_second_F]
 
+        LP1s, LP2s = np.array(uniq_first_F), np.array(uniq_second_F)
+        prob_LP1 = np.sum(LP1s, axis=0) / (LP1s.shape[0])
+        prob_LP2 = np.sum(LP2s, axis=0) / (LP2s.shape[0])
+        self.prob_property_set = [prob_LP1, prob_LP2]
+
     def print_set_of_preconditions(self):
         print('Length of each precondition (provenance):', len(self.first_F[0]))
         print('Total Input Properties extracted for the first class:', len(self.first_F))
@@ -325,16 +327,31 @@ class PropertyInferenceInterface():
 
     def property_match(self, x, y):
         Py = self.property_set[y]
-        precondition = self.extract_precondition(x, y)
+        precondition = self.extract_precondition(x)
+
+        #############################################
+        # Experimental
+        #############################################
+        Prob_Py = self.prob_property_set[y]
+        np_precondition = np.array(precondition)
+
+        diff = Prob_Py - np_precondition
+        absolute_diff = np.absolute(diff)
+        risk_score = np.sum(absolute_diff)
 
         result = 0
-        if precondition in Py:
+        if risk_score < 15:
             result = 1
+        #############################################
+
+        # result = 0
+        # if precondition in Py:
+        #     result = 1
         
         return result
 
     def evaluate_algorithm_on_test_set(self, verbose=True):
-        self._double_check_on_train_set()
+        # self._double_check_on_train_set()
         benign_detect_ratio = self._evaluate_benign_samples(verbose)
         adversarial_detect_ratio = self._evaluate_adversarial_samples(verbose)
         return (benign_detect_ratio, adversarial_detect_ratio)
@@ -348,7 +365,7 @@ class PropertyInferenceInterface():
             result = self.property_match(x, y)
             valid_count += result
 
-        # assert valid_count == num_of_count
+        assert valid_count == num_of_count
         # print('Evaluate on benign samples within train set (should acheieve 100%)')
         # print(valid_count, num_of_count, valid_count/num_of_count)
 
@@ -392,7 +409,7 @@ class PropertyInferenceInterface():
         valid_count = 0        
         success_count = 0
         for i in range(num_of_count):
-            print('Conduct', i, 'th attack:', self.meta_params['adv_attack'])
+            # print('Conduct', i, 'th attack:', self.meta_params['adv_attack'])
             x, y = test_X[i], test_Y[i]
 
             is_attack_successful = False 
@@ -406,15 +423,15 @@ class PropertyInferenceInterface():
                     adv_x = adv_x.detach().numpy()
                     adv_x = adv_x[0]
 
-                    if i == 0 and verbose:
-                        import matplotlib.pyplot as plt
-                        img = adv_x.reshape(28, 28)
-                        plt.imshow(img, cmap='gray')
-                        plt.show()
+                    # if i == 0 and verbose:
+                    #     import matplotlib.pyplot as plt
+                    #     img = adv_x.reshape(28, 28)
+                    #     plt.imshow(img, cmap='gray')
+                    #     plt.show()
 
-                        img = x.reshape(28, 28)
-                        plt.imshow(img, cmap='gray')
-                        plt.show()
+                    #     img = x.reshape(28, 28)
+                    #     plt.imshow(img, cmap='gray')
+                    #     plt.show()
 
                     
             # Use y_
