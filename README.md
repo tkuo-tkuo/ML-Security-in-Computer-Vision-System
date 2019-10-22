@@ -12,26 +12,27 @@ All the following tables and experiments are computed for experimental binary cl
 - **S**: training set, **P**: provenance set
 - **S1**: subset (first class) within training set, **S2**: subset (second class) within training set
 - **P1**: subset (first class) within provenance set, **P2**: subset (second class) within provenance set
-- **TPR**: True Positive Rate (benign samples are considered as benign)
-- **TNR**: True Negative Rate (adversarial samples are considered as adversarial)
-- **FPR**: False Positive Rate (benign samples are considered as adversarial)
-- **FNR**: Flase Negative Rate (adversarial samples are considered as benign)
-- **h**: Number of hidden layers (specifically for ReLU neural networks). For instance, h=1 indicates the neural network is a ReLU network with only one hidden layer 
+- **TPR**: True Positive Rate (A -> A)
+- **TNR**: True Negative Rate (B -> B)
+- **FPR**: False Positive Rate (B -> A)
+- **FNR**: Flase Negative Rate (A -> B)
+- **h**: Number of hidden layers (specifically for ReLU neural networks)
 - **adv_a**: adversarial attack
 - **i_FGSM**: Iterative Fast Gradient Sign Method, **JSMA**: Jacobian Saliency Map Attack, **CWL2**: CarliniWagner L2 Attack
 
 **Expressions** <br/> 
 - **()** indicate standard deviation. 
 
-**Common rules** <br/> 
+**Common rules <b>(this part should be modified frequently)</b>** <br/> 
 - All evaluations (TPR, TNR, FPR, and FNR) are examinated on 100 samples. 
+- For Table 1 to 3 and Experiment 1 to 4, if we use more than one LP, we will concatenate all LPs as one LP.  
 
-**Data collections** <br/>
+**Data collections (ReLU)** <br/>
 
 <details>
   <summary>Table 1: TPR & TNR by LP_1 (adv_a=i_FGSM)</summary>
     
-  \|S\| | \|S1\|/\|S2\| | \|P1\| | \|P2\| | TPR | TNR | h | y/y'
+  \|S\| | \|S1\|/\|S2\| | \|P1\| | \|P2\| | TNR | TPR | h | y/y'
   --- | --- | --- | --- | --- | --- | --- | --- 
   500 | 227/273 | 70.850 (9.358) | 121.430 (15.163) | 64.0 (4.3)% | 34.5 (21.7)% | 1 | y
   500 | 227/273 | 99.480 (21.718) | 141.360 (29.135) | 59.1 (9.2)% | 43.2 (21.9)% | 2 | y
@@ -65,7 +66,7 @@ All the following tables and experiments are computed for experimental binary cl
   
   <summary>Table 2: TPR & TNR by LP_i combinations (adv_a=i_FGSM, h=4, y/y'=y)</summary>
 
-  \|S\| | \|S1\|/\|S2\| | \|P1\| | \|P2\| | TPR | TNR | LP(s) | h
+  \|S\| | \|S1\|/\|S2\| | \|P1\| | \|P2\| | TNR | TPR | LP(s) | h
   --- | --- | --- | --- | --- | --- | --- | ---
   500 | 227/273 | 96.940 (19.057) | 110.090 (29.264) | 65.1 (7.3)% | 72.9 (20.9)% | 1 | 4
   500 | 227/273 | 99.160 (22.821) | 114.030 (29.648) | 64.0 (8.9)% | 75.8 (21.2)% | 1/2 | 4
@@ -106,7 +107,7 @@ All the following tables and experiments are computed for experimental binary cl
   - Input augmentation approach1 - append noise _~Uniform(lower_bound=-0.1, uppper_bound=0.1)_
   - Input augmentation approach2 - append noise _~Normal(mean=0, std=0.1)_
 
-  \|S\| | \|S1\|/\|S2\| | \|P1\| | \|P2\| | TPR | TNR | Input_Aug | h
+  \|S\| | \|S1\|/\|S2\| | \|P1\| | \|P2\| | TNR | TPR | Input_Aug | h
   --- | --- | --- | --- | --- | --- | --- | --- 
   500 | 227/273 | 70.850 (9.358) | 121.430 (15.163) | 64.0 (4.3)% | 34.5 (21.7)% | None | 1
   3000 (500+2500) | 1362/1638 | 289.090 (24.717) | 644.110 (51.828) | 68.0 (3.5)% | 17.5 (12.0)% | App_1 | 1
@@ -129,7 +130,7 @@ All the following tables and experiments are computed for experimental binary cl
   
 </details>
 
-**Experiments** 
+**Experiments  (ReLU)** 
 
 <details>
 
@@ -211,31 +212,36 @@ All the following tables and experiments are computed for experimental binary cl
   
 </details>
 
+**Observations  (ReLU)** <br/>
+- Position of layers can influence detection capability. As we can see, when LP is closer to the end, TP  increases and TN decreases. One possible explanation is that when the LP is closer to the end, more samples (both for benign and adversarial samples) are likely to fall in the same provenance. 
+- Different type of layers also have different detection capability. 
+- We do not need to leverage all LPs. Single LP can achieve similar capability in terms of adversarial detection. 
+- If LP_i is matched, LP_i+1 is extremely likely to be matched.
+- An adversarial sample does not belong to either the provenance set of the ground-truth label or the provenance set of the predicted label
+
+**Data collections (CNN)** 
+
+(to be updated) 
+
+**Experiments (CNN)** 
+
 <details>
-  <summary>Experiment 5: Case study on CNN <b>(running)</b></summary>
+  <summary>Experiment ?: Case study on CNN <b>(running)</b></summary>
   
   (study LPS on CNN)
   
 </details>
 
-**Meeting agendas(temporary)** <br/>
-1. Review your workflow
-2. Talk about your discussion with Shiqing (unfortunately, we can not get the source codes) 
-3. Your potential directions (Relations between each properties and FPR & FNR, How different types of layers affect the performance, How complexity of models affect performance, Can this approach generalize to various types of models, Different ways to conduct dimensionality reduction for extracting conv LP.)
-4. Talk about application (I will like to take to professors, whose program offers scholarship or requires master thesis. However, Can I mention that 'I know you through ...'?) 
-5. Signature for monthly report
-
-**Statements** <br/>
-1. Position of layers can influence detection capability. As we can see, when LP is closer to the end, TP  increases and TN decreases. One possible explanation is that when the LP is closer to the end, more samples (both for benign and adversarial samples) are likely to fall in the same provenance. 
-2. Different type of layers also have different detection capability. 
-3. We do not need to leverage all LPs. Single LP can achieve similar capability in terms of adversarial detection. 
-4. If LP_i is matched, LP_i+1 is extremely likely to be matched.
-5. An adversarial sample does not belong to either the provenance set of the ground-truth label or the provenance set of the predicted label
-6. <b>Investigate whether most of adversarial samples fall into the same provenance (running). If it is the case, maybe we can remove the provenance where adversarial samples are potential to match.</b>
-7. Totally, three attacks will be evaluated (i-FGSM, JSMA, CWL2)
-8. Totally, three categories DNN will be evaluated (ReLU, CNN, widely-adopted DNN).
+**Observations (CNN)** <br/>
+- Position of layers can influence detection capability. As we can see, when LP is closer to the end, TP  increases and TN decreases. One possible explanation is that when the LP is closer to the end, more samples (both for benign and adversarial samples) are likely to fall in the same provenance. 
+- Different type of layers also have different detection capability. 
+- We do not need to leverage all LPs. Single LP can achieve similar capability in terms of adversarial detection. 
+- If LP_i is matched, LP_i+1 is extremely likely to be matched.
+- An adversarial sample does not belong to either the provenance set of the ground-truth label or the provenance set of the predicted label
 
 To-Do (High Priority)
+- <b>LPs separation (no concatenation)</b>
+- <b>Investigate whether most of adversarial samples fall into the same provenance (running). If it is the case, maybe we can remove the provenance where adversarial samples are potential to match.</b>
 - Conduct experiments on 10-classes 
 - Experiment on CNN models 
 - Experiment on widely-adopted models 
