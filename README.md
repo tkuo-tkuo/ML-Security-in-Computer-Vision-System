@@ -204,13 +204,20 @@ All the following tables and experiments are computed for experimental binary cl
   
 </details>
 
+**Meeting agendas(temporary)** <br/>
+1. Review your work flow
+2. Talk about your discussion with Shiqing 
+3. Your potential directions (Relations between each properties and FPR & FNR, How different types of layers affect the performance, How complexity of models affect performance, Can this approach generalize to various types of models, Different ways to conduct dimensionality reduction for extracting conv LP.)
+4. Talk about application (I will like to take to professors, whose program offers scholarship or requires master thesis. However, Can I mention that 'I know you through ...'?) 
+
 **Statements** <br/>
 1. We do not need to leverage all LPs. Single LP can achieve similar capability in terms of adversarial detection. 
-2. Position of layers can influence detection capability. 
+2. Position of layers can influence detection capability. As we can see, when LP is closer to the end, TP  increases and TN decreases. One possible explanation is that when the LP is closer to the end, more samples (both for benign and adversarial samples) are likely to fall in the same provenance. 
 3. Different type of layers also have different detection capability. 
 4. If LP_i is matched, LP_i+1 is extremely likely to be matched.
 5. An adversarial sample does not belong to either the provenance set of the ground-truth label or the provenance set of the predicted label
-6. (more description)
+6. Totally, three attacks will be evaluated (i-FGSM, JSMA, CWL2)
+7. Totally, three categories DNN will be evaluated (ReLU, CNN, widely-adopted DNN).
 
 To-Do (High Priority)
 - Conduct experiments on 10-classes 
