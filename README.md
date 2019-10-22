@@ -28,7 +28,7 @@ All the following tables and experiments are computed for experimental binary cl
 
 **Data collections** <br/>
 
-<details>
+<!-- <details> -->
   <summary>Table 1: TPR & TNR by LP_1 (adv_a=i_FGSM)</summary>
     
   \|S\| | \|S1\|/\|S2\| | \|P1\| | \|P2\| | TPR | TNR | h | y/y'
@@ -61,7 +61,7 @@ All the following tables and experiments are computed for experimental binary cl
   
 </details> 
 
-<details>
+<!-- <details> -->
   
   <summary>Table 2: TPR & TNR by LP_i combinations (adv_a=i_FGSM, h=4, y/y'=y)</summary>
 
@@ -94,7 +94,7 @@ All the following tables and experiments are computed for experimental binary cl
 
 </details>
 
-<details>
+<!-- <details> -->
   <summary>Table 3: TPR & TNR by input augmentation (adv_a=i_FGSM, LPs=1, y/y'=y)</summary>
   
   **Notations** <br/>
@@ -131,7 +131,7 @@ All the following tables and experiments are computed for experimental binary cl
 
 **Experiments** 
 
-<details>
+<!-- <details> -->
   <summary>Experiment 1: Relationship between h and FPR & FNR (adv_a=i_FGSM, LPs=1, y/y'=y)</summary>
   
   <div align="center">
@@ -149,7 +149,7 @@ All the following tables and experiments are computed for experimental binary cl
   
 </details>
 
-<details>
+<!-- <details> -->
   <summary>Experiment 2: Relationship between |S| and FPR & FNR (adv_a=i_FGSM, LPs=1, y/y'=y)</summary>
   
   <div align="center">
@@ -171,7 +171,7 @@ All the following tables and experiments are computed for experimental binary cl
   
 </details>
 
-<details>
+<!-- <details> -->
   <summary>Experiment 3: Relationship between single LP_i and FPR & FNR (adv_a=i_FGSM, y/y'=y)</summary>
   
   <div align="center">
@@ -189,7 +189,7 @@ All the following tables and experiments are computed for experimental binary cl
   
 </details>
 
-<details>
+<!-- <details> -->
   <summary>Experiment 4: Relationship between LP_i combinations and FPR & FNR (adv_a=i_FGSM, y/y'=y)</summary>
   
   <div align="center">
