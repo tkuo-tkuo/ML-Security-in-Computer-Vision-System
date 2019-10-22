@@ -262,7 +262,7 @@ Low Priority
 
 ## Appendix 
 
-#### Appendix 1.1 
+#### Appendix 1.1 Architectures 
 
 <details>
   <summary>Architectures of models (all ReLU networks)</summary>
@@ -288,6 +288,15 @@ Low Priority
   (more)
   
 </details>
+
+#### Appendix 1.2 Interesting Trails 
+
+Use **probability absolute difference method** instead of rule-based (belonging judgement) method. 
+
+\|S\| | \|S1\|/\|S2\| | \|P1\| | \|P2\| | TNR | TPR | LP(s) | h | alpha 
+--- | --- | --- | --- | --- | --- | --- | --- | ---
+3000 | 1364/1636 | 495.060 (128.945) | 616.210 (163.089) | 83.4 (10.4)% | 96.6 (5.7)% | 1 | 4 | 10
+
 
 ## References 
 [1] Florian Tramer, Nicolas Papernot, Ian Goodfellow, Dan Boneh, and Patrick McDaniel. The space of transferable adversarial examples. arXiv preprint arXiv:1704.03453, 2017. <br />
