@@ -172,19 +172,38 @@ All the following tables and experiments are computed for experimental binary cl
 </details>
 
 <details>
-  <summary>Experiment 3 <b>(WORKING)</b>: Relationship between single LP_i and FPR & FNR (adv_a=i_FGSM, y/y'=y)</summary>
+  <summary>Experiment 3: Relationship between single LP_i and FPR & FNR (adv_a=i_FGSM, y/y'=y)</summary>
   
-  Based on 4 hidden layers networks, investigate the performance by using different combination of layer provenance. 
-  => Different LPs have various capability for detection
+  <div align="center">
+  FPR & FNR of adversarial detection with |S|=500 (LP_i={LP_1,LP_2,LP_3,LP_4}) 
+  </div>
+  <img src="Images/Exp3/exp3_500.png" align="center" border="0" width="1200" height="170"/>
+  <div align="center">
+  FPR & FNR of adversarial detection with |S|=1500 (LP_i={LP_1,LP_2,LP_3,LP_4}) 
+  </div>
+  <img src="Images/Exp3/exp3_1500.png" align="center" border="0" width="1200" height="170"/>
+  <div align="center">
+  FPR & FNR of adversarial detection with |S|=3000 (LP_i={LP_1,LP_2,LP_3,LP_4}) 
+  </div>
+  <img src="Images/Exp3/exp3_3000.png" align="center" border="0" width="1200" height="170"/>
   
 </details>
 
 <details>
-  <summary>Experiment 4 <b>(WORKING)</b>: Relationship between LP_i combinations and FPR & FNR (adv_a=i_FGSM, y/y'=y)</summary>
+  <summary>Experiment 4: Relationship between LP_i combinations and FPR & FNR (adv_a=i_FGSM, y/y'=y)</summary>
   
-  l1, l1+l2, l1+l2+l3, l1+l2+l3+l4, l2, l2+l3, ...
-  => Using more layers does not gunrantee the increasing performance
-  => if l1 matches, l2 is pretty likely to still be matched 
+  <div align="center">
+  FPR & FNR of adversarial detection with |S|=500 (LP(s)={1,1/2,1/2/3,1/2/3/4}) 
+  </div>
+  <img src="Images/Exp4/exp4_500.png" align="center" border="0" width="1200" height="170"/>
+  <div align="center">
+  FPR & FNR of adversarial detection with |S|=1500 (LP(s)={1,1/2,1/2/3,1/2/3/4}) 
+  </div>
+  <img src="Images/Exp4/exp4_1500.png" align="center" border="0" width="1200" height="170"/>
+  <div align="center">
+  FPR & FNR of adversarial detection with |S|=3000 (LP(s)={1,1/2,1/2/3,1/2/3/4}) 
+  </div>
+  <img src="Images/Exp4/exp4_3000.png" align="center" border="0" width="1200" height="170"/>
   
 </details>
 
