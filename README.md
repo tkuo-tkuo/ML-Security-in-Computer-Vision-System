@@ -3,8 +3,6 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 
 ## Study on adversarial detection via LP (Layer Provenance)
 
-All the following tables and experiments are computed for experimental binary classification task: MNIST 5 vs MNIST 7
-
 ### Notations
 
 - **LP_i**: Layer Provenance of the i-th hidden layer
@@ -27,6 +25,7 @@ All the following tables and experiments are computed for experimental binary cl
 ### Common Rules 
 
 - All evaluations (TPR, TNR, FPR, and FNR) are examinated on 100 samples. 
+- For Table 1 to 3 and Experiment 1 to 4, the task is to classify 5 and 7 (subset of MNIST). 
 - For Table 1 to 3 and Experiment 1 to 4, if we use more than one LP, we will concatenate all LPs as one LP.  
 
 ### ReLU 
