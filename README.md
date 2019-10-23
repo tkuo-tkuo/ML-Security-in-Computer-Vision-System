@@ -289,7 +289,11 @@ Low Priority
   
 </details>
 
-#### Appendix 1.2 Interesting Trails 
+#### Appendix 1.2 Original Rule-based Method & 4 potential improvements 
+
+(To be updated) 
+
+#### Appendix 1.3 Interesting Trials 
 
 Use **probability absolute difference method** instead of rule-based (belonging judgement) method. 
 
