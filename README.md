@@ -291,7 +291,36 @@ Low Priority
 
 #### Appendix 1.2 Original Rule-based Method & 4 potential improvements 
 
-(To be updated) 
+<details>
+  
+  <summary>Original Rule-based Method</summary>
+
+</details>
+
+<details>
+  
+  <summary>Potential Method 1: ...</summary>
+
+</details>
+
+<details>
+  
+  <summary>Potential Method 2: ...</summary>
+
+</details>
+
+<details>
+  
+  <summary>Potential Method 3: ...</summary>
+
+</details>
+
+<details>
+  
+  <summary>Potential Method 4: ...</summary>
+
+</details>
+
 
 #### Appendix 1.3 Interesting Trials 
 
