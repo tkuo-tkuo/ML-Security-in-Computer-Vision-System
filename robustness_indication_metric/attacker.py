@@ -10,6 +10,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 
+import random
+
 '''
 Improved version of the classicial FGSM (Fast Gradient Sign Method) attack
 Category: Targeted, Gradient-based
@@ -58,13 +60,10 @@ class JSMA_attacker():
         self.num_classes = 10
 
     def create_adv_input(self, x, y, model, epsilon):
-        target_y = None 
+        target_y = random.randint(0, 9)
+        while y == target_y:
+            target_y = random.randint(0, 9)
         
-        if y == 0:
-            target_y = 1
-        else:
-            target_y = 0
-
         data = torch.from_numpy(np.expand_dims(x, axis=0).astype(np.float32))
         target = np.array([target_y]).astype(np.int64)
         target = torch.from_numpy(target)

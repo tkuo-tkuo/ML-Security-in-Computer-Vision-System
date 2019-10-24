@@ -176,7 +176,6 @@ class PropertyInferenceInterface():
     def property_match(self, x, y, verbose=True, alpha=None,):
         Py = self.LPs_set[y]
         LPs = extract_all_LP(self.model, self.meta_params['model_type'], x)
-        # prob_LP1 = np.sum(LP1s, axis=0) / (LP1s.shape[0])
 
         #############################################
         # Original Method 
@@ -191,10 +190,10 @@ class PropertyInferenceInterface():
                 status = 'benign'
             LP_status.append(status)
 
-        result = 0
+        result = 1
         # if not ('adversarial' in LP_status):
-        if 'benign' == LP_status[3]:
-            result = 1
+        if 'adversarial' == LP_status[0] and 'adversarial' == LP_status[1]:
+            result = 0
             
         if verbose:
             if result == 1:
@@ -329,6 +328,9 @@ class PropertyInferenceInterface():
             epsilon = 0 
             while (not is_attack_successful):
                 epsilon += 0.01
+                if epsilon > 1:
+                    break  
+
                 adv_x, success_indicator = A.create_adv_input(x, y, model, epsilon)
                 if success_indicator == 1:
                     success_count += success_indicator
@@ -345,6 +347,10 @@ class PropertyInferenceInterface():
                     #     img = x.reshape(28, 28)
                     #     plt.imshow(img, cmap='gray')
                     #     plt.show()
+
+            if not is_attack_successful:
+                num_of_count -= 1
+                break 
 
             output = self.model.forward(torch.from_numpy(np.expand_dims(adv_x, axis=0).astype(np.float32)))
             y_ = (output.max(1, keepdim=True)[1]).item()
