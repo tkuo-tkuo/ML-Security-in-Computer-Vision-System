@@ -221,6 +221,8 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 - We do not need to leverage all LPs. Single LP can achieve similar capability in terms of adversarial detection. 
 - If LP_i is matched, LP_i+1 is extremely likely to be matched.
 - An adversarial sample does not belong to either the provenance set of the ground-truth label or the provenance set of the predicted label
+- y' class, both benign & adversarial samples on 4 hidden layers ReLU → [A, B, B, B] or [A, A, B, B]
+- y class, most then [B, B, B, B] or [A, A, A, A]
 
 ### CNN
 
@@ -248,8 +250,8 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 
 High Priority
 - <b>~~LPs separation (no concatenation)~~</b>
+- <b>~~Change the implementation for 10 classes (MNIST)~~</b> 
 - <b>Investigate whether most of adversarial samples fall into the same provenance (running). If it is the case, maybe we can remove the provenance where adversarial samples are potential to match -> draw a graph to demonstrate the result</b>
-- <b>Conduct experiments on 10-classes (working)</b> 
 - Experiment on CNN models 
 - Experiment on widely-adopted models 
 - Store part of trained models as 'h5' format to preserve reproducibility
