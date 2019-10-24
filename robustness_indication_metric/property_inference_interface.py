@@ -70,7 +70,7 @@ class PropertyInferenceInterface():
             Y = (labels.numpy())
         
             # Prepare subset 
-            # (X, Y) = extract_subset_certain_classes(X, Y, first_class, second_class, self.meta_params['size_of_train_set'])
+            (X, Y) = extract_subset(X, Y, self.meta_params['size_of_train_set'])
             break
         
         self.train_dataset = (X, Y)
@@ -86,7 +86,7 @@ class PropertyInferenceInterface():
             Y = (labels.numpy())
         
             # Prepare subset 
-            # (X, Y) = extract_subset_certain_classes(X, Y, first_class, second_class, self.meta_params['size_of_test_set'])
+            (X, Y) = extract_subset(X, Y, self.meta_params['size_of_test_set'])
             break
         
         self.test_dataset = (X, Y)
