@@ -96,6 +96,9 @@ class PropertyInferenceInterface():
     def set_model(self, model):
         self.model = model
 
+    def store_model(self, model_name):
+        torch.save(self.model, model_name)
+
     def generate_model(self, num_of_epochs=15):
         if self.meta_params['model_type'] == 'naive':
             model = NaiveC()
