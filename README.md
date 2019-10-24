@@ -247,9 +247,9 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 ### To-Do List 
 
 High Priority
-- <b>LPs separation (no concatenation)</b>
-- <b>Investigate whether most of adversarial samples fall into the same provenance (running). If it is the case, maybe we can remove the provenance where adversarial samples are potential to match.</b>
-- Conduct experiments on 10-classes 
+- <b>~~LPs separation (no concatenation)~~</b>
+- <b>Investigate whether most of adversarial samples fall into the same provenance (running). If it is the case, maybe we can remove the provenance where adversarial samples are potential to match -> draw a graph to demonstrate the result</b>
+- <b>Conduct experiments on 10-classes (working)</b> 
 - Experiment on CNN models 
 - Experiment on widely-adopted models 
 - Store part of trained models as 'h5' format to preserve reproducibility
