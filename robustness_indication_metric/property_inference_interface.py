@@ -93,6 +93,9 @@ class PropertyInferenceInterface():
         
         self.test_dataset = (X, Y)
 
+    def set_model(self, model):
+        self.model = model
+
     def generate_model(self, num_of_epochs=15):
         if self.meta_params['model_type'] == 'naive':
             model = NaiveC()
@@ -106,8 +109,8 @@ class PropertyInferenceInterface():
         # Training
         loss_func, optimizer = nn.CrossEntropyLoss(), torch.optim.Adam(model.parameters(), lr=1e-3)
         for epoch in range(num_of_epochs):
+            print(epoch)
             for idx, data in enumerate(X):
-                print(epoch, idx)
 
                 # Transform from numpy to torch & correct the shape (expand dimension) and type (float32 and int64)
                 data = torch.from_numpy(np.expand_dims(data, axis=0).astype(np.float32))
@@ -142,7 +145,7 @@ class PropertyInferenceInterface():
         correct = (predictions == labels.numpy()).sum().item()
         acc = correct/total
             
-        print('Model (train) accurancy:', acc)
+        print('Model (', dataset_type, ') accurancy:', acc)
         return acc
 
     def generate_LPs(self):
@@ -269,6 +272,7 @@ class PropertyInferenceInterface():
         test_X, test_Y = self.test_dataset
         num_of_count, valid_count = len(test_X), 0
         for i in range(num_of_count):
+            print('benign', i)
             x, y = test_X[i], test_Y[i]
             
             # Use y_
@@ -311,7 +315,7 @@ class PropertyInferenceInterface():
         valid_count = 0        
         success_count = 0
         for i in range(num_of_count):
-            # print('Conduct', i, 'th attack:', self.meta_params['adv_attack'])
+            print('Conduct', i, 'th attack:', self.meta_params['adv_attack'])
             x, y = test_X[i], test_Y[i]
 
             # Use y_

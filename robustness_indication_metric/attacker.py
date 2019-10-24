@@ -55,9 +55,11 @@ Category: L0, Targeted, Gradient-based
 class JSMA_attacker():
 
     def __init__(self):
-        self.num_classes = 2
+        self.num_classes = 10
 
     def create_adv_input(self, x, y, model, epsilon):
+        target_y = None 
+        
         if y == 0:
             target_y = 1
         else:
