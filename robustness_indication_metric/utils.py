@@ -14,6 +14,9 @@ def extract_subset_certain_classes(X, Y, first_class, second_class, size_of_sub_
     sub_Y[sub_Y == second_class] = 1
     return (sub_X, sub_Y)
 
+def extract_subset(X, Y, size_of_sub_dataset):
+    return (X[:size_of_sub_dataset], Y[:size_of_sub_dataset])
+
 def extract_all_LP(model, model_type, x):
     LPs = []
 
