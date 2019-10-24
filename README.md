@@ -240,11 +240,7 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 </details>
 
 **Observations (CNN)** <br/>
-- Position of layers can influence detection capability. As we can see, when LP is closer to the end, TP  increases and TN decreases. One possible explanation is that when the LP is closer to the end, more samples (both for benign and adversarial samples) are likely to fall in the same provenance. 
-- Different type of layers also have different detection capability. 
-- We do not need to leverage all LPs. Single LP can achieve similar capability in terms of adversarial detection. 
-- If LP_i is matched, LP_i+1 is extremely likely to be matched.
-- An adversarial sample does not belong to either the provenance set of the ground-truth label or the provenance set of the predicted label
+- (to be updated)
 
 ### To-Do List 
 
