@@ -233,10 +233,15 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 **Experiments (CNN)** 
 
 <details>
-  <summary>Experiment 5: Case study on CNN using Potential Method 1 & Integrated LPs judgement <b>(working)</b></summary>
+  <summary>Experiment 5: Potential Method 1 & Integrated LPs judgement (adv_attack=i_FGSM, y/y'=y', model=CNN) <b>(working)</b></summary>
+<br/>
   
-  - If we intuitively set the differentiation lines by just browsing through the risk scores & apply adv condition (LP1=A an LP2=A) -> A, we can alreadly achieve 0% FPR and 13%FNR on CNN. 
-  - What if we see the distribution of risk scores so as to deliberately select differentiation lines and adv condition? (working) 
+    Note that LP_i = B if risk_score_i < differentitation_line_i
+  
+  - If we intuitively set the differentiation lines and apply judgement rule (LP_1=A and LP_2=A) -> A, we can alreadly achieve 0% FPR and 13% FNR on CNN. 
+  - What if we see the distribution of risk scores so as to deliberately select differentiation lines and adv condition? <br/> Below figure represents the risk score distribution computed according to Potential Method 1. Even we only utilize LP_1 and set the differentiation line for LP_1 to be 300, it can differentiate all benign samples and most of adversarial samples. <br/> If we deliberately set the differentation lines to be [300, 320, 100, \_] and apply judgement rule (LP_1=B and LP_2=B and LP_3=B) -> B, we can achieve 9.2% FPR and 3.2% FNR.
+  <img src="Images/Exp5/Exp5_1.png" align="center" border="0" width="414" height="554"/>
+  
   
 </details>
 
