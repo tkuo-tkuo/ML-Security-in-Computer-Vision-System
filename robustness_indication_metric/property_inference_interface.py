@@ -185,7 +185,10 @@ class PropertyInferenceInterface():
 
         #############################################
         # Original Method 
+        # result == 1 -> the given input is considered as 'benign'
+        # result == 0 -> the given input is considered as 'adversarial'
         #############################################
+        '''
         LP_status = []
         for i in range(len(LPs)):
             LP_i = Py[i]
@@ -195,31 +198,57 @@ class PropertyInferenceInterface():
             if p_i in LP_i:
                 status = 'benign'
             LP_status.append(status)
-
+        
         result = 1
-        # if not ('adversarial' in LP_status):
         if 'adversarial' == LP_status[0] and 'adversarial' == LP_status[1]:
             result = 0
-            
+
         if verbose:
             if result == 1:
                 print(LP_status, 'benign')
             else:
                 print(LP_status, 'adversarial')
+
+        return (result, LP_status)
+        '''
         #############################################
 
        #############################################
         # Experimental: Method 1 & 2
         #############################################
-        # diff = Prob_Py - precondition
-        # abs_diff = np.absolute(diff)
-        # abs_diff[abs_diff < 0.1] = 0
-        # risk_score = np.sum(abs_diff) 
-        # print('score:', risk_score)
+        LP_status = []
+        LP_risk_score = []
+        differentiation_lines = [300, 320, 100, 2.5]
+        for i in range(len(LPs)):
+            differentiation_line = differentiation_lines[i]
+            LP_i = np.array(Py[i])
+            p_i = np.array(LPs[i])
 
-        # result = 0
-        # if risk_score < 10:
-        #     result = 1
+            prob_LP_i = np.sum(LP_i, axis=0) / LP_i.shape[0]
+            diff = prob_LP_i - p_i
+            abs_diff = np.absolute(diff)
+            risk_score = np.sum(abs_diff)
+            # print('risk score:', risk_score)
+            
+            status = 'adversarial'
+            # (replace True by condition)
+            if risk_score < differentiation_line:
+                status = 'benign'
+
+            LP_status.append(status)
+            LP_risk_score.append(risk_score)
+
+        result = 0
+        if 'benign' == LP_status[0] and 'benign' == LP_status[1] and 'benign' == LP_status[2]:
+            result = 1    
+
+        if verbose:
+            if result == 1:
+                print(LP_status, 'benign')
+            else:
+                print(LP_status, 'adversarial')
+
+        return (result, LP_status, LP_risk_score)
         #############################################
 
 
@@ -262,22 +291,20 @@ class PropertyInferenceInterface():
         # if verbose: 
         #     print(benign_prob, alpha, result)
         #############################################
-
-        return (result, LP_status)
+            
 
     def evaluate_algorithm_on_test_set(self, alpha=None, verbose=True):
         # self._double_check_on_train_set()
-        benign_detect_ratio, benign_LPs = self._evaluate_benign_samples(alpha, verbose)
-        adversarial_detect_ratio, adversarial_LPs = self._evaluate_adversarial_samples(alpha, verbose)
-        return (benign_detect_ratio, adversarial_detect_ratio), (benign_LPs, adversarial_LPs)
+        B_detect_ratio, B_LPs, B_LPs_score = self._evaluate_benign_samples(alpha, verbose)
+        A_detect_ratio, A_LPs, A_LPs_score = self._evaluate_adversarial_samples(alpha, verbose)
+        return (B_detect_ratio, A_detect_ratio), (B_LPs, A_LPs), (B_LPs_score, A_LPs_score)
 
     def _evaluate_benign_samples(self, alpha, verbose):
-        LPs = []
+        LPs, LPs_score = [], []
 
         test_X, test_Y = self.test_dataset
         num_of_count, valid_count = len(test_X), 0
         for i in range(num_of_count):
-            print('benign', i)
             x, y = test_X[i], test_Y[i]
             
             # Use y_
@@ -290,18 +317,19 @@ class PropertyInferenceInterface():
             if verbose:
                 print('Benign input matching...')
 
-            result, LP_status = self.property_match(x, y_, verbose, alpha) # y'
+            result, LP_status, LP_risk_score = self.property_match(x, y_, verbose, alpha) # y'
             LPs.append(LP_status)
+            LPs_score.append(LP_risk_score)
             valid_count += result
 
         if verbose:
             print('Evaluate on benign samples with test set')
             print(valid_count, num_of_count, (valid_count/num_of_count))
 
-        return (valid_count/num_of_count), LPs
+        return (valid_count/num_of_count), LPs, LPs_score
 
     def _evaluate_adversarial_samples(self, alpha, verbose):
-        LPs = []
+        LPs, LPs_score = [], []
 
         import attacker
         if self.meta_params['adv_attack'] == 'i_FGSM':
@@ -364,8 +392,9 @@ class PropertyInferenceInterface():
             if verbose:
                 print('Adversarial input matching...')
 
-            result, LP_status = self.property_match(adv_x, y_, verbose, alpha) # y'
+            result, LP_status, LP_risk_score = self.property_match(adv_x, y_, verbose, alpha) # y'
             LPs.append(LP_status)
+            LPs_score.append(LP_risk_score)
             valid_count += result
         
         assert success_count == num_of_count 
@@ -373,4 +402,4 @@ class PropertyInferenceInterface():
             print('Evaluate on adversarial samples with test set')
             print((num_of_count - valid_count), num_of_count, (num_of_count - valid_count)/num_of_count)
             
-        return ((num_of_count - valid_count)/num_of_count), LPs
+        return ((num_of_count - valid_count)/num_of_count), LPs, LPs_score

@@ -21,8 +21,8 @@ def return_LP_from_output(h):
     h_ = h.detach().numpy()
     h_[h_>0] = True
     h_ = h_.astype(np.int64)
-    h_ = np.squeeze(h_)
-    LP = h_.astype(np.int64)
+    squ_h_ = (h_).reshape(-1)
+    LP = squ_h_.astype(np.int64)
     return list(LP)
 
 def extract_all_LP(model, model_type, x):
