@@ -233,9 +233,10 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 **Experiments (CNN)** 
 
 <details>
-  <summary>Experiment ?: Case study on CNN <b>(running)</b></summary>
+  <summary>Experiment 5: Case study on CNN using Potential Method 1 & Integrated LPs judgement <b>(working)</b></summary>
   
-  (study LPS on CNN)
+  - If we intuitively set the differentiation lines by just browsing through the risk scores & apply adv condition (LP1=A an LP2=A) -> A, we can alreadly achieve 0% FPR and 13%FNR on CNN. 
+  - What if we see the distribution of risk scores so as to deliberately select differentiation lines and adv condition? (working) 
   
 </details>
 
