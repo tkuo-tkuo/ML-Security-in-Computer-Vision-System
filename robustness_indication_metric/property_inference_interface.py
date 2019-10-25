@@ -161,7 +161,7 @@ class PropertyInferenceInterface():
         for i in range(10):
             LPs_set.append([])
         for i in range(10):
-            for _ in range(4):
+            for _ in range(self.meta_params['num_of_LPs']):
                 LPs_set[i].append([])
             
         for i in range(len(X)):
@@ -320,7 +320,7 @@ class PropertyInferenceInterface():
         valid_count = 0        
         success_count = 0
         for i in range(num_of_count):
-            print('Conduct', i, 'th attack:', self.meta_params['adv_attack'])
+            # print('Conduct', i, 'th attack:', self.meta_params['adv_attack'])
             x, y = test_X[i], test_Y[i]
 
             # Use y_
@@ -339,7 +339,6 @@ class PropertyInferenceInterface():
 
                 adv_x, success_indicator = A.create_adv_input(x, y, model, epsilon)
                 if success_indicator == 1:
-                    success_count += success_indicator
                     is_attack_successful = True
                     adv_x = adv_x.detach().numpy()
                     adv_x = adv_x[0]
@@ -354,10 +353,12 @@ class PropertyInferenceInterface():
                     #     plt.imshow(img, cmap='gray')
                     #     plt.show()
 
-            if not is_attack_successful:
+            if (not is_attack_successful):
                 num_of_count -= 1
-                break 
-
+                continue 
+            else: 
+                success_count += 1
+                
             output = self.model.forward(torch.from_numpy(np.expand_dims(adv_x, axis=0).astype(np.float32)))
             y_ = (output.max(1, keepdim=True)[1]).item()
             if verbose:

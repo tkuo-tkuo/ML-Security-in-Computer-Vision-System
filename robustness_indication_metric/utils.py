@@ -17,44 +17,53 @@ def extract_subset_certain_classes(X, Y, first_class, second_class, size_of_sub_
 def extract_subset(X, Y, size_of_sub_dataset):
     return (X[:size_of_sub_dataset], Y[:size_of_sub_dataset])
 
+def return_LP_from_output(h):
+    h_ = h.detach().numpy()
+    h_[h_>0] = True
+    h_ = h_.astype(np.int64)
+    h_ = np.squeeze(h_)
+    LP = h_.astype(np.int64)
+    return list(LP)
+
 def extract_all_LP(model, model_type, x):
     LPs = []
 
     # Grab the information
     if model_type == 'CNN':
         x = torch.from_numpy(np.expand_dims(x, axis=0).astype(np.float32))
-        x = F.relu(model.conv1(x))
-        x = F.relu(F.max_pool2d(model.conv2(x), 2))
-        x = F.relu(F.max_pool2d(model.conv3(x), 2))
-        x = x.view(-1, 3*3*64)
-        h1 = F.relu(model.fc1(x))
-        h1[h1>0] = True
-        LP = h1.reshape(-1).detach().numpy().astype(np.int64)
-        LPs.append(list(LP))
+        h1 = F.relu(model.conv1(x))
+        LPs.append(return_LP_from_output(h1))
+
+        h2 = F.relu(F.max_pool2d(model.conv2(h1), 2))
+        LPs.append(return_LP_from_output(h2))
+
+        h3 = F.relu(F.max_pool2d(model.conv3(h2), 2))
+        LPs.append(return_LP_from_output(h3))
+
+        h3 = h3.view(-1, 3*3*32)
+        h4 = F.relu(model.fc1(h3))
+        LPs.append(return_LP_from_output(h4))
+
+        '''
+        x = F.relu(self.conv1(x)) # (24, 24, 16)
+        x = F.relu(F.max_pool2d(self.conv2(x), 2)) # (20, 20, 16) -> (10, 10, 16)
+        x = F.relu(F.max_pool2d(self.conv3(x), 2)) # (6, 6, 32) -> (3, 3, 32)
+        x = x.view(-1, 3*3*32)
+        x = F.relu(self.fc1(x))
+        x = self.fc2(x)
+        '''
     else:
         x = torch.from_numpy(np.expand_dims(x, axis=0).astype(np.float32))
         h1 = model.relu(model.layer1(x))
-        h1_ = h1.detach().numpy()
-        h1_[h1_>0] = True
-        LP = h1_.astype(np.int64)
-        LPs.append(list(LP[0]))
+        LPs.append(return_LP_from_output(h1))
 
         h2 = model.relu(model.layer2(h1))
-        h2_ = h2.detach().numpy()
-        h2_[h2_ > 0] = True
-        LP = h2_.astype(np.int64)
-        LPs.append(list(LP[0]))
+        LPs.append(return_LP_from_output(h2))
 
         h3 = model.relu(model.layer3(h2))
-        h3_ = h3.detach().numpy()
-        h3_[h3_ > 0] = True
-        LP = h3_.astype(np.int64)
-        LPs.append(list(LP[0]))
+        LPs.append(return_LP_from_output(h3))
 
         h4 = model.relu(model.layer4(h3))
-        h4_ = h4.detach().numpy()
-        h4_[h4_ > 0] = True
-        LP = h4_.astype(np.int64)
-        LPs.append(list(LP[0]))
+        LPs.append(return_LP_from_output(h4))
 
     return LPs
