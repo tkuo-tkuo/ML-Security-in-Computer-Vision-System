@@ -335,15 +335,36 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 </details>
 
 <details>
-  <summary>Experiment 8: Potential Method 4 & Integrated LPs judgement (adv_attack=i_FGSM, y/y'=y', model=CNN) <b>(working)</b></summary>
+  <summary>Experiment 8: Potential Method 4 & Integrated LPs judgement (adv_attack=i_FGSM, y/y'=y', model=CNN)</summary>
 <br/>
   
-    Note that LP_i = B if B_prob_i > prob_diff_line_i
+    Note that LP_i = B if B_log_prob_i > log_prob_diff_line_i
     
     LP_1, LP_2, and LP_3 are LPs for the convolutional layers; LP_4 is the LP for the first ReLU layer. 
   
-  (to be updated) 
-
+  As shown in the following figures, it is difficult to tell that Potential Method 4 bring any improvement based to Potential Method 3. 
+  
+  <div align="center">
+  LP_i risk score distribution with delta=0.1 (i={1, 2, 3, 4}) 
+  <img src="Images/Exp8/exp8_01.png" align="center" border="0" width="576" height="384"/>
+  </div>
+  <div align="center">
+  LP_i risk score distribution with delta=0.2 (i={1, 2, 3, 4}) 
+  <img src="Images/Exp8/exp8_02.png" align="center" border="0" width="576" height="384"/>
+  </div>  
+  <div align="center">
+  LP_i risk score distribution with delta=0.3 (i={1, 2, 3, 4}) 
+  <img src="Images/Exp8/exp8_03.png" align="center" border="0" width="576" height="384"/>
+  </div>
+  <div align="center">
+  LP_i risk score distribution with delta=0.4 (i={1, 2, 3, 4}) 
+  <img src="Images/Exp8/exp8_04.png" align="center" border="0" width="576" height="384"/>
+  </div>
+  <div align="center">
+  LP_i risk score distribution with delta=0.45 (i={1, 2, 3, 4}) 
+  <img src="Images/Exp8/exp8_045.png" align="center" border="0" width="576" height="384"/>
+  </div>
+  
 </details>
 
 
@@ -355,8 +376,8 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 High Priority
 - <b>~~LPs separation (no concatenation)~~</b>
 - <b>~~Change the implementation for 10 classes (MNIST)~~</b> 
-- <b>Investigate whether most of adversarial samples fall into the same provenance (running). If it is the case, maybe we can remove the provenance where adversarial samples are potential to match -> draw a graph to demonstrate the result</b>
-- Experiment on CNN models 
+- <b>~~Experiment on CNN models~~</b>
+- <b>(Wokring) Investigate whether most of adversarial samples fall into the same provenance. If it is the case, maybe we can remove the provenance where adversarial samples are potential to match -> draw a graph to demonstrate the result</b>
 - Experiment on widely-adopted models 
 - Store part of trained models as 'h5' format to preserve reproducibility
 
