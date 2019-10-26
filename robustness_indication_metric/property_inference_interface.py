@@ -218,7 +218,7 @@ class PropertyInferenceInterface():
         #############################################
         LP_status = []
         LP_risk_score = []
-        differentiation_lines = [300, 320, 100, 2.5]
+        differentiation_lines = [100, 90, 25, 1.5]
         for i in range(len(LPs)):
             differentiation_line = differentiation_lines[i]
             LP_i = np.array(Py[i])
@@ -227,11 +227,10 @@ class PropertyInferenceInterface():
             prob_LP_i = np.sum(LP_i, axis=0) / LP_i.shape[0]
             diff = prob_LP_i - p_i
             abs_diff = np.absolute(diff)
+            abs_diff[abs_diff<0.9] = 0
             risk_score = np.sum(abs_diff)
-            # print('risk score:', risk_score)
             
             status = 'adversarial'
-            # (replace True by condition)
             if risk_score < differentiation_line:
                 status = 'benign'
 
