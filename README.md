@@ -278,8 +278,53 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
   LP_i risk score distribution with threshold=0.4 (i={1, 2, 3, 4}) 
   </div>
   <img src="Images/Exp6/exp6_04.png" align="center" border="0" width="576" height="384"/>
+  <div align="center">
+  LP_i risk score distribution with threshold=0.5 (i={1, 2, 3, 4}) 
+  </div>
+  <img src="Images/Exp6/exp6_05.png" align="center" border="0" width="576" height="384"/>
+  <div align="center">
+  LP_i risk score distribution with threshold=0.6 (i={1, 2, 3, 4}) 
+  </div>
+  <img src="Images/Exp6/exp6_06.png" align="center" border="0" width="576" height="384"/>
+  <div align="center">
+  LP_i risk score distribution with threshold=0.7 (i={1, 2, 3, 4}) 
+  </div>
+  <img src="Images/Exp6/exp6_07.png" align="center" border="0" width="576" height="384"/>
+  <div align="center">
+  LP_i risk score distribution with threshold=0.8 (i={1, 2, 3, 4}) 
+  </div>
+  <img src="Images/Exp6/exp6_08.png" align="center" border="0" width="576" height="384"/>
+  <div align="center">
+  LP_i risk score distribution with threshold=0.9 (i={1, 2, 3, 4}) 
+  </div>
+  <img src="Images/Exp6/exp6_09.png" align="center" border="0" width="576" height="384"/>
  
 </details>
+
+<details>
+  <summary>Experiment 7: Potential Method 3 & Integrated LPs judgement (adv_attack=i_FGSM, y/y'=y', model=CNN)</summary>
+<br/>
+  
+    Note that LP_i = B if B_prob_i > prob_diff_line_i
+    
+    LP_1, LP_2, and LP_3 are LPs for the convolutional layers; LP_4 is the LP for the first ReLU layer. 
+  
+  (to be updated) 
+
+</details>
+
+<details>
+  <summary>Experiment 8: Potential Method 4 & Integrated LPs judgement (adv_attack=i_FGSM, y/y'=y', model=CNN)</summary>
+<br/>
+  
+    Note that LP_i = B if B_prob_i > prob_diff_line_i
+    
+    LP_1, LP_2, and LP_3 are LPs for the convolutional layers; LP_4 is the LP for the first ReLU layer. 
+  
+  (to be updated) 
+
+</details>
+
 
 **Observations (CNN)** <br/>
 - (to be updated)
