@@ -257,22 +257,11 @@ class PropertyInferenceInterface():
         #############################################
         # Experimental: Method 3 & 4
         #############################################
-        ''' This section is for Method 4
-        offset = 0.45
-        weights = np.array(Prob_Py) 
-        weights[weights <= (0.5-offset)] = -1
-        weights[weights >= (0.5+offset)] = -1
-        weights[weights != -1] = 0
-        weights[weights == -1] = 1
-        '''
-
         LP_status = []
         LP_risk_score = []
-        prob_diff_lines = [1e-4, 1e-4, 1e-4, 1e-4]
-        shift_factors = [1e75, 1e115, 1e45, 1e2]
+        prob_diff_lines = [-800, -600, -150, 1e-4]
         for i in range(len(LPs)):
             prob_diff_line = prob_diff_lines[i]
-            shift_factor = shift_factors[i]
             LP_i = np.array(Py[i])
             p_i = np.array(LPs[i])
 
@@ -284,18 +273,24 @@ class PropertyInferenceInterface():
             prob_LP_i[prob_LP_i==0.0] = 0.0 + (1/(prob_LP_i.shape[0] + 1))
             prob_LP_i_0 = 1 - prob_LP_i
 
+            # ''' This section is for Method 4
+            offset = 0.25
+            weights = np.array(prob_LP_i) 
+            weights[weights <= (0.5-offset)] = -1
+            weights[weights >= (0.5+offset)] = -1
+            weights[weights != -1] = 0
+            weights[weights == -1] = 1
+            # '''
+
             B_prob = 0
             for i, neuron_activation in enumerate(p_i):
                 ''' This section is for Method 4
-                (to be implemented)
+                use weights[i] for Method 4
                 '''
                 if neuron_activation == 1:
-                    B_prob += math.log(prob_LP_i[i])
+                    B_prob += math.log(prob_LP_i[i]) * weights[i]
                 else:
-                    B_prob += math.log(prob_LP_i_0[i])
-
-            print(B_prob)
-            # B_prob *= shift_factor
+                    B_prob += math.log(prob_LP_i_0[i]) * weights[i]
 
             status = 'adversarial'
             if B_prob > prob_diff_line:
