@@ -1,3 +1,4 @@
+import math
 import numpy as np
 
 import torch
@@ -179,7 +180,7 @@ class PropertyInferenceInterface():
             for LPs in LPs_set[i]:
                 print((np.array(LPs)).shape)
 
-    def property_match(self, x, y, verbose=True, alpha=None,):
+    def property_match(self, x, y, verbose=True, alpha=None):
         Py = self.LPs_set[y]
         LPs = extract_all_LP(self.model, self.meta_params['model_type'], x)
 
@@ -213,9 +214,10 @@ class PropertyInferenceInterface():
         '''
         #############################################
 
-       #############################################
+        #############################################
         # Experimental: Method 1 & 2
         #############################################
+        '''
         LP_status = []
         LP_risk_score = []
         differentiation_lines = [100, 90, 25, 1.5]
@@ -248,49 +250,73 @@ class PropertyInferenceInterface():
                 print(LP_status, 'adversarial')
 
         return (result, LP_status, LP_risk_score)
+        '''
         #############################################
 
 
         #############################################
         # Experimental: Method 3 & 4
         #############################################
-        # offset = 0.45
-        # weights = np.array(Prob_Py) 
-        # weights[weights <= (0.5-offset)] = -1
-        # weights[weights >= (0.5+offset)] = -1
-        # weights[weights != -1] = 0
-        # weights[weights == -1] = 1
+        ''' This section is for Method 4
+        offset = 0.45
+        weights = np.array(Prob_Py) 
+        weights[weights <= (0.5-offset)] = -1
+        weights[weights >= (0.5+offset)] = -1
+        weights[weights != -1] = 0
+        weights[weights == -1] = 1
+        '''
 
-        # Prob_Py[Prob_Py==1.0] = 1.0 - 1/(Prob_Py.shape[0] + 1)
-        # Prob_Py[Prob_Py==0.0] = 0.0 + 1/(Prob_Py.shape[0] + 1)
-        # Prob_Py_ = 1 - Prob_Py
-        # np_precondition = np.array(precondition)
+        LP_status = []
+        LP_risk_score = []
+        prob_diff_lines = [1e-4, 1e-4, 1e-4, 1e-4]
+        shift_factors = [1e75, 1e115, 1e45, 1e2]
+        for i in range(len(LPs)):
+            prob_diff_line = prob_diff_lines[i]
+            shift_factor = shift_factors[i]
+            LP_i = np.array(Py[i])
+            p_i = np.array(LPs[i])
 
-        # benign_prob = 1
-        # for i, ele in enumerate(np_precondition):
-        #     # if weights[i] == 0:
-        #     #     continue
+            # compute probability of LP_i
+            prob_LP_i = np.sum(LP_i, axis=0) / LP_i.shape[0]
 
-        #     if ele == 1:
-        #         benign_prob *= Prob_Py[i]
-        #     else:
-        #         benign_prob *= Prob_Py_[i]
+            # To avoid 0 probability in either prob_LP_i or prob_LP_i_0
+            prob_LP_i[prob_LP_i==1.0] = 1.0 - (1/(prob_LP_i.shape[0] + 1))
+            prob_LP_i[prob_LP_i==0.0] = 0.0 + (1/(prob_LP_i.shape[0] + 1))
+            prob_LP_i_0 = 1 - prob_LP_i
 
-        # # print('benign_prob:', benign_prob)
+            B_prob = 0
+            for i, neuron_activation in enumerate(p_i):
+                ''' This section is for Method 4
+                (to be implemented)
+                '''
+                if neuron_activation == 1:
+                    B_prob += math.log(prob_LP_i[i])
+                else:
+                    B_prob += math.log(prob_LP_i_0[i])
 
-        # if alpha == None:
-        #     alpha = 5e-8
+            print(B_prob)
+            # B_prob *= shift_factor
 
-        # # 0 indicates adversarial 
-        # # 1 indicates benign 
-        # result = 0
-        # if benign_prob > alpha:
-        #     result = 1
+            status = 'adversarial'
+            if B_prob > prob_diff_line:
+                status = 'benign'
 
-        # if verbose: 
-        #     print(benign_prob, alpha, result)
+            LP_status.append(status)
+            LP_risk_score.append(B_prob)
+
+        result = 0
+        if 'benign' == LP_status[0] and 'benign' == LP_status[1] and 'benign' == LP_status[2]:
+            result = 1    
+
+        if verbose:
+            if result == 1:
+                print(LP_status, 'benign')
+            else:
+                print(LP_status, 'adversarial')
+
+        return (result, LP_status, LP_risk_score)
         #############################################
-            
+
 
     def evaluate_algorithm_on_test_set(self, alpha=None, verbose=True):
         # self._double_check_on_train_set()
