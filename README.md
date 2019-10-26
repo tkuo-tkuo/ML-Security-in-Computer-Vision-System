@@ -256,48 +256,48 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
     
     LP_1, LP_2, and LP_3 are LPs for the convolutional layers; LP_4 is the LP for the first ReLU layer. 
   
-  As shown in the following 5 figures, it is difficult to tell that Potential Method 2 bring any improvement based to Potential Method 1. 
+  As shown in the following figures, it is difficult to tell that Potential Method 2 bring any improvement based to Potential Method 1. 
   
   <div align="center">
   LP_i risk score distribution with threshold=0.05 (i={1, 2, 3, 4}) 
-  </div>
   <img src="Images/Exp6/exp6_005.png" align="center" border="0" width="576" height="384"/>
+  </div>
   <div align="center">
   LP_i risk score distribution with threshold=0.1 (i={1, 2, 3, 4}) 
-  </div>
   <img src="Images/Exp6/exp6_01.png" align="center" border="0" width="576" height="384"/>
+  </div>
   <div align="center">
   LP_i risk score distribution with threshold=0.2 (i={1, 2, 3, 4}) 
-  </div>
   <img src="Images/Exp6/exp6_02.png" align="center" border="0" width="576" height="384"/>
+  </div>
   <div align="center">
   LP_i risk score distribution with threshold=0.3 (i={1, 2, 3, 4}) 
-  </div>
   <img src="Images/Exp6/exp6_03.png" align="center" border="0" width="576" height="384"/>
+  </div>
   <div align="center">
   LP_i risk score distribution with threshold=0.4 (i={1, 2, 3, 4}) 
-  </div>
   <img src="Images/Exp6/exp6_04.png" align="center" border="0" width="576" height="384"/>
+  </div>
   <div align="center">
   LP_i risk score distribution with threshold=0.5 (i={1, 2, 3, 4}) 
-  </div>
   <img src="Images/Exp6/exp6_05.png" align="center" border="0" width="576" height="384"/>
+  </div>
   <div align="center">
   LP_i risk score distribution with threshold=0.6 (i={1, 2, 3, 4}) 
-  </div>
   <img src="Images/Exp6/exp6_06.png" align="center" border="0" width="576" height="384"/>
+  </div>
   <div align="center">
   LP_i risk score distribution with threshold=0.7 (i={1, 2, 3, 4}) 
-  </div>
   <img src="Images/Exp6/exp6_07.png" align="center" border="0" width="576" height="384"/>
+  </div>
   <div align="center">
   LP_i risk score distribution with threshold=0.8 (i={1, 2, 3, 4}) 
-  </div>
   <img src="Images/Exp6/exp6_08.png" align="center" border="0" width="576" height="384"/>
+  </div>
   <div align="center">
   LP_i risk score distribution with threshold=0.9 (i={1, 2, 3, 4}) 
-  </div>
   <img src="Images/Exp6/exp6_09.png" align="center" border="0" width="576" height="384"/>
+  </div>
  
 </details>
 
@@ -305,16 +305,37 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
   <summary>Experiment 7: Potential Method 3 & Integrated LPs judgement (adv_attack=i_FGSM, y/y'=y', model=CNN)</summary>
 <br/>
   
-    Note that LP_i = B if B_prob_i > prob_diff_line_i
+    Note that LP_i = B if B_log_prob_i > log_prob_diff_line_i
     
     LP_1, LP_2, and LP_3 are LPs for the convolutional layers; LP_4 is the LP for the first ReLU layer. 
-  
-  (to be updated) 
+    
+  As shown in the following figures, we can observe that Potential Method 3 also achieve the same functionality to separate benign and adversarial samples as Potential Method 1. However, similar as Potential Method 1, we still not yet achieve 0% FPR and 0% FNR. 
 
+  <div align="center">
+  LP_i risk score distribution with |S|=1000 (i={1, 2, 3, 4}) 
+  <img src="Images/Exp7/exp7_1000.png" align="center" border="0" width="576" height="384"/>
+  </div>
+  <div align="center">
+  LP_i risk score distribution with |S|=5000 (i={1, 2, 3, 4}) 
+  <img src="Images/Exp7/exp7_5000.png" align="center" border="0" width="576" height="384"/>
+  </div>
+  <div align="center">
+  LP_i risk score distribution with |S|=10000 (i={1, 2, 3, 4}) 
+  <img src="Images/Exp7/exp7_10000.png" align="center" border="0" width="576" height="384"/>
+  </div>
+  <div align="center">
+  LP_i risk score distribution with |S|=15000 (i={1, 2, 3, 4}) 
+  <img src="Images/Exp7/exp7_15000.png" align="center" border="0" width="576" height="384"/>
+  </div>
+  <div align="center">
+  LP_i risk score distribution with |S|=20000 (i={1, 2, 3, 4}) 
+  <img src="Images/Exp7/exp7_20000.png" align="center" border="0" width="576" height="384"/>
+  </div>
+  
 </details>
 
 <details>
-  <summary>Experiment 8: Potential Method 4 & Integrated LPs judgement (adv_attack=i_FGSM, y/y'=y', model=CNN)</summary>
+  <summary>Experiment 8: Potential Method 4 & Integrated LPs judgement (adv_attack=i_FGSM, y/y'=y', model=CNN) <b>(working)</b></summary>
 <br/>
   
     Note that LP_i = B if B_prob_i > prob_diff_line_i
