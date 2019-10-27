@@ -140,6 +140,7 @@ class Monitor():
                 plt.plot(x, y, 'r')
             
         plt.legend(titles, loc='upper right')
-        plt.axis(args['axis'])
+        # plt.axis(args['axis'])
+        plt.ylim(-0.1, 1.1)
         plt.title('Average FPR & FNR') # Hyperparameters
         plt.savefig(args['export_file_name'])

@@ -274,7 +274,7 @@ class PropertyInferenceInterface():
             prob_LP_i_0 = 1 - prob_LP_i
 
             # ''' This section is for Method 4
-            offset = 0.25
+            offset = 0.1
             weights = np.array(prob_LP_i) 
             weights[weights <= (0.5-offset)] = -1
             weights[weights >= (0.5+offset)] = -1
