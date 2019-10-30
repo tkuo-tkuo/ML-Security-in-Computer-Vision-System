@@ -372,16 +372,53 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 <br/>
   
   <div align="center">
-  'Classified Benign Ratio' in LP_i layer qr=0.95 (i={1, 2, 3, 4}) <br/>
-  (exact number of prob, test B) <br/>
-  (exact number of prob, test A) <br/>
-  <img src="Images/Exp9/exp9_95.png" align="center" border="0" width="576" height="384"/>
+  'Classified Benign Ratio' in LP_i layer qr=0.90 (i={1, 2, 3, 4}) <br/>
+  [0.94949495 0.90909091 0.93939394 0.93939394] train dataset (benign) <br/>
+  [0.90816327 0.93877551 0.90816327 0.89795918] test dataset (benign) <br/>
+  [0.10638298 0.39361702 0.06382979 0.9893617 ] test dataset (adversarial) <br/>
+  <img src="Images/Exp9/exp9_90.png" align="center" border="0" width="576" height="384"/>
   </div>
   <div align="center">
   'Classified Benign Ratio' in LP_i layer qr=0.95 (i={1, 2, 3, 4}) <br/>
-  (exact number of prob, test B) <br/>
-  (exact number of prob, test A) <br/>
+  [0.96969697 0.94949495 0.98989899 0.94949495] train dataset (benign) <br/>
+  [0.96938776 0.95918367 0.94897959 0.95918367] test dataset (benign) <br/>
+  [0.10638298 0.5106383  0.17021277 0.9893617 ] test dataset (adversarial) <br/>
   <img src="Images/Exp9/exp9_95.png" align="center" border="0" width="576" height="384"/>
+  </div>
+  <div align="center">
+  'Classified Benign Ratio' in LP_i layer qr=0.96 (i={1, 2, 3, 4}) <br/>
+  [0.96969697 0.95959596 1.         0.95959596] train dataset (benign) <br/>
+  [0.96938776 0.96938776 0.95918367 1.        ] test dataset (benign) <br/>
+  [0.10638298 0.57446809 0.25531915 0.9893617 ] test dataset (adversarial) <br/>
+  <img src="Images/Exp9/exp9_96.png" align="center" border="0" width="576" height="384"/>
+  </div>
+  <div align="center">
+  'Classified Benign Ratio' in LP_i layer qr=0.97 (i={1, 2, 3, 4}) <br/>
+  [0.96969697 0.96969697 1.         0.96969697] train dataset (benign) <br/>
+  [0.96938776 0.96938776 0.98979592 1.        ] test dataset (benign) <br/>
+  [0.10638298 0.60638298 0.27659574 1.        ] test dataset (adversarial) <br/>
+  <img src="Images/Exp9/exp9_97.png" align="center" border="0" width="576" height="384"/>
+  </div>
+  <div align="center">
+  'Classified Benign Ratio' in LP_i layer qr=0.98 (i={1, 2, 3, 4}) <br/>
+  [0.98989899 0.97979798 1.         0.97979798] train dataset (benign) <br/>
+  [0.98979592 0.97959184 0.98979592 1.        ] test dataset (benign) <br/>
+  [0.11702128 0.76595745 0.27659574 1.        ] test dataset (adversarial) <br/>
+  <img src="Images/Exp9/exp9_98.png" align="center" border="0" width="576" height="384"/>
+  </div>
+  <div align="center">
+  'Classified Benign Ratio' in LP_i layer qr=0.99 (i={1, 2, 3, 4}) <br/>
+  [0.98989899 0.98989899 1.         0.98989899] train dataset (benign) <br/>
+  [0.98979592 0.98979592 0.98979592 1.        ] test dataset (benign) <br/>
+  [0.12765957 0.85106383 0.27659574 1.        ] test dataset (adversarial) <br/>
+  <img src="Images/Exp9/exp9_99.png" align="center" border="0" width="576" height="384"/>
+  </div>
+  <div align="center">
+  'Classified Benign Ratio' in LP_i layer qr=1.00 (i={1, 2, 3, 4}) <br/>
+  [1. 1. 1. 1.] train dataset (benign) <br/>
+  [1. 1. 1. 1.] test dataset (benign) <br/>
+  [0.13829787 0.94680851 0.29787234 1.        ] test dataset (adversarial) <br/>
+  <img src="Images/Exp9/exp9_100.png" align="center" border="0" width="576" height="384"/>
   </div>
   
   
