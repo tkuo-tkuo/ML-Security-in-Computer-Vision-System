@@ -367,6 +367,26 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
   
 </details>
 
+<details>
+  <summary>Experiment 9: Various qr for differentation line (adv_attack=i_FGSM, y/y'=y', model=CNN)</summary>
+<br/>
+  
+  <div align="center">
+  'Classified Benign Ratio' in LP_i layer qr=0.95 (i={1, 2, 3, 4}) <br/>
+  (exact number of prob, test B) <br/>
+  (exact number of prob, test A) <br/>
+  <img src="Images/Exp9/exp9_95.png" align="center" border="0" width="576" height="384"/>
+  </div>
+  <div align="center">
+  'Classified Benign Ratio' in LP_i layer qr=0.95 (i={1, 2, 3, 4}) <br/>
+  (exact number of prob, test B) <br/>
+  (exact number of prob, test A) <br/>
+  <img src="Images/Exp9/exp9_95.png" align="center" border="0" width="576" height="384"/>
+  </div>
+  
+  
+</details>
+
 
 **Observations (CNN)** <br/>
 - (to be updated)
