@@ -313,19 +313,24 @@ class PropertyInferenceInterface():
         #############################################
 
 
-    def evaluate_algorithm_on_test_set(self, alpha=None, verbose=True):
+    def evaluate_algorithm_on_test_set(self, alpha=None, verbose=True, dataset='test'):
         # self._double_check_on_train_set()
-        B_detect_ratio, B_LPs, B_LPs_score = self._evaluate_benign_samples(alpha, verbose)
+        B_detect_ratio, B_LPs, B_LPs_score = self._evaluate_benign_samples(alpha, verbose, dataset)
         A_detect_ratio, A_LPs, A_LPs_score = self._evaluate_adversarial_samples(alpha, verbose)
         return (B_detect_ratio, A_detect_ratio), (B_LPs, A_LPs), (B_LPs_score, A_LPs_score)
 
-    def _evaluate_benign_samples(self, alpha, verbose):
+    def _evaluate_benign_samples(self, alpha, verbose, dataset):
         LPs, LPs_score = [], []
 
-        test_X, test_Y = self.test_dataset
-        num_of_count, valid_count = len(test_X), 0
+        if dataset == 'test':
+            X, Y = self.test_dataset
+        else: 
+            X, Y = self.train_dataset
+            X, Y = X[:100], Y[:100]
+
+        num_of_count, valid_count = len(X), 0
         for i in range(num_of_count):
-            x, y = test_X[i], test_Y[i]
+            x, y = X[i], Y[i]
             
             # Use y_
             output = self.model.forward(torch.from_numpy(np.expand_dims(x, axis=0).astype(np.float32)))
@@ -343,7 +348,10 @@ class PropertyInferenceInterface():
             valid_count += result
 
         if verbose:
-            print('Evaluate on benign samples with test set')
+            if dataset == 'test':
+                print('Evaluate on benign samples with test set')
+            else:
+                print('Evaluate on benign samples with train set')
             print(valid_count, num_of_count, (valid_count/num_of_count))
 
         return (valid_count/num_of_count), LPs, LPs_score
