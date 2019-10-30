@@ -191,6 +191,8 @@ class PropertyInferenceInterface():
         #############################################
         '''
         LP_status = []
+        LP_risk_score = []
+
         for i in range(len(LPs)):
             LP_i = Py[i]
             p_i = LPs[i]
@@ -198,7 +200,13 @@ class PropertyInferenceInterface():
             status = 'adversarial'
             if p_i in LP_i:
                 status = 'benign'
+
             LP_status.append(status)
+            if status == 'benign':
+                LP_risk_score.append(1)
+            else:
+                LP_risk_score.append(0)
+
         
         result = 1
         if 'adversarial' == LP_status[0] and 'adversarial' == LP_status[1]:
@@ -210,17 +218,16 @@ class PropertyInferenceInterface():
             else:
                 print(LP_status, 'adversarial')
 
-        return (result, LP_status)
+        return (result, LP_status, LP_risk_score)
         '''
         #############################################
 
         #############################################
         # Experimental: Method 1 & 2
         #############################################
-        '''
         LP_status = []
         LP_risk_score = []
-        differentiation_lines = [100, 90, 25, 1.5]
+        differentiation_lines = [265, 325, 100, 7.8]
         for i in range(len(LPs)):
             differentiation_line = differentiation_lines[i]
             LP_i = np.array(Py[i])
@@ -229,7 +236,7 @@ class PropertyInferenceInterface():
             prob_LP_i = np.sum(LP_i, axis=0) / LP_i.shape[0]
             diff = prob_LP_i - p_i
             abs_diff = np.absolute(diff)
-            abs_diff[abs_diff<0.9] = 0
+            # abs_diff[abs_diff<0.9] = 0
             risk_score = np.sum(abs_diff)
             
             status = 'adversarial'
@@ -250,13 +257,13 @@ class PropertyInferenceInterface():
                 print(LP_status, 'adversarial')
 
         return (result, LP_status, LP_risk_score)
-        '''
         #############################################
 
 
         #############################################
         # Experimental: Method 3 & 4
         #############################################
+        '''
         LP_status = []
         LP_risk_score = []
         prob_diff_lines = [-800, -600, -150, 1e-4]
@@ -273,20 +280,20 @@ class PropertyInferenceInterface():
             prob_LP_i[prob_LP_i==0.0] = 0.0 + (1/(prob_LP_i.shape[0] + 1))
             prob_LP_i_0 = 1 - prob_LP_i
 
-            # ''' This section is for Method 4
-            offset = 0.1
-            weights = np.array(prob_LP_i) 
-            weights[weights <= (0.5-offset)] = -1
-            weights[weights >= (0.5+offset)] = -1
-            weights[weights != -1] = 0
-            weights[weights == -1] = 1
-            # '''
+            # This section is for Method 4
+            # offset = 0.1
+            # weights = np.array(prob_LP_i) 
+            # weights[weights <= (0.5-offset)] = -1
+            # weights[weights >= (0.5+offset)] = -1
+            # weights[weights != -1] = 0
+            # weights[weights == -1] = 1
+            # 
 
             B_prob = 0
             for i, neuron_activation in enumerate(p_i):
-                ''' This section is for Method 4
-                use weights[i] for Method 4
-                '''
+                # This section is for Method 4
+                # use weights[i] for Method 4
+                #
                 if neuron_activation == 1:
                     B_prob += math.log(prob_LP_i[i]) * weights[i]
                 else:
@@ -310,6 +317,7 @@ class PropertyInferenceInterface():
                 print(LP_status, 'adversarial')
 
         return (result, LP_status, LP_risk_score)
+        '''
         #############################################
 
 
