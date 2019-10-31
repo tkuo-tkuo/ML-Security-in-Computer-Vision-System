@@ -10,7 +10,7 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 
 # from binary_MNIST_models import NaiveC, NormalC, CNN
-from MNIST_models import NaiveC, NormalC, CNN
+from MNIST_models import NaiveC, NormalC, CNN, robustified_CNN
 from utils import *
 
 class PropertyInferenceInterface():
@@ -24,6 +24,7 @@ class PropertyInferenceInterface():
         self.train_dataset = None
         self.test_dataset = None
         self.model = None
+        self.robustified_model = None 
 
         self.LPs_set = None        
 
@@ -103,6 +104,10 @@ class PropertyInferenceInterface():
     def load_model(self, model_name):
         self.model = torch.load(model_name)
 
+    def generate_robustified_model(self):
+        import copy 
+        self.robustified_model = robustified_CNN(copy.deepcopy(self.model))
+
     def generate_model(self, num_of_epochs=15):
         if self.meta_params['model_type'] == 'naive':
             model = NaiveC()
@@ -134,13 +139,16 @@ class PropertyInferenceInterface():
         
         self.model = model
 
-    def eval_model(self, dataset_type):
+    def eval_model(self, dataset_type, on_robustified_model=False):
         if dataset_type == 'train':
             X, Y = self.train_dataset
         else: 
             X, Y = self.test_dataset
 
-        model = self.model
+        if on_robustified_model:
+            model = self.robustified_model
+        else:
+            model = self.model
         datas = torch.from_numpy(X.astype(np.float32))
         labels = torch.from_numpy(Y.astype(np.int64))
         
@@ -227,8 +235,7 @@ class PropertyInferenceInterface():
         #############################################
         LP_status = []
         LP_risk_score = []
-        differentiation_lines = [297, 358, 105, 12.8]
-        
+        differentiation_lines = [265, 325, 100, 7.8]
         for i in range(len(LPs)):
             differentiation_line = differentiation_lines[i]
             LP_i = np.array(Py[i])
@@ -322,13 +329,13 @@ class PropertyInferenceInterface():
         #############################################
 
 
-    def evaluate_algorithm_on_test_set(self, alpha=None, verbose=True, dataset='test'):
+    def evaluate_algorithm_on_test_set(self, alpha=None, verbose=True, dataset='test', on_robustified_model=False):
         # self._double_check_on_train_set()
-        B_detect_ratio, B_LPs, B_LPs_score = self._evaluate_benign_samples(alpha, verbose, dataset)
-        A_detect_ratio, A_LPs, A_LPs_score = self._evaluate_adversarial_samples(alpha, verbose)
+        B_detect_ratio, B_LPs, B_LPs_score = self._evaluate_benign_samples(alpha, verbose, dataset, on_robustified_model)
+        A_detect_ratio, A_LPs, A_LPs_score = self._evaluate_adversarial_samples(alpha, verbose, on_robustified_model)
         return (B_detect_ratio, A_detect_ratio), (B_LPs, A_LPs), (B_LPs_score, A_LPs_score)
 
-    def _evaluate_benign_samples(self, alpha, verbose, dataset):
+    def _evaluate_benign_samples(self, alpha, verbose, dataset, on_robustified_model):
         LPs, LPs_score = [], []
 
         if dataset == 'test':
@@ -337,12 +344,17 @@ class PropertyInferenceInterface():
             X, Y = self.train_dataset
             X, Y = X[:100], Y[:100]
 
+        if on_robustified_model:
+            model = self.robustified_model
+        else:
+            model = self.model
+
         num_of_count, valid_count = len(X), 0
         for i in range(num_of_count):
             x, y = X[i], Y[i]
             
             # Use y_
-            output = self.model.forward(torch.from_numpy(np.expand_dims(x, axis=0).astype(np.float32)))
+            output = model.forward(torch.from_numpy(np.expand_dims(x, axis=0).astype(np.float32)))
             y_ = (output.max(1, keepdim=True)[1]).item() 
             if y_ != y:
                 num_of_count -= 1
@@ -365,7 +377,7 @@ class PropertyInferenceInterface():
 
         return (valid_count/num_of_count), LPs, LPs_score
 
-    def _evaluate_adversarial_samples(self, alpha, verbose):
+    def _evaluate_adversarial_samples(self, alpha, verbose, on_robustified_model):
         LPs, LPs_score = [], []
 
         import attacker
@@ -379,7 +391,10 @@ class PropertyInferenceInterface():
             A = NotImplemented
 
         test_X, test_Y = self.test_dataset
-        model = self.model
+        if on_robustified_model:
+            model = self.robustified_model
+        else:
+            model = self.model
 
         num_of_count = len(test_X)
         valid_count = 0        
@@ -389,7 +404,7 @@ class PropertyInferenceInterface():
             x, y = test_X[i], test_Y[i]
 
             # Use y_
-            output = self.model.forward(torch.from_numpy(np.expand_dims(x, axis=0).astype(np.float32)))
+            output = model.forward(torch.from_numpy(np.expand_dims(x, axis=0).astype(np.float32)))
             y_ = (output.max(1, keepdim=True)[1]).item() 
             if y_ != y:
                 num_of_count -= 1
@@ -424,7 +439,7 @@ class PropertyInferenceInterface():
             else: 
                 success_count += 1
                 
-            output = self.model.forward(torch.from_numpy(np.expand_dims(adv_x, axis=0).astype(np.float32)))
+            output = model.forward(torch.from_numpy(np.expand_dims(adv_x, axis=0).astype(np.float32)))
             y_ = (output.max(1, keepdim=True)[1]).item()
             if verbose:
                 print('Adversarial input matching...')

@@ -35,6 +35,7 @@ def extract_all_LP(model, model_type, x):
         LPs.append(return_LP_from_output(h1))
 
         h2 = F.relu(F.max_pool2d(model.conv2(h1), 2))
+        h2 = F.dropout2d(h2, p=0.1)
         LPs.append(return_LP_from_output(h2))
 
         h3 = F.relu(F.max_pool2d(model.conv3(h2), 2))
