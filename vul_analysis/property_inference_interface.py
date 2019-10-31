@@ -227,7 +227,8 @@ class PropertyInferenceInterface():
         #############################################
         LP_status = []
         LP_risk_score = []
-        differentiation_lines = [265, 325, 100, 7.8]
+        differentiation_lines = [297, 358, 105, 12.8]
+        
         for i in range(len(LPs)):
             differentiation_line = differentiation_lines[i]
             LP_i = np.array(Py[i])
