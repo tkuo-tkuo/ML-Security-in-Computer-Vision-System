@@ -457,14 +457,14 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 </details>
 
 <details>
-  <summary>(WORKING) Experiment 10: Can we possibly improve models using incremental dropout on vulnerable layers? (adv_attack=i_FGSM, y/y'=y', model=CNN)</summary>
+  <summary>(WORKING) Experiment 10: Can we possibly improve models using incremental dropout on vulnerable layers? (adv_attack=i_FGSM, y/y'=y', model=CNN, qr=95)</summary>
   
     Required functionalities not yet completed
   
 </details>
 
 <details>
-  <summary>(WORKING) Experiment 11: Does the decrease of CBR in certain layer bring decrease in the subsequent layers?(adv_attack=i_FGSM, y/y'=y', model=CNN)</summary>
+  <summary>(WORKING) Experiment 11: Does the decrease of CBR in certain layer bring decrease in the subsequent layers?(adv_attack=i_FGSM, y/y'=y', model=CNN, qr=95)</summary>
   
     Based on exp10, it seems that L2 and L4 is relatively vulnerable compared to L1 and L3
     Can robustify L2 indirectly also robustify L4? 
