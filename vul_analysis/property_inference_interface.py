@@ -27,6 +27,7 @@ class PropertyInferenceInterface():
         self.robustified_model = None 
 
         self.LPs_set = None        
+        self.differentation_lines = [1, 1, 1, 1] 
 
     # Debug Information
     def print_meta_params(self):
@@ -235,7 +236,7 @@ class PropertyInferenceInterface():
         #############################################
         LP_status = []
         LP_risk_score = []
-        differentiation_lines = [262, 321, 107, 12.4]
+        differentiation_lines = self.differentation_lines
         for i in range(len(LPs)):
             differentiation_line = differentiation_lines[i]
             LP_i = np.array(Py[i])
@@ -328,12 +329,42 @@ class PropertyInferenceInterface():
         '''
         #############################################
 
-
     def evaluate_algorithm_on_test_set(self, alpha=None, verbose=True, dataset='test', on_robustified_model=False):
         # self._double_check_on_train_set()
+        self._set_differentation_lines(95, on_robustified_model)
         B_detect_ratio, B_LPs, B_LPs_score = self._evaluate_benign_samples(alpha, verbose, dataset, on_robustified_model)
         A_detect_ratio, A_LPs, A_LPs_score = self._evaluate_adversarial_samples(alpha, verbose, on_robustified_model)
         return (B_detect_ratio, A_detect_ratio), (B_LPs, A_LPs), (B_LPs_score, A_LPs_score)
+
+    def _set_differentation_lines(self, qr, on_robustified_model):
+        LPs_score = []
+
+        X, Y = self.test_dataset
+        if on_robustified_model:
+            model = self.robustified_model
+        else:
+            model = self.model
+
+        for i in range(len(X)):
+            x, y = X[i], Y[i]
+            
+            # Use y_
+            output = model.forward(torch.from_numpy(np.expand_dims(x, axis=0).astype(np.float32)))
+            y_ = (output.max(1, keepdim=True)[1]).item() 
+            if y_ != y:
+                continue
+
+            _, _, LP_risk_score = self.property_match(x, y_, False, 0) # y'
+            LPs_score.append(LP_risk_score)
+
+        LPs_score = np.array(LPs_score)
+        differentation_lines = []
+        for i in range(LPs_score.shape[1]):
+            LP_score = LPs_score[:,i]
+            differentation_lines.append(np.percentile(LP_score, qr))
+
+        self.differentation_lines = differentation_lines
+
 
     def _evaluate_benign_samples(self, alpha, verbose, dataset, on_robustified_model):
         LPs, LPs_score = [], []
