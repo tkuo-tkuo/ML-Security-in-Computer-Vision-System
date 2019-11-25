@@ -34,8 +34,7 @@ def extract_all_LP(model, model_type, x):
         h1 = F.relu(model.conv1(x))
         LPs.append(return_LP_from_output(h1))
 
-        h2 = F.relu(F.max_pool2d(model.conv2(h1), 2))
-        h2 = F.dropout2d(h2, p=0.1)
+        h2 = F.relu(F.max_pool2d(model.conv2(F.dropout2d(h1, p=0.02)), 2))
         LPs.append(return_LP_from_output(h2))
 
         h3 = F.relu(F.max_pool2d(model.conv3(h2), 2))
@@ -44,15 +43,6 @@ def extract_all_LP(model, model_type, x):
         h3 = h3.view(-1, 3*3*32)
         h4 = F.relu(model.fc1(h3))
         LPs.append(return_LP_from_output(h4))
-
-        '''
-        x = F.relu(self.conv1(x)) # (24, 24, 16)
-        x = F.relu(F.max_pool2d(self.conv2(x), 2)) # (20, 20, 16) -> (10, 10, 16)
-        x = F.relu(F.max_pool2d(self.conv3(x), 2)) # (6, 6, 32) -> (3, 3, 32)
-        x = x.view(-1, 3*3*32)
-        x = F.relu(self.fc1(x))
-        x = self.fc2(x)
-        '''
     else:
         x = torch.from_numpy(np.expand_dims(x, axis=0).astype(np.float32))
         h1 = model.relu(model.layer1(x))

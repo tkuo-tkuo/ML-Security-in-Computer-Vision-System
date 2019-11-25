@@ -482,6 +482,8 @@ High Priority
 - <b>~~Change the implementation for 10 classes (MNIST)~~</b> 
 - <b>~~Experiment on CNN models~~</b>
 - <b>(Wokring) Investigate whether most of adversarial samples fall into the same provenance. If it is the case, maybe we can remove the provenance where adversarial samples are potential to match -> draw a graph to demonstrate the result</b>
+- Consider leverage the concept of conditional probability 
+- Try One-class SVM (OSVM)
 - Experiment on widely-adopted models 
 - Store part of trained models as 'h5' format to preserve reproducibility
 

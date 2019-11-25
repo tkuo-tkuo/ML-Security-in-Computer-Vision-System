@@ -58,10 +58,10 @@ class robustified_CNN(nn.Module):
 
     def forward(self, x):
         x = F.relu(self.conv1(x)) # (24, 24, 16)
+        
+        x = F.dropout2d(x, p=0.02)
+        
         x = F.relu(F.max_pool2d(self.conv2(x), 2)) # (20, 20, 16) -> (10, 10, 16)
-
-        x = F.dropout2d(x, p=0.1)
-
         x = F.relu(F.max_pool2d(self.conv3(x), 2)) # (6, 6, 32) -> (3, 3, 32)
         x = x.view(-1, 3*3*32)
         x = F.relu(self.fc1(x))
