@@ -10,7 +10,7 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 
 # from binary_MNIST_models import NaiveC, NormalC, CNN
-from MNIST_models import NaiveC, NormalC, CNN, robustified_CNN
+from MNIST_models import NaiveC, NormalC, CNN, robustified_FC
 from utils import *
 
 class PropertyInferenceInterface():
@@ -105,9 +105,37 @@ class PropertyInferenceInterface():
     def load_model(self, model_name):
         self.model = torch.load(model_name)
 
-    def generate_robustified_model(self):
-        import copy 
-        self.robustified_model = robustified_CNN(copy.deepcopy(self.model))
+    def generate_robustified_model(self, model_type, num_of_epochs=15):
+        X, Y = self.train_dataset
+
+        if model_type == 'FC':
+            model = robustified_FC()
+        elif model_type == 'CNN':
+            # generate robustified CNN 
+            pass 
+        else: 
+            pass 
+
+        # Training
+        loss_func, optimizer = nn.CrossEntropyLoss(), torch.optim.Adam(model.parameters(), lr=1e-3)
+        for epoch in range(num_of_epochs):
+            print(epoch)
+            for idx, data in enumerate(X):
+
+                # Transform from numpy to torch & correct the shape (expand dimension) and type (float32 and int64)
+                data = torch.from_numpy(np.expand_dims(data, axis=0).astype(np.float32))
+                label = torch.from_numpy(np.array([Y[idx]]).astype(np.int64))
+        
+                # Forwarding
+                prediction = model.forward(data)
+                loss = loss_func(prediction, label)
+
+                # Optimization (back-propogation)
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
+        
+        self.robustified_model = model
 
     def generate_model(self, num_of_epochs=15):
         if self.meta_params['model_type'] == 'naive':
@@ -150,6 +178,8 @@ class PropertyInferenceInterface():
             model = self.robustified_model
         else:
             model = self.model
+
+        model.eval()
         datas = torch.from_numpy(X.astype(np.float32))
         labels = torch.from_numpy(Y.astype(np.int64))
         
@@ -345,6 +375,7 @@ class PropertyInferenceInterface():
         '''
         X, Y = self.train_dataset 
         model = self.model
+        model.eval()
 
         for i in range(len(X)):
             x, y = X[i], Y[i]
@@ -372,6 +403,7 @@ class PropertyInferenceInterface():
 
         X, Y = self.test_dataset
         model = self.model
+        model.eval()
 
         num_of_count, valid_count = len(X), 0
         for i in range(num_of_count):
@@ -393,10 +425,7 @@ class PropertyInferenceInterface():
             valid_count += result
 
         if verbose:
-            if dataset == 'test':
-                print('Evaluate on benign samples with test set')
-            else:
-                print('Evaluate on benign samples with train set')
+            print('Evaluate on benign samples with test set')
             print(valid_count, num_of_count, (valid_count/num_of_count))
 
         return (valid_count/num_of_count), LPs, LPs_score
@@ -416,6 +445,7 @@ class PropertyInferenceInterface():
 
         test_X, test_Y = self.test_dataset
         model = self.model
+        model.eval()
 
         num_of_count = len(test_X)
         valid_count = 0        

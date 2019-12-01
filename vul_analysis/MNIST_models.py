@@ -47,23 +47,23 @@ class CNN(nn.Module):
         x = self.fc2(x)
         return F.log_softmax(x, dim=1)
 
-class robustified_CNN(nn.Module):
-    def __init__(self, CNN):
+class robustified_FC(nn.Module):
+    def __init__(self):
         super().__init__()
-        self.conv1 = CNN.conv1
-        self.conv2 = CNN.conv2
-        self.conv3 = CNN.conv3
-        self.fc1 = CNN.fc1
-        self.fc2 = CNN.fc2
+        self.layer1 = nn.Linear(784, 64)
+        self.layer2 = nn.Linear(64, 32)
+        self.layer3 = nn.Linear(32, 20)
+        self.layer4 = nn.Linear(20, 10)
+        self.layer5 = nn.Linear(10, 10)
+        self.relu = nn.ReLU()
 
     def forward(self, x):
-        x = F.relu(self.conv1(x)) # (24, 24, 16)
-        
-        x = F.dropout2d(x, p=0.02)
-        
-        x = F.relu(F.max_pool2d(self.conv2(x), 2)) # (20, 20, 16) -> (10, 10, 16)
-        x = F.relu(F.max_pool2d(self.conv3(x), 2)) # (6, 6, 32) -> (3, 3, 32)
-        x = x.view(-1, 3*3*32)
-        x = F.relu(self.fc1(x))
-        x = self.fc2(x)
-        return F.log_softmax(x, dim=1)
+        h1 = self.relu(self.layer1(x))
+        h2 = self.relu(self.layer2(h1))
+
+        h2 = F.dropout(h2, p=0.5) # robustifying layer 
+
+        h3 = self.relu(self.layer3(h2))
+        h4 = self.relu(self.layer4(h3))
+        return self.layer5(h4)
+    

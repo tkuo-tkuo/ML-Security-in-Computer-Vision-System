@@ -487,9 +487,6 @@ High Priority
 - Try One-class SVM (OSVM)
 - Experiment on widely-adopted models 
 - Store part of trained models as 'h5' format to preserve reproducibility
-- ~~LPs separation (no concatenation)~~
-- ~~Change the implementation for 10 classes (MNIST)~~
-- ~~Experiment on CNN models~~
 
 Low Priority
 - Unify the format of citations
