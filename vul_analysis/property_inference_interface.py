@@ -189,7 +189,7 @@ class PropertyInferenceInterface():
             for LPs in LPs_set[i]:
                 print((np.array(LPs)).shape)
 
-    def property_match(self, x, y, verbose=True, alpha=None):
+    def property_match(self, x, y, verbose=True):
         Py = self.LPs_set[y]
         LPs = extract_all_LP(self.model, self.meta_params['model_type'], x)
 
@@ -329,21 +329,22 @@ class PropertyInferenceInterface():
         '''
         #############################################
 
-    def evaluate_algorithm_on_test_set(self, alpha=None, verbose=True, dataset='test', on_robustified_model=False):
+    def evaluate_algorithm_on_test_set(self, verbose=True):
         # self._double_check_on_train_set()
-        self._set_differentation_lines(95, on_robustified_model)
-        B_detect_ratio, B_LPs, B_LPs_score = self._evaluate_benign_samples(alpha, verbose, dataset, on_robustified_model)
-        A_detect_ratio, A_LPs, A_LPs_score = self._evaluate_adversarial_samples(alpha, verbose, on_robustified_model)
+        self._set_differentation_lines(95)
+        B_detect_ratio, B_LPs, B_LPs_score = self._evaluate_benign_samples(verbose)
+        A_detect_ratio, A_LPs, A_LPs_score = self._evaluate_adversarial_samples(verbose)
         return (B_detect_ratio, A_detect_ratio), (B_LPs, A_LPs), (B_LPs_score, A_LPs_score)
 
-    def _set_differentation_lines(self, qr, on_robustified_model):
+    def _set_differentation_lines(self, qr):
         LPs_score = []
 
-        X, Y = self.test_dataset
-        if on_robustified_model:
-            model = self.robustified_model
-        else:
-            model = self.model
+        '''
+        We set the differentiation lines according to training dataset,
+        and apply differentation lines on B (normal test samples) and A (adversarial test samples)
+        '''
+        X, Y = self.train_dataset 
+        model = self.model
 
         for i in range(len(X)):
             x, y = X[i], Y[i]
@@ -354,7 +355,7 @@ class PropertyInferenceInterface():
             if y_ != y:
                 continue
 
-            _, _, LP_risk_score = self.property_match(x, y_, False, 0) # y'
+            _, _, LP_risk_score = self.property_match(x, y_, False) # y'
             LPs_score.append(LP_risk_score)
 
         LPs_score = np.array(LPs_score)
@@ -366,19 +367,11 @@ class PropertyInferenceInterface():
         self.differentation_lines = differentation_lines
 
 
-    def _evaluate_benign_samples(self, alpha, verbose, dataset, on_robustified_model):
+    def _evaluate_benign_samples(self, verbose):
         LPs, LPs_score = [], []
 
-        if dataset == 'test':
-            X, Y = self.test_dataset
-        else: 
-            X, Y = self.train_dataset
-            X, Y = X[:100], Y[:100]
-
-        if on_robustified_model:
-            model = self.robustified_model
-        else:
-            model = self.model
+        X, Y = self.test_dataset
+        model = self.model
 
         num_of_count, valid_count = len(X), 0
         for i in range(num_of_count):
@@ -394,7 +387,7 @@ class PropertyInferenceInterface():
             if verbose:
                 print('Benign input matching...')
 
-            result, LP_status, LP_risk_score = self.property_match(x, y_, verbose, alpha) # y'
+            result, LP_status, LP_risk_score = self.property_match(x, y_, verbose) # y'
             LPs.append(LP_status)
             LPs_score.append(LP_risk_score)
             valid_count += result
@@ -408,7 +401,7 @@ class PropertyInferenceInterface():
 
         return (valid_count/num_of_count), LPs, LPs_score
 
-    def _evaluate_adversarial_samples(self, alpha, verbose, on_robustified_model):
+    def _evaluate_adversarial_samples(self, verbose):
         LPs, LPs_score = [], []
 
         import attacker
@@ -422,10 +415,7 @@ class PropertyInferenceInterface():
             A = NotImplemented
 
         test_X, test_Y = self.test_dataset
-        if on_robustified_model:
-            model = self.robustified_model
-        else:
-            model = self.model
+        model = self.model
 
         num_of_count = len(test_X)
         valid_count = 0        
@@ -454,16 +444,6 @@ class PropertyInferenceInterface():
                     adv_x = adv_x.detach().numpy()
                     adv_x = adv_x[0]
 
-                    # if i == 0 and verbose:
-                    #     import matplotlib.pyplot as plt
-                    #     img = adv_x.reshape(28, 28)
-                    #     plt.imshow(img, cmap='gray')
-                    #     plt.show()
-
-                    #     img = x.reshape(28, 28)
-                    #     plt.imshow(img, cmap='gray')
-                    #     plt.show()
-
             if (not is_attack_successful):
                 num_of_count -= 1
                 continue 
@@ -475,7 +455,7 @@ class PropertyInferenceInterface():
             if verbose:
                 print('Adversarial input matching...')
 
-            result, LP_status, LP_risk_score = self.property_match(adv_x, y_, verbose, alpha) # y'
+            result, LP_status, LP_risk_score = self.property_match(adv_x, y_, verbose) # y'
             LPs.append(LP_status)
             LPs_score.append(LP_risk_score)
             valid_count += result
