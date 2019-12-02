@@ -457,14 +457,48 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 </details>
 
 <details>
-  <summary>(WORKING) Experiment 10: Can we possibly improve models using incremental dropout on vulnerable layers? (adv_attack=i_FGSM, y/y'=y', model=CNN, qr=95)</summary>
+  <summary>Experiment 10: Can we possibly improve models (CNN) using incremental dropout on vulnerable layers? (adv_attack=i_FGSM, y/y'=y', model=CNN, qr=95, i-th_robustified_layer=2)</summary>
+
+     Below two figures: original CNN model without any robustification
+     -> We select to insert a dropout layer before 2nd layer to see whether there is any improvement
+     -> Our objective is to observe that benign sampeles are high (most of them are recognized as benign) and adversarial samples are low (vice versa)
   
-    Required functionalities not yet completed
+ <img src="Images/Exp10/exp10_1_0.png" width="175" height="140"/>
+ <img src="Images/Exp10/exp10_2_0.png" width="675" height="140"/>
+ 
+     Below figures: robustified models with various dropout rate
+          
+ <img src="Images/Exp10/exp10_1_1.png" width="175" height="140"/>
+ <img src="Images/Exp10/exp10_2_1.png" width="675" height="140"/>
   
+ <img src="Images/Exp10/exp10_1_2.png" width="175" height="140"/>
+ <img src="Images/Exp10/exp10_2_2.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp10/exp10_1_5.png" width="175" height="140"/>
+ <img src="Images/Exp10/exp10_2_5.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp10/exp10_1_10.png" width="175" height="140"/>
+ <img src="Images/Exp10/exp10_2_10.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp10/exp10_1_20.png" width="175" height="140"/>
+ <img src="Images/Exp10/exp10_2_20.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp10/exp10_1_30.png" width="175" height="140"/>
+ <img src="Images/Exp10/exp10_2_30.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp10/exp10_1_40.png" width="175" height="140"/>
+ <img src="Images/Exp10/exp10_2_40.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp10/exp10_1_50.png" width="175" height="140"/>
+ <img src="Images/Exp10/exp10_2_50.png" width="675" height="140"/>
+ 
+    Current Conclusion (2019 Dec. 3): increasing dropout will make benign and adversarial samples further indistinguishable!!
+    It is also noticable that the weights of training and evaluating of models (which involve dropout layer) are different. 
+ 
 </details>
 
 <details>
-  <summary>(WORKING) Experiment 11: Does the decrease of CBR in certain layer bring decrease in the subsequent layers?(adv_attack=i_FGSM, y/y'=y', model=CNN, qr=95)</summary>
+  <summary>(PENDING) Experiment 11: Does the decrease of CBR in certain layer bring decrease in the subsequent layers?(adv_attack=i_FGSM, y/y'=y', model=CNN, qr=95)</summary>
   
     Based on exp10, it seems that L2 and L4 is relatively vulnerable compared to L1 and L3
     Can robustify L2 indirectly also robustify L4? 
