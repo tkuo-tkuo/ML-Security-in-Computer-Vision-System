@@ -10,7 +10,7 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 
 # from binary_MNIST_models import NaiveC, NormalC, CNN
-from MNIST_models import NaiveC, NormalC, CNN, robustified_FC
+from MNIST_models import NaiveC, NormalC, CNN, robustified_FC, robustified_CNN
 from utils import *
 
 class PropertyInferenceInterface():
@@ -105,17 +105,17 @@ class PropertyInferenceInterface():
     def load_model(self, model_name):
         self.model = torch.load(model_name)
 
-    def generate_robustified_model(self, model_type, num_of_epochs=15):
+    def generate_robustified_model(self, model_type, num_of_epochs=15, dropout_rate=None):
         X, Y = self.train_dataset
 
         if model_type == 'FC':
-            model = robustified_FC()
+            model = robustified_FC(dropout_rate)
         elif model_type == 'CNN':
-            # generate robustified CNN 
-            pass 
+            model = robustified_CNN(dropout_rate)
         else: 
             pass 
 
+        model.train()
         # Training
         loss_func, optimizer = nn.CrossEntropyLoss(), torch.optim.Adam(model.parameters(), lr=1e-3)
         for epoch in range(num_of_epochs):
@@ -147,6 +147,7 @@ class PropertyInferenceInterface():
 
         X, Y = self.train_dataset
         
+        model.train()
         # Training
         loss_func, optimizer = nn.CrossEntropyLoss(), torch.optim.Adam(model.parameters(), lr=1e-3)
         for epoch in range(num_of_epochs):
