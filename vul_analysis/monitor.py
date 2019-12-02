@@ -172,7 +172,7 @@ class Monitor():
         print(prob_ALPs, 'test dataset (adversarial)')
         return (prob_ALPs, prob_BLPs, A_LPs_score, B_LPs_score)
 
-    def draw_rob_exp_results(self, results, dropout_rate):
+    def draw_rob_exp_results(self, results, dropout_rate, savefig=False):
         import matplotlib.pyplot as plt
         prob_ALPs, prob_BLPs, A_LPs_score, B_LPs_score = results
         
@@ -190,6 +190,8 @@ class Monitor():
         plt.xticks(index + bar_width, ('1', '2', '3', '4'))
         plt.legend()
         plt.tight_layout()
+        if savefig: 
+            plt.savefig('exp10_1_'+str(int(dropout_rate*100)))
         plt.show()
 
         plt.figure(figsize=(18,3))
@@ -201,4 +203,7 @@ class Monitor():
             plt.plot(B_score, B_indices, 'go')
             plt.plot(A_score, A_indices, 'ro')
             plt.title(str(i+1)+'-th layer (dr='+str(dropout_rate)+')')
+
+        if savefig: 
+            plt.savefig('exp10_2_'+str(int(dropout_rate*100)))
         plt.show()
