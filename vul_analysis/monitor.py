@@ -144,3 +144,61 @@ class Monitor():
         plt.ylim(-0.1, 1.1)
         plt.title('Average FPR & FNR') # Hyperparameters
         plt.savefig(args['export_file_name'])
+
+    def robustify_by_dr(self, PI):
+        import copy
+        import numpy as np
+        PI.model = copy.deepcopy(PI.robustified_model)
+        PI.generate_LPs()
+        (B_detect_ratio, A_detect_ratio), (B_LPs, A_LPs), (B_LPs_score, A_LPs_score) = PI.evaluate_algorithm_on_test_set(verbose=False)
+        print(B_detect_ratio, A_detect_ratio)
+
+        qr = '95'
+        BLPs, ALPs = np.array(B_LPs), np.array(A_LPs) 
+        print(BLPs.shape, ALPs.shape)
+
+        BLPs[BLPs=='benign'] = 1
+        BLPs[BLPs=='adversarial'] = 0
+        BLPs = BLPs.astype(np.int)
+        prob_BLPs = np.sum(BLPs, axis=0) / BLPs.shape[0]
+
+        ALPs[ALPs=='benign'] = 1
+        ALPs[ALPs=='adversarial'] = 0
+        ALPs = ALPs.astype(np.int)
+        prob_ALPs = np.sum(ALPs, axis=0) / ALPs.shape[0]
+
+        print('This indicates the portion of inputs to be judgedprob_ALPs, prob_BLPs, A_LPs_score, B_LPs_score as "benign"')
+        print(prob_BLPs, 'test dataset (benign)')
+        print(prob_ALPs, 'test dataset (adversarial)')
+        return (prob_ALPs, prob_BLPs, A_LPs_score, B_LPs_score)
+
+    def draw_rob_exp_results(self, results, dropout_rate):
+        import matplotlib.pyplot as plt
+        prob_ALPs, prob_BLPs, A_LPs_score, B_LPs_score = results
+        
+        # create plot
+        num_of_layers = 4
+        index = np.arange(num_of_layers)
+        bar_width, opacity = 0.2, 0.7
+
+        rects1 = plt.bar(index, prob_BLPs, bar_width, alpha=opacity, color='g', label='Test Ben')
+        rects2 = plt.bar(index + bar_width, prob_ALPs, bar_width, alpha=opacity, color='r', label='Test Ben')
+
+        plt.xlabel('I-th layer')
+        plt.ylabel('Benign ratio')
+        plt.title('Benign ratio in different layers (95 qr)')
+        plt.xticks(index + bar_width, ('1', '2', '3', '4'))
+        plt.legend()
+        plt.tight_layout()
+        plt.show()
+
+        plt.figure(figsize=(18,3))
+        B_LPs_score, A_LPs_score = np.array(B_LPs_score), np.array(A_LPs_score)
+        for i in range(B_LPs_score.shape[1]):
+            B_score, A_score = B_LPs_score[:,i], A_LPs_score[:, i]
+            B_indices, A_indices = np.arange(B_score.shape[0]), np.arange(A_score.shape[0])
+            plt.subplot(1, 4, i+1)
+            plt.plot(B_score, B_indices, 'go')
+            plt.plot(A_score, A_indices, 'ro')
+            plt.title(str(i+1)+'-th layer (dr='+str(dropout_rate)+')')
+        plt.show()
