@@ -30,7 +30,7 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 
 ### ReLU 
 
-**Data collections (ReLU)** <br/>
+**Experimental data collections (ReLU)** <br/>
 
 <details>
   <summary>Table 1: TPR & TNR by LP_1 (adv_a=i_FGSM)</summary>
@@ -225,10 +225,6 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 - y class, most then [B, B, B, B] or [A, A, A, A]
 
 ### CNN
-
-**Data collections (CNN)** 
-
-(to be updated) 
 
 **Experiments (CNN)** 
 
@@ -498,7 +494,32 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 </details>
 
 <details>
-  <summary>(PENDING) Experiment 11: Does the decrease of CBR in certain layer bring decrease in the subsequent layers?(adv_attack=i_FGSM, y/y'=y', model=CNN, qr=95)</summary>
+  <summary>(WOKRING) Experiment 11: Can we possibly improve models (CNN) using incremental dropout on vulnerable layers? (adv_attack=i_FGSM, y/y'=y', model=CNN, qr=95, i-th_robustified_layer=1/3/4)</summary>
+  
+     Due to unsatisfied results of Exp 10, we would like to examinate what if we increase the dropout rate on other layers. 
+     Below are diagrams to indicate influence of dropout layer before the first/third/fourth layer. 
+     
+     (series of pictures for inserting dropout layer before the first layer) 
+     
+     (series of pictures for inserting dropout layer before the third layer) 
+     
+     (series of pictures for inserting dropout layer before the fourth layer) 
+  
+</details>
+
+
+<details>
+  <summary>(WOKRING) Experiment 12: Can we possibly improve models (CNN) using incremental dropout on vulnerable layers by <b> slight retraining</b>? (adv_attack=i_FGSM, y/y'=y', model=CNN, qr=95, i-th_robustified_layer=2)</summary>
+  
+     If we would like to standby the original search subspace, it is better for use to begin with trained weights. 
+     Let's experiment on what if we just slightly retrain the given model. 
+     
+     (series of pictures for inserting dropout layer before the second layer by slight retraining) 
+  
+</details>
+
+<details>
+  <summary>(PENDING) Experiment ??: Does the decrease of CBR in certain layer bring decrease in the subsequent layers?(adv_attack=i_FGSM, y/y'=y', model=CNN, qr=95)</summary>
   
     Based on exp10, it seems that L2 and L4 is relatively vulnerable compared to L1 and L3
     Can robustify L2 indirectly also robustify L4? 
