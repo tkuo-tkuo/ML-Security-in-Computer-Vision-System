@@ -533,8 +533,9 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 ### To-Do List 
 
 Top Priority (most urgent)
-- Review how dropout layer is trained, tested, and forwarded
-- Integrate functionalities: adjust dropout rate
+- Complete Exp11-13
+- Separate contents as individual pages instead toggle lists
+- Include more information needed
 
 High Priority
 - <b>(Wokring) Investigate whether most of adversarial samples fall into the same provenance. If it is the case, maybe we can remove the provenance where adversarial samples are potential to match -> draw a graph to demonstrate the result</b>
