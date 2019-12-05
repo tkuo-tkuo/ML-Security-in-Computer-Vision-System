@@ -21,7 +21,7 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 
 ### Common Rules 
 
-- All evaluations (TPR, TNR, FPR, and FNR) are examinated on 100 samples. 
+- For Table 1 to 3 and Experiment 1 to 4TPR, TNR, FPR, and FNR are examinated on 100 samples. 
 - For Table 1 to 3 and Experiment 1 to 4, the task is to classify 5 and 7 (subset of MNIST). 
 - For Table 1 to 3 and Experiment 1 to 4, if we use more than one LP, we will concatenate all LPs as one LP.  
 
@@ -690,6 +690,108 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
   
      Before the first layer 
      
+ <img src="Images/Exp13/1/exp13_1_1.png" width="175" height="140"/>
+ <img src="Images/Exp13/1/exp13_2_1.png" width="675" height="140"/>
+
+ <img src="Images/Exp13/1/exp13_1_2.png" width="175" height="140"/>
+ <img src="Images/Exp13/1/exp13_2_2.png" width="675" height="140"/> 
+ 
+ <img src="Images/Exp13/1/exp13_1_5.png" width="175" height="140"/>
+ <img src="Images/Exp13/1/exp13_2_5.png" width="675" height="140"/> 
+ 
+ <img src="Images/Exp13/1/exp13_1_10.png" width="175" height="140"/>
+ <img src="Images/Exp13/1/exp13_2_10.png" width="675" height="140"/> 
+ 
+ <img src="Images/Exp13/1/exp13_1_20.png" width="175" height="140"/>
+ <img src="Images/Exp13/1/exp13_2_20.png" width="675" height="140"/> 
+ 
+ <img src="Images/Exp13/1/exp13_1_30.png" width="175" height="140"/>
+ <img src="Images/Exp13/1/exp13_2_30.png" width="675" height="140"/> 
+ 
+ <img src="Images/Exp13/1/exp13_1_40.png" width="175" height="140"/>
+ <img src="Images/Exp13/1/exp13_2_40.png" width="675" height="140"/> 
+     
+ <img src="Images/Exp13/1/exp13_1_50.png" width="175" height="140"/>
+ <img src="Images/Exp13/1/exp13_2_50.png" width="675" height="140"/> 
+ 
+     Before the second layer 
+     
+ <img src="Images/Exp13/2/exp13_1_1.png" width="175" height="140"/>
+ <img src="Images/Exp13/2/exp13_2_1.png" width="675" height="140"/>
+
+ <img src="Images/Exp13/2/exp13_1_2.png" width="175" height="140"/>
+ <img src="Images/Exp13/2/exp13_2_2.png" width="675" height="140"/> 
+ 
+ <img src="Images/Exp13/2/exp13_1_5.png" width="175" height="140"/>
+ <img src="Images/Exp13/2/exp13_2_5.png" width="675" height="140"/> 
+ 
+ <img src="Images/Exp13/2/exp13_1_10.png" width="175" height="140"/>
+ <img src="Images/Exp13/2/exp13_2_10.png" width="675" height="140"/> 
+ 
+ <img src="Images/Exp13/2/exp13_1_20.png" width="175" height="140"/>
+ <img src="Images/Exp13/2/exp13_2_20.png" width="675" height="140"/> 
+ 
+ <img src="Images/Exp13/2/exp13_1_30.png" width="175" height="140"/>
+ <img src="Images/Exp13/2/exp13_2_30.png" width="675" height="140"/> 
+ 
+ <img src="Images/Exp13/2/exp13_1_40.png" width="175" height="140"/>
+ <img src="Images/Exp13/2/exp13_2_40.png" width="675" height="140"/> 
+     
+ <img src="Images/Exp13/2/exp13_1_50.png" width="175" height="140"/>
+ <img src="Images/Exp13/2/exp13_2_50.png" width="675" height="140"/>  
+ 
+     Before the third layer 
+     
+ <img src="Images/Exp13/3/exp13_1_1.png" width="175" height="140"/>
+ <img src="Images/Exp13/3/exp13_2_1.png" width="675" height="140"/>
+
+ <img src="Images/Exp13/3/exp13_1_2.png" width="175" height="140"/>
+ <img src="Images/Exp13/3/exp13_2_2.png" width="675" height="140"/> 
+ 
+ <img src="Images/Exp13/3/exp13_1_5.png" width="175" height="140"/>
+ <img src="Images/Exp13/3/exp13_2_5.png" width="675" height="140"/> 
+ 
+ <img src="Images/Exp13/3/exp13_1_10.png" width="175" height="140"/>
+ <img src="Images/Exp13/3/exp13_2_10.png" width="675" height="140"/> 
+ 
+ <img src="Images/Exp13/3/exp13_1_20.png" width="175" height="140"/>
+ <img src="Images/Exp13/3/exp13_2_20.png" width="675" height="140"/> 
+ 
+ <img src="Images/Exp13/3/exp13_1_30.png" width="175" height="140"/>
+ <img src="Images/Exp13/3/exp13_2_30.png" width="675" height="140"/> 
+ 
+ <img src="Images/Exp13/3/exp13_1_40.png" width="175" height="140"/>
+ <img src="Images/Exp13/3/exp13_2_40.png" width="675" height="140"/> 
+     
+ <img src="Images/Exp13/3/exp13_1_50.png" width="175" height="140"/>
+ <img src="Images/Exp13/3/exp13_2_50.png" width="675" height="140"/>  
+ 
+     Before the fourth layer 
+     
+ <img src="Images/Exp13/4/exp13_1_1.png" width="175" height="140"/>
+ <img src="Images/Exp13/4/exp13_2_1.png" width="675" height="140"/>
+
+ <img src="Images/Exp13/4/exp13_1_2.png" width="175" height="140"/>
+ <img src="Images/Exp13/4/exp13_2_2.png" width="675" height="140"/> 
+ 
+ <img src="Images/Exp13/4/exp13_1_5.png" width="175" height="140"/>
+ <img src="Images/Exp13/4/exp13_2_5.png" width="675" height="140"/> 
+ 
+ <img src="Images/Exp13/4/exp13_1_10.png" width="175" height="140"/>
+ <img src="Images/Exp13/4/exp13_2_10.png" width="675" height="140"/> 
+ 
+ <img src="Images/Exp13/4/exp13_1_20.png" width="175" height="140"/>
+ <img src="Images/Exp13/4/exp13_2_20.png" width="675" height="140"/> 
+ 
+ <img src="Images/Exp13/4/exp13_1_30.png" width="175" height="140"/>
+ <img src="Images/Exp13/4/exp13_2_30.png" width="675" height="140"/> 
+ 
+ <img src="Images/Exp13/4/exp13_1_40.png" width="175" height="140"/>
+ <img src="Images/Exp13/4/exp13_2_40.png" width="675" height="140"/> 
+     
+ <img src="Images/Exp13/4/exp13_1_50.png" width="175" height="140"/>
+ <img src="Images/Exp13/4/exp13_2_50.png" width="675" height="140"/>  
+ 
 </details>
 
 <details>
