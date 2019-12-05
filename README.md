@@ -3,7 +3,7 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 
 ## Study on adversarial detection via LP (Layer Provenance)
 
-### Notations
+### Notations & Expressions 
 
 - **LP_i**: Layer Provenance of the i-th hidden layer
 - **y**: ground-truth label, **y'** predicted label
@@ -17,9 +17,6 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 - **h**: Number of hidden layers (specifically for ReLU neural networks)
 - **adv_a**: adversarial attack
 - **i_FGSM**: Iterative Fast Gradient Sign Method, **JSMA**: Jacobian Saliency Map Attack, **CWL2**: CarliniWagner L2 Attack
-
-### Expressions
-
 - **()** indicate standard deviation. 
 
 ### Common Rules 
@@ -488,23 +485,95 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
  <img src="Images/Exp10/exp10_1_50.png" width="175" height="140"/>
  <img src="Images/Exp10/exp10_2_50.png" width="675" height="140"/>
  
-    Current Conclusion (2019 Dec. 3): increasing dropout will make benign and adversarial samples further indistinguishable!!
-    It is also noticable that the weights of training and evaluating of models (which involve dropout layer) are different. 
- 
 </details>
 
 <details>
-  <summary>(WOKRING) Experiment 11: Can we possibly improve models (CNN) using incremental dropout on vulnerable layers? (adv_attack=i_FGSM, y/y'=y', model=CNN, qr=95, i-th_robustified_layer=1/3/4)</summary>
+  <summary>Experiment 11: Can we possibly improve models (CNN) using incremental dropout on vulnerable layers? (adv_attack=i_FGSM, y/y'=y', model=CNN, qr=95, i-th_robustified_layer=1/3/4)</summary>
   
      Due to unsatisfied results of Exp 10, we would like to examinate what if we increase the dropout rate on other layers. 
      Below are diagrams to indicate influence of dropout layer before the first/third/fourth layer. 
      
-     (series of pictures for inserting dropout layer before the first layer) 
+     Before the first layer 
      
-     (series of pictures for inserting dropout layer before the third layer) 
+ <img src="Images/Exp11/1/exp11_1_1.png" width="175" height="140"/>
+ <img src="Images/Exp11/1/exp11_2_1.png" width="675" height="140"/> 
+ 
+ <img src="Images/Exp11/1/exp11_1_2.png" width="175" height="140"/>
+ <img src="Images/Exp11/1/exp11_2_2.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp11/1/exp11_1_5.png" width="175" height="140"/>
+ <img src="Images/Exp11/1/exp11_2_5.png" width="675" height="140"/>  
+ 
+ <img src="Images/Exp11/1/exp11_1_10.png" width="175" height="140"/>
+ <img src="Images/Exp11/1/exp11_2_10.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp11/1/exp11_1_20.png" width="175" height="140"/>
+ <img src="Images/Exp11/1/exp11_2_20.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp11/1/exp11_1_30.png" width="175" height="140"/>
+ <img src="Images/Exp11/1/exp11_2_30.png" width="675" height="140"/>
+
+ <img src="Images/Exp11/1/exp11_1_40.png" width="175" height="140"/>
+ <img src="Images/Exp11/1/exp11_2_40.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp11/1/exp11_1_50.png" width="175" height="140"/>
+ <img src="Images/Exp11/1/exp11_2_50.png" width="675" height="140"/>
      
-     (series of pictures for inserting dropout layer before the fourth layer) 
-  
+     Before the third layer 
+     
+ <img src="Images/Exp11/3/exp11_1_1.png" width="175" height="140"/>
+ <img src="Images/Exp11/3/exp11_2_1.png" width="675" height="140"/> 
+ 
+ <img src="Images/Exp11/3/exp11_1_2.png" width="175" height="140"/>
+ <img src="Images/Exp11/3/exp11_2_2.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp11/3/exp11_1_5.png" width="175" height="140"/>
+ <img src="Images/Exp11/3/exp11_2_5.png" width="675" height="140"/>  
+ 
+ <img src="Images/Exp11/3/exp11_1_10.png" width="175" height="140"/>
+ <img src="Images/Exp11/3/exp11_2_10.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp11/3/exp11_1_20.png" width="175" height="140"/>
+ <img src="Images/Exp11/3/exp11_2_20.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp11/3/exp11_1_30.png" width="175" height="140"/>
+ <img src="Images/Exp11/3/exp11_2_30.png" width="675" height="140"/>
+
+ <img src="Images/Exp11/3/exp11_1_40.png" width="175" height="140"/>
+ <img src="Images/Exp11/3/exp11_2_40.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp11/3/exp11_1_50.png" width="175" height="140"/>
+ <img src="Images/Exp11/3/exp11_2_50.png" width="675" height="140"/>
+     
+     Before the fourth layer 
+     
+ <img src="Images/Exp11/4/exp11_1_1.png" width="175" height="140"/>
+ <img src="Images/Exp11/4/exp11_2_1.png" width="675" height="140"/> 
+ 
+ <img src="Images/Exp11/4/exp11_1_2.png" width="175" height="140"/>
+ <img src="Images/Exp11/4/exp11_2_2.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp11/4/exp11_1_5.png" width="175" height="140"/>
+ <img src="Images/Exp11/4/exp11_2_5.png" width="675" height="140"/>  
+ 
+ <img src="Images/Exp11/4/exp11_1_10.png" width="175" height="140"/>
+ <img src="Images/Exp11/4/exp11_2_10.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp11/4/exp11_1_20.png" width="175" height="140"/>
+ <img src="Images/Exp11/4/exp11_2_20.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp11/4/exp11_1_30.png" width="175" height="140"/>
+ <img src="Images/Exp11/4/exp11_2_30.png" width="675" height="140"/>
+
+ <img src="Images/Exp11/4/exp11_1_40.png" width="175" height="140"/>
+ <img src="Images/Exp11/4/exp11_2_40.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp11/4/exp11_1_50.png" width="175" height="140"/>
+ <img src="Images/Exp11/4/exp11_2_50.png" width="675" height="140"/>
+ 
+     Current Conclusion (2019 Dec. 3): increasing dropout will make benign and adversarial samples further indistinguishable!!
+     It is also noticable that the weights of training and evaluating of models (which involve dropout layer) are different. 
+     
 </details>
 
 
