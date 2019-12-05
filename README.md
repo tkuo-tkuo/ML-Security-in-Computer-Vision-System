@@ -1,7 +1,7 @@
 # Final Year Thesis
 Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 
-## Study on adversarial detection via LP (Layer Provenance)
+## Research on adversarial detection/robustification via LP (Layer Provenance)
 
 ### Notations & Expressions 
 
@@ -450,7 +450,7 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 </details>
 
 <details>
-  <summary>Experiment 10: Can we possibly improve models (CNN) using incremental dropout on vulnerable layers? (adv_attack=i_FGSM, y/y'=y', model=CNN, qr=95, i-th_robustified_layer=2)</summary>
+  <summary>Experiment 10: Relation between PIs and dropout layer (adv_attack=i_FGSM, y/y'=y', model=CNN, qr=95, i-th_robustified_layer=2, approach=insertion and total retraining)</summary>
 
      Below two figures: original CNN model without any robustification
      -> We select to insert a dropout layer before 2nd layer to see whether there is any improvement
@@ -488,7 +488,7 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 </details>
 
 <details>
-  <summary>Experiment 11: Can we possibly improve models (CNN) using incremental dropout on vulnerable layers? (adv_attack=i_FGSM, y/y'=y', model=CNN, qr=95, i-th_robustified_layer=1/3/4)</summary>
+  <summary>Experiment 11: Relation between PIs and dropout layer (adv_attack=i_FGSM, y/y'=y', model=CNN, qr=95, i-th_robustified_layer=1/3/4, approach=insertion and total retraining)</summary>
   
      Due to unsatisfied results of Exp 10, we would like to examinate what if we increase the dropout rate on other layers. 
      Below are diagrams to indicate influence of dropout layer before the first/third/fourth layer. 
@@ -576,15 +576,120 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
      
 </details>
 
+<details>
+  <summary>Experiment 12:Relation between PIs and dropout layer (adv_attack=i_FGSM, y/y'=y', model=CNN, qr=95, approach=insertion only)</summary>
+  
+     Before the first layer 
+     
+ <img src="Images/Exp12/1/exp12_1_1.png" width="175" height="140"/>
+ <img src="Images/Exp12/1/exp12_2_1.png" width="675" height="140"/> 
+ 
+ <img src="Images/Exp12/1/exp12_1_2.png" width="175" height="140"/>
+ <img src="Images/Exp12/1/exp12_2_2.png" width="675" height="140"/> 
+ 
+ <img src="Images/Exp12/1/exp12_1_5.png" width="175" height="140"/>
+ <img src="Images/Exp12/1/exp12_2_5.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp12/1/exp12_1_10.png" width="175" height="140"/>
+ <img src="Images/Exp12/1/exp12_2_10.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp12/1/exp12_1_20.png" width="175" height="140"/>
+ <img src="Images/Exp12/1/exp12_2_20.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp12/1/exp12_1_30.png" width="175" height="140"/>
+ <img src="Images/Exp12/1/exp12_2_30.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp12/1/exp12_1_40.png" width="175" height="140"/>
+ <img src="Images/Exp12/1/exp12_2_40.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp12/1/exp12_1_50.png" width="175" height="140"/>
+ <img src="Images/Exp12/1/exp12_2_50.png" width="675" height="140"/>
+ 
+      Before the second layer 
+     
+ <img src="Images/Exp12/2/exp12_1_1.png" width="175" height="140"/>
+ <img src="Images/Exp12/2/exp12_2_1.png" width="675" height="140"/> 
+ 
+ <img src="Images/Exp12/2/exp12_1_2.png" width="175" height="140"/>
+ <img src="Images/Exp12/2/exp12_2_2.png" width="675" height="140"/> 
+ 
+ <img src="Images/Exp12/2/exp12_1_5.png" width="175" height="140"/>
+ <img src="Images/Exp12/2/exp12_2_5.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp12/2/exp12_1_10.png" width="175" height="140"/>
+ <img src="Images/Exp12/2/exp12_2_10.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp12/2/exp12_1_20.png" width="175" height="140"/>
+ <img src="Images/Exp12/2/exp12_2_20.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp12/2/exp12_1_30.png" width="175" height="140"/>
+ <img src="Images/Exp12/2/exp12_2_30.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp12/2/exp12_1_40.png" width="175" height="140"/>
+ <img src="Images/Exp12/2/exp12_2_40.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp12/2/exp12_1_50.png" width="175" height="140"/>
+ <img src="Images/Exp12/2/exp12_2_50.png" width="675" height="140"/>
+ 
+      Before the third layer 
+     
+ <img src="Images/Exp12/3/exp12_1_1.png" width="175" height="140"/>
+ <img src="Images/Exp12/3/exp12_2_1.png" width="675" height="140"/> 
+ 
+ <img src="Images/Exp12/3/exp12_1_2.png" width="175" height="140"/>
+ <img src="Images/Exp12/3/exp12_2_2.png" width="675" height="140"/> 
+ 
+ <img src="Images/Exp12/3/exp12_1_5.png" width="175" height="140"/>
+ <img src="Images/Exp12/3/exp12_2_5.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp12/3/exp12_1_10.png" width="175" height="140"/>
+ <img src="Images/Exp12/3/exp12_2_10.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp12/3/exp12_1_20.png" width="175" height="140"/>
+ <img src="Images/Exp12/3/exp12_2_20.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp12/3/exp12_1_30.png" width="175" height="140"/>
+ <img src="Images/Exp12/3/exp12_2_30.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp12/3/exp12_1_40.png" width="175" height="140"/>
+ <img src="Images/Exp12/3/exp12_2_40.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp12/3/exp12_1_50.png" width="175" height="140"/>
+ <img src="Images/Exp12/3/exp12_2_50.png" width="675" height="140"/>
+ 
+       Before the fourth layer 
+     
+ <img src="Images/Exp12/4/exp12_1_1.png" width="175" height="140"/>
+ <img src="Images/Exp12/4/exp12_2_1.png" width="675" height="140"/> 
+ 
+ <img src="Images/Exp12/4/exp12_1_2.png" width="175" height="140"/>
+ <img src="Images/Exp12/4/exp12_2_2.png" width="675" height="140"/> 
+ 
+ <img src="Images/Exp12/4/exp12_1_5.png" width="175" height="140"/>
+ <img src="Images/Exp12/4/exp12_2_5.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp12/4/exp12_1_10.png" width="175" height="140"/>
+ <img src="Images/Exp12/4/exp12_2_10.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp12/4/exp12_1_20.png" width="175" height="140"/>
+ <img src="Images/Exp12/4/exp12_2_20.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp12/4/exp12_1_30.png" width="175" height="140"/>
+ <img src="Images/Exp12/4/exp12_2_30.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp12/4/exp12_1_40.png" width="175" height="140"/>
+ <img src="Images/Exp12/4/exp12_2_40.png" width="675" height="140"/>
+ 
+ <img src="Images/Exp12/4/exp12_1_50.png" width="175" height="140"/>
+ <img src="Images/Exp12/4/exp12_2_50.png" width="675" height="140"/>
+ 
+</details>
 
 <details>
-  <summary>(WOKRING) Experiment 12: Can we possibly improve models (CNN) using incremental dropout on vulnerable layers by <b> slight retraining</b>? (adv_attack=i_FGSM, y/y'=y', model=CNN, qr=95, i-th_robustified_layer=2)</summary>
+  <summary>Experiment 13: Relation between PIs and dropout layer (adv_attack=i_FGSM, y/y'=y', model=CNN, qr=95, approach=insertion and slight tuning)</summary>
   
-     If we would like to standby the original search subspace, it is better for use to begin with trained weights. 
-     Let's experiment on what if we just slightly retrain the given model. 
+     Before the first layer 
      
-     (series of pictures for inserting dropout layer before the second layer by slight retraining) 
-  
 </details>
 
 <details>
