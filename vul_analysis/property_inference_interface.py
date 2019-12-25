@@ -105,6 +105,49 @@ class PropertyInferenceInterface():
     def load_model(self, model_name):
         self.model = torch.load(model_name)
 
+    def generate_twisted_model(self, model_type, num_of_epochs=10, dropout_rate=None):
+        ''' 
+        Currently, we only have CNN => add FC in the future 
+        '''
+
+        # Create an untrained robustified CNN
+        self.robustified_model = robustified_CNN(dropout_rate)
+        self.model.train()
+        self.robustified_model.train()
+
+        # Load the original model 
+        import copy
+        original_state = copy.deepcopy(self.model.state_dict())
+        for name, param in self.robustified_model.state_dict().items():
+            if name not in original_state:
+                print('Not in original_state:', name)
+                continue
+            
+            param.copy_(original_state[name])
+
+        # Retraining 
+        X, Y = self.train_dataset
+        model = self.robustified_model
+        model.train()
+
+        loss_func, optimizer = nn.CrossEntropyLoss(), torch.optim.Adam(model.parameters(), lr=1e-3)
+        for epoch in range(num_of_epochs):
+            # print(epoch)
+            for idx, data in enumerate(X):
+
+                # Transform from numpy to torch & correct the shape (expand dimension) and type (float32 and int64)
+                data = torch.from_numpy(np.expand_dims(data, axis=0).astype(np.float32))
+                label = torch.from_numpy(np.array([Y[idx]]).astype(np.int64))
+        
+                # Forwarding
+                prediction = model.forward(data)
+                loss = loss_func(prediction, label)
+
+                # Optimization (back-propogation)
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
+
     def generate_robustified_model(self, model_type, num_of_epochs=15, dropout_rate=None):
         X, Y = self.train_dataset
 
@@ -119,7 +162,7 @@ class PropertyInferenceInterface():
         # Training
         loss_func, optimizer = nn.CrossEntropyLoss(), torch.optim.Adam(model.parameters(), lr=1e-3)
         for epoch in range(num_of_epochs):
-            print(epoch)
+            # print(epoch)
             for idx, data in enumerate(X):
 
                 # Transform from numpy to torch & correct the shape (expand dimension) and type (float32 and int64)
@@ -290,11 +333,13 @@ class PropertyInferenceInterface():
         if 'benign' == LP_status[0] and 'benign' == LP_status[1] and 'benign' == LP_status[2]:
             result = 1    
 
+        '''
         if verbose:
             if result == 1:
                 print(LP_status, 'benign')
             else:
                 print(LP_status, 'adversarial')
+        '''
 
         return (result, LP_status, LP_risk_score)
         #############################################
@@ -361,79 +406,101 @@ class PropertyInferenceInterface():
         #############################################
 
     def evaluate_algorithm_on_test_set(self, verbose=True):
-        # self._double_check_on_train_set()
         self._set_differentation_lines(95)
-        B_detect_ratio, B_LPs, B_LPs_score = self._evaluate_benign_samples(verbose)
-        A_detect_ratio, A_LPs, A_LPs_score = self._evaluate_adversarial_samples(verbose)
+        B_num_count, B_correct_count, B_valid_count, B_LPs, B_LPs_score = self._evaluate_benign_samples(verbose)
+        A_num_count, A_correct_count, A_valid_count, A_LPs, A_LPs_score = self._evaluate_adversarial_samples(verbose)
+        B_detect_ratio, A_detect_ratio = B_valid_count/B_correct_count, A_valid_count/A_correct_count
         return (B_detect_ratio, A_detect_ratio), (B_LPs, A_LPs), (B_LPs_score, A_LPs_score)
 
     def _set_differentation_lines(self, qr):
-        LPs_score = []
+        ''' Private function
+        - Set the differentiation lines according to training dataset,
+        - Apply differentation lines on B (normal test samples) and A (adversarial test samples)
+        '''
 
-        '''
-        We set the differentiation lines according to training dataset,
-        and apply differentation lines on B (normal test samples) and A (adversarial test samples)
-        '''
+        # Load (train) dataset and model 
         X, Y = self.train_dataset 
-        model = self.model
-        model.eval()
+        model = (self.model).eval()
+
+        # Create intermediate variables 
+        LPs_score = []
 
         for i in range(len(X)):
             x, y = X[i], Y[i]
             
-            # Use y_
+            # Filter out samples can not be correctly classified by the given model 
             output = model.forward(torch.from_numpy(np.expand_dims(x, axis=0).astype(np.float32)))
             y_ = (output.max(1, keepdim=True)[1]).item() 
             if y_ != y:
                 continue
 
-            _, _, LP_risk_score = self.property_match(x, y_, False) # y'
+            # Collect LP_risk_score among train dataset 
+            _, _, LP_risk_score = self.property_match(x, y_, False) 
             LPs_score.append(LP_risk_score)
 
+        # Compute differentation lines 
         LPs_score = np.array(LPs_score)
         differentation_lines = []
         for i in range(LPs_score.shape[1]):
             LP_score = LPs_score[:,i]
             differentation_lines.append(np.percentile(LP_score, qr))
 
+        # Store in PI
         self.differentation_lines = differentation_lines
 
-
     def _evaluate_benign_samples(self, verbose):
+        ''' Private function 
+        - Samples are extracted from the test dataset
+        total_count   : # of samples extracted from dataset
+        correct_count : # of samples (classified correctly)
+        valid_count   : # of samples (classified correctly & classified as benign)
+        '''
+
+        # Load (test) dataset and model 
+        X, Y = self.test_dataset
+        model = (self.model).eval()
+
+        # Create intermediate variables 
+        num_count, correct_count, valid_count = len(X), len(X), 0
         LPs, LPs_score = [], []
 
-        X, Y = self.test_dataset
-        model = self.model
-        model.eval()
-
-        num_of_count, valid_count = len(X), 0
-        for i in range(num_of_count):
+        for i in range(correct_count):
             x, y = X[i], Y[i]
             
-            # Use y_
+            # Filter out samples can not be correctly classified by the given model 
             output = model.forward(torch.from_numpy(np.expand_dims(x, axis=0).astype(np.float32)))
             y_ = (output.max(1, keepdim=True)[1]).item() 
             if y_ != y:
-                num_of_count -= 1
+                correct_count -= 1
                 continue
 
-            if verbose:
-                print('Benign input matching...')
+            # Generate experimental result 
+            result, LP_status, LP_risk_score = self.property_match(x, y_, verbose) 
 
-            result, LP_status, LP_risk_score = self.property_match(x, y_, verbose) # y'
+            # Record experimental info 
             LPs.append(LP_status)
             LPs_score.append(LP_risk_score)
             valid_count += result
 
         if verbose:
             print('Evaluate on benign samples with test set')
-            print(valid_count, num_of_count, (valid_count/num_of_count))
+            print('# of samples'.ljust(45), ':', num_count)
+            print('# of correctly classified samples'.ljust(45), ':', correct_count)
+            print('# of correctly classified samples')
+            print('     which are indentified as "benign"'.ljust(45), ':', valid_count)
+            print('True Negative Rate, TNR (B -> B)'.ljust(45), ':', round((valid_count/correct_count), 3), '(', valid_count, '/', correct_count, ')')
 
-        return (valid_count/num_of_count), LPs, LPs_score
+        return num_count, correct_count, valid_count, LPs, LPs_score
 
     def _evaluate_adversarial_samples(self, verbose):
-        LPs, LPs_score = [], []
+        ''' Private function 
+        - Samples are extracted from the test dataset
+        total_count   : # of samples extracted from dataset
+        correct_count : # of samples (classified correctly)
+        valid_count   : # of samples (classified correctly & classified as benign)
+        '''
 
+        # Create attack for generating adversarial samples         
         import attacker
         if self.meta_params['adv_attack'] == 'i_FGSM':
             A = attacker.iterative_FGSM_attacker()
@@ -444,56 +511,81 @@ class PropertyInferenceInterface():
         else:
             A = NotImplemented
 
-        test_X, test_Y = self.test_dataset
-        model = self.model
-        model.eval()
+        # Load (test) dataset and model 
+        X, Y = self.test_dataset
+        model = (self.model).eval()
 
-        num_of_count = len(test_X)
-        valid_count = 0        
-        success_count = 0
-        for i in range(num_of_count):
+        # Create intermediate variables 
+        LPs, LPs_score = [], []
+        num_count, correct_count, valid_count = len(X), len(X), 0
+        success_count, non_success_count = 0, 0
+        BB_count, BA_count, AA_count, AB_count = 0, 0, 0, 0
+        eps, eps_incre_unit, eps_upper_bound = 0, 0.01, 1 
+
+        for i in range(correct_count):
+            # Debug information 
             # print('Conduct', i, 'th attack:', self.meta_params['adv_attack'])
-            x, y = test_X[i], test_Y[i]
+            x, y = X[i], Y[i]
+            adv_x, adv_y = None, None 
 
-            # Use y_
+            # Filter out samples can not be correctly classified by the given model 
             output = model.forward(torch.from_numpy(np.expand_dims(x, axis=0).astype(np.float32)))
             y_ = (output.max(1, keepdim=True)[1]).item() 
             if y_ != y:
-                num_of_count -= 1
+                correct_count -= 1
                 continue
 
-            is_attack_successful = False 
-            epsilon = 0 
+            # Iterative attack process start, slightly increase eps until larger than the upper bound 
+            is_attack_successful = False
             while (not is_attack_successful):
-                epsilon += 0.01
-                if epsilon > 1:
+                eps += eps_incre_unit
+                if eps > eps_upper_bound:
                     break  
 
-                adv_x, success_indicator = A.create_adv_input(x, y, model, epsilon)
-                if success_indicator == 1:
+                adv_x, is_adv_success = A.create_adv_input(x, y, model, eps)
+                if is_adv_success:
                     is_attack_successful = True
-                    adv_x = adv_x.detach().numpy()
-                    adv_x = adv_x[0]
+                    adv_x = (adv_x.detach().numpy())[0]
 
-            if (not is_attack_successful):
-                num_of_count -= 1
-                continue 
-            else: 
-                success_count += 1
-                
             output = model.forward(torch.from_numpy(np.expand_dims(adv_x, axis=0).astype(np.float32)))
-            y_ = (output.max(1, keepdim=True)[1]).item()
-            if verbose:
-                print('Adversarial input matching...')
-
-            result, LP_status, LP_risk_score = self.property_match(adv_x, y_, verbose) # y'
+            adv_y = (output.max(1, keepdim=True)[1]).item()
+            result, LP_status, LP_risk_score = self.property_match(adv_x, adv_y, verbose) 
             LPs.append(LP_status)
             LPs_score.append(LP_risk_score)
-            valid_count += result
-        
-        assert success_count == num_of_count 
+
+            # result == 1 -> benign 
+            # B 
+            if (not is_attack_successful):
+                non_success_count += 1
+                BB_count += 1 if result==1 else 0 
+                BA_count += 1 if result==0 else 0
+            # A
+            else: 
+                success_count += 1
+                AB_count += 1 if result==1 else 0
+                AA_count += 1 if result==0 else 0
+                
+        # Record AST 
+        assert (success_count+non_success_count)==correct_count
+        AST = success_count/correct_count
+
         if verbose:
             print('Evaluate on adversarial samples with test set')
-            print((num_of_count - valid_count), num_of_count, (num_of_count - valid_count)/num_of_count)
+            print('# of samples'.ljust(45), ':', num_count)
+            print('# of correctly classified samples'.ljust(45), ':', correct_count)
+            print('# of correctly classified samples')
+            print('     which are indentified as "benign"'.ljust(45), ':', non_success_count)
+            print('B -> B count'.ljust(45), ':', BB_count)
+            print('B -> A count'.ljust(45), ':', BA_count)
+            print()
+            print('# of correctly classified samples')
+            print('     which are indentified as "adversarial"'.ljust(45), ':', success_count)
+            print('A -> B count'.ljust(45), ':', AB_count)
+            print('A -> A count'.ljust(45), ':', AA_count)
+            print()
+            print('Attack success rate'.ljust(45), ':', round(AST, 3), '(', success_count, '/', correct_count, ')')
             
-        return ((num_of_count - valid_count)/num_of_count), LPs, LPs_score
+        # valid_count = AA_count + BB_count (PENDING)
+        valid_count = AA_count + BB_count 
+        return num_count, correct_count, valid_count, LPs, LPs_score
+
