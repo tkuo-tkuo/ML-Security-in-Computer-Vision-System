@@ -11,7 +11,8 @@ from torch.autograd import Variable
 
 # from binary_MNIST_models import NaiveC, NormalC, CNN
 from MNIST_models import NaiveC, NormalC, CNN, robustified_FC, robustified_CNN
-from utils import *
+from dataset_utils import *
+from LP_utils import *
 
 class PropertyInferenceInterface():
 
@@ -29,13 +30,17 @@ class PropertyInferenceInterface():
         self.LPs_set = None        
         self.differentation_lines = [1, 1, 1, 1] 
 
-    # Debug Information
     def print_meta_params(self):
+        ''' Debug function
+        - Print all meta parameters line by line 
+        '''
         for key in self.meta_params.keys():
             print((str(key)).ljust(20), ':', self.meta_params[key])
 
-    # Debug Information
     def print_dataset_shape(self):
+        ''' Debug function
+        - Print shape of dataset (train & test)
+        '''
         print('Train dataset')
         print(self.train_dataset[0].shape, self.train_dataset[1].shape)
         print('Test dataset')
@@ -43,26 +48,36 @@ class PropertyInferenceInterface():
         
     # Debug Information
     def print_some_samples(self):
+        ''' Debug function
+        - Print shape of dataset (train & test)
+        '''
         import math
         import matplotlib.pyplot as plt
         X, _ = self.train_dataset
-        for i in range(len(X)):
-            if i < 32:
-                data = (X[i]).reshape(28, 28)
-                plt.subplot(8, 4, (1+i))
-                plt.axis('off')
-                plt.imshow(data, cmap='gray')
+        for i in range(32):
+            data = (X[i]).reshape(28, 28)
+            plt.subplot(8, 4, (1+i))
+            plt.axis('off')
+            plt.imshow(data, cmap='gray')
 
         plt.show()
 
     def set_meta_params(self, meta_params):
+        ''' Initialization function
+        - Store all meta parameters in PI 
+        '''
         self.meta_params = meta_params
 
     def prepare_dataset(self):
+        ''' Initialization function
+        - Load train and test dataset 
+        '''
         self._create_train_dataset()
         self._create_test_dataset()
 
     def _create_train_dataset(self):
+        ''' Private function 
+        '''
         X, Y = None, None 
         
         for (samples, labels) in self.train_loader:
@@ -80,6 +95,8 @@ class PropertyInferenceInterface():
         self.train_dataset = (X, Y)
 
     def _create_test_dataset(self):
+        ''' Private function 
+        '''
         X, Y = None, None 
 
         for (samples, labels) in self.test_loader:
@@ -107,7 +124,8 @@ class PropertyInferenceInterface():
 
     def generate_twisted_model(self, model_type, num_of_epochs=10, dropout_rate=None):
         ''' 
-        Currently, we only have CNN => add FC in the future 
+        - Currently,CNN only (FC should be added in the future) 
+        - Add a dropout layer & Fine-tune weights  
         '''
 
         # Create an untrained robustified CNN
@@ -132,7 +150,7 @@ class PropertyInferenceInterface():
 
         loss_func, optimizer = nn.CrossEntropyLoss(), torch.optim.Adam(model.parameters(), lr=1e-3)
         for epoch in range(num_of_epochs):
-            # print(epoch)
+            print(epoch)
             for idx, data in enumerate(X):
 
                 # Transform from numpy to torch & correct the shape (expand dimension) and type (float32 and int64)
@@ -149,6 +167,10 @@ class PropertyInferenceInterface():
                 optimizer.step()
 
     def generate_robustified_model(self, model_type, num_of_epochs=15, dropout_rate=None):
+        ''' 
+        - Change the architecture & Train a new model from scratches 
+        '''
+
         X, Y = self.train_dataset
 
         if model_type == 'FC':
@@ -239,12 +261,18 @@ class PropertyInferenceInterface():
         return acc
 
     def generate_LPs(self):
+        ''' 
+        - Generate the provanence set for each output class
+        '''
         X, Y = self.train_dataset
 
+        NUM_MNIST_CLASSES = 10 
+        num_output_classes = NUM_MNIST_CLASSES
+
         LPs_set = []
-        for i in range(10):
+        for i in range(num_output_classes):
             LPs_set.append([])
-        for i in range(10):
+        for i in range(num_output_classes):
             for _ in range(self.meta_params['num_of_LPs']):
                 LPs_set[i].append([])
             
@@ -256,154 +284,49 @@ class PropertyInferenceInterface():
 
         self.LPs_set = LPs_set
 
-    def print_LPs(self):
-        LPs_set = np.array(self.LPs_set)
-        for i in range(10):
-            print('LPs shape of', (i+1), 'th class:', LPs_set[i].shape)
-            for LPs in LPs_set[i]:
-                print((np.array(LPs)).shape)
-
     def property_match(self, x, y, verbose=True):
-        Py = self.LPs_set[y]
-        LPs = extract_all_LP(self.model, self.meta_params['model_type'], x)
-
-        #############################################
-        # Original Method 
-        # result == 1 -> the given input is considered as 'benign'
-        # result == 0 -> the given input is considered as 'adversarial'
-        #############################################
+        ''' 
+        - Given a sample and its classified outcome, (x, y)
+        - We compare provanence of x (p) to the provanence set of y (P)
+        - Then, we compute the risk score & decide whether a given sample, x, is 'benign' or 'adversarial' 
         '''
-        LP_status = []
-        LP_risk_score = []
+        # Get the provanence set according to the output class y = model(x)
+        PS = self.LPs_set[y]
+        # Get the provanence of x 
+        ps = extract_all_LP(self.model, self.meta_params['model_type'], x)
 
-        for i in range(len(LPs)):
-            LP_i = Py[i]
-            p_i = LPs[i]
-            
-            status = 'adversarial'
-            if p_i in LP_i:
-                status = 'benign'
-
-            LP_status.append(status)
-            if status == 'benign':
-                LP_risk_score.append(1)
-            else:
-                LP_risk_score.append(0)
-
-        
-        result = 1
-        if 'adversarial' == LP_status[0] and 'adversarial' == LP_status[1]:
-            result = 0
-
-        if verbose:
-            if result == 1:
-                print(LP_status, 'benign')
-            else:
-                print(LP_status, 'adversarial')
-
-        return (result, LP_status, LP_risk_score)
-        '''
-        #############################################
-
-        #############################################
-        # Experimental: Method 1 & 2
-        #############################################
-        LP_status = []
-        LP_risk_score = []
+        # Create intermediate values 
+        LP_status, LP_risk_score = [], []
         differentiation_lines = self.differentation_lines
-        for i in range(len(LPs)):
-            differentiation_line = differentiation_lines[i]
-            LP_i = np.array(Py[i])
-            p_i = np.array(LPs[i])
+        
+        # Go through layer by layer 
+        for i in range(len(PS)):
+            differentiation_line, P, p = differentiation_lines[i], np.array(PS[i]), np.array(ps[i])
 
-            prob_LP_i = np.sum(LP_i, axis=0) / LP_i.shape[0]
-            diff = prob_LP_i - p_i
-            abs_diff = np.absolute(diff)
-            # abs_diff[abs_diff<0.9] = 0
+            # Compute score (the method to compute score can be further adjusted)
+            prob_P = np.sum(P, axis=0)/(P.shape[0])
+            abs_diff = np.absolute(prob_P-p)
             risk_score = np.sum(abs_diff)
-            
-            status = 'adversarial'
-            if risk_score < differentiation_line:
-                status = 'benign'
+
+            # If score is lower than differentiation line, then it's 'benign'. 
+            # Otherwise, it's 'adversarial'.
+            status = 'benign' if risk_score < differentiation_line else 'adversarial'
 
             LP_status.append(status)
             LP_risk_score.append(risk_score)
 
-        result = 0
-        if 'benign' == LP_status[0] and 'benign' == LP_status[1] and 'benign' == LP_status[2]:
-            result = 1    
+        # Decide whether a given sample x is 'benign' or 'adversarial'
+        # -> the benign_condition should be further adjusted 
+        benign_condition = ('benign' == LP_status[0] and 'benign' == LP_status[1] and 'benign' == LP_status[2])
+        is_benign = True if benign_condition else False  
 
-        '''
-        if verbose:
-            if result == 1:
-                print(LP_status, 'benign')
-            else:
-                print(LP_status, 'adversarial')
-        '''
+        # Debug information 
+        # if is_benign:
+        #     print(LP_status, 'benign')
+        # else:
+        #     print(LP_status, 'adversarial')
 
-        return (result, LP_status, LP_risk_score)
-        #############################################
-
-
-        #############################################
-        # Experimental: Method 3 & 4
-        #############################################
-        '''
-        LP_status = []
-        LP_risk_score = []
-        prob_diff_lines = [-800, -600, -150, 1e-4]
-        for i in range(len(LPs)):
-            prob_diff_line = prob_diff_lines[i]
-            LP_i = np.array(Py[i])
-            p_i = np.array(LPs[i])
-
-            # compute probability of LP_i
-            prob_LP_i = np.sum(LP_i, axis=0) / LP_i.shape[0]
-
-            # To avoid 0 probability in either prob_LP_i or prob_LP_i_0
-            prob_LP_i[prob_LP_i==1.0] = 1.0 - (1/(prob_LP_i.shape[0] + 1))
-            prob_LP_i[prob_LP_i==0.0] = 0.0 + (1/(prob_LP_i.shape[0] + 1))
-            prob_LP_i_0 = 1 - prob_LP_i
-
-            # This section is for Method 4
-            # offset = 0.1
-            # weights = np.array(prob_LP_i) 
-            # weights[weights <= (0.5-offset)] = -1
-            # weights[weights >= (0.5+offset)] = -1
-            # weights[weights != -1] = 0
-            # weights[weights == -1] = 1
-            # 
-
-            B_prob = 0
-            for i, neuron_activation in enumerate(p_i):
-                # This section is for Method 4
-                # use weights[i] for Method 4
-                #
-                if neuron_activation == 1:
-                    B_prob += math.log(prob_LP_i[i]) * weights[i]
-                else:
-                    B_prob += math.log(prob_LP_i_0[i]) * weights[i]
-
-            status = 'adversarial'
-            if B_prob > prob_diff_line:
-                status = 'benign'
-
-            LP_status.append(status)
-            LP_risk_score.append(B_prob)
-
-        result = 0
-        if 'benign' == LP_status[0] and 'benign' == LP_status[1] and 'benign' == LP_status[2]:
-            result = 1    
-
-        if verbose:
-            if result == 1:
-                print(LP_status, 'benign')
-            else:
-                print(LP_status, 'adversarial')
-
-        return (result, LP_status, LP_risk_score)
-        '''
-        #############################################
+        return (is_benign, LP_status, LP_risk_score)
 
     def evaluate_algorithm_on_test_set(self, verbose=True):
         self._set_differentation_lines(95)
@@ -465,6 +388,9 @@ class PropertyInferenceInterface():
         LPs, LPs_score = [], []
 
         for i in range(correct_count):
+            if self.meta_params['is_debug']:
+                print('Evaluate', i, 'th benign sample ...')
+
             x, y = X[i], Y[i]
             
             # Filter out samples can not be correctly classified by the given model 
@@ -475,20 +401,22 @@ class PropertyInferenceInterface():
                 continue
 
             # Generate experimental result 
-            result, LP_status, LP_risk_score = self.property_match(x, y_, verbose) 
+            is_benign, LP_status, LP_risk_score = self.property_match(x, y_, verbose) 
 
             # Record experimental info 
             LPs.append(LP_status)
             LPs_score.append(LP_risk_score)
-            valid_count += result
+            valid_count += 1 if is_benign else 0 
 
         if verbose:
+            NUM_OF_CHAR_INDENT = 50 
             print('Evaluate on benign samples with test set')
-            print('# of samples'.ljust(45), ':', num_count)
-            print('# of correctly classified samples'.ljust(45), ':', correct_count)
+            print('# of samples'.ljust(NUM_OF_CHAR_INDENT), ':', num_count)
+            print('# of correctly classified samples'.ljust(NUM_OF_CHAR_INDENT), ':', correct_count)
             print('# of correctly classified samples')
-            print('     which are indentified as "benign"'.ljust(45), ':', valid_count)
-            print('True Negative Rate, TNR (B -> B)'.ljust(45), ':', round((valid_count/correct_count), 3), '(', valid_count, '/', correct_count, ')')
+            print('     which are indentified as "benign"'.ljust(NUM_OF_CHAR_INDENT), ':', valid_count)
+            print('True Negative Rate, TNR (B -> B)'.ljust(NUM_OF_CHAR_INDENT), ':', round((valid_count/correct_count), 3), '(', valid_count, '/', correct_count, ')')
+            print()
 
         return num_count, correct_count, valid_count, LPs, LPs_score
 
@@ -524,7 +452,9 @@ class PropertyInferenceInterface():
 
         for i in range(correct_count):
             # Debug information 
-            # print('Conduct', i, 'th attack:', self.meta_params['adv_attack'])
+            if self.meta_params['is_debug']:
+                print('Evaluate', i, 'th adversarial sample via', self.meta_params['adv_attack'], '...')
+
             x, y = X[i], Y[i]
             adv_x, adv_y = None, None 
 
@@ -542,49 +472,60 @@ class PropertyInferenceInterface():
                 if eps > eps_upper_bound:
                     break  
 
-                adv_x, is_adv_success = A.create_adv_input(x, y, model, eps)
-                if is_adv_success:
+                adv_x, is_att_success = A.create_adv_input(x, y, model, eps)
+                if is_att_success:
                     is_attack_successful = True
                     adv_x = (adv_x.detach().numpy())[0]
 
-            output = model.forward(torch.from_numpy(np.expand_dims(adv_x, axis=0).astype(np.float32)))
-            adv_y = (output.max(1, keepdim=True)[1]).item()
-            result, LP_status, LP_risk_score = self.property_match(adv_x, adv_y, verbose) 
+            # Debug information 
+            if is_attack_successful:
+                adv_x_ = np.expand_dims(adv_x, axis=0).astype(np.float32)
+                adv_x_ = torch.from_numpy(adv_x_)
+                output_ = model.forward(adv_x_)
+                adv_y = (output_.max(1, keepdim=True)[1]).item()
+                is_benign, LP_status, LP_risk_score = self.property_match(adv_x, adv_y, verbose) 
+            else:
+                is_benign, LP_status, LP_risk_score = self.property_match(x, y_, verbose) 
+
             LPs.append(LP_status)
             LPs_score.append(LP_risk_score)
 
-            # result == 1 -> benign 
             # B 
             if (not is_attack_successful):
                 non_success_count += 1
-                BB_count += 1 if result==1 else 0 
-                BA_count += 1 if result==0 else 0
+                BB_count += 1 if is_benign else 0 
+                BA_count += 1 if (not is_benign) else 0
             # A
             else: 
                 success_count += 1
-                AB_count += 1 if result==1 else 0
-                AA_count += 1 if result==0 else 0
+                AB_count += 1 if is_benign else 0
+                AA_count += 1 if (not is_benign) else 0
                 
         # Record AST 
         assert (success_count+non_success_count)==correct_count
         AST = success_count/correct_count
 
         if verbose:
+            NUM_OF_CHAR_INDENT = 50 
             print('Evaluate on adversarial samples with test set')
-            print('# of samples'.ljust(45), ':', num_count)
-            print('# of correctly classified samples'.ljust(45), ':', correct_count)
+            print('# of samples'.ljust(NUM_OF_CHAR_INDENT), ':', num_count)
+            print('# of correctly classified samples'.ljust(NUM_OF_CHAR_INDENT), ':', correct_count)
             print('# of correctly classified samples')
-            print('     which are indentified as "benign"'.ljust(45), ':', non_success_count)
-            print('B -> B count'.ljust(45), ':', BB_count)
-            print('B -> A count'.ljust(45), ':', BA_count)
+            print('which are NOT succesfully attacked -> "benign"'.ljust(NUM_OF_CHAR_INDENT), ':', non_success_count)
+            print('B -> B count'.ljust(NUM_OF_CHAR_INDENT), ':', BB_count)
+            print('B -> A count'.ljust(NUM_OF_CHAR_INDENT), ':', BA_count)
+            print('True Negative Rate, TNR (B -> B)'.ljust(NUM_OF_CHAR_INDENT), ':', round((BB_count/non_success_count), 3), '(', BB_count, '/', non_success_count, ')')
+
             print()
             print('# of correctly classified samples')
-            print('     which are indentified as "adversarial"'.ljust(45), ':', success_count)
-            print('A -> B count'.ljust(45), ':', AB_count)
-            print('A -> A count'.ljust(45), ':', AA_count)
+            print('which are succesfully attacked -> "adversarial"'.ljust(NUM_OF_CHAR_INDENT), ':', success_count)
+            print('A -> B count'.ljust(NUM_OF_CHAR_INDENT), ':', AB_count)
+            print('A -> A count'.ljust(NUM_OF_CHAR_INDENT), ':', AA_count)
+            print('True Positive Rate, TPR (A -> A)'.ljust(NUM_OF_CHAR_INDENT), ':', round((AA_count/success_count), 3), '(', AA_count, '/', success_count, ')')
+
             print()
-            print('Attack success rate'.ljust(45), ':', round(AST, 3), '(', success_count, '/', correct_count, ')')
-            
+            print('Attack success rate'.ljust(NUM_OF_CHAR_INDENT), ':', round(AST, 3), '(', success_count, '/', correct_count, ')')
+
         # valid_count = AA_count + BB_count (PENDING)
         valid_count = AA_count + BB_count 
         return num_count, correct_count, valid_count, LPs, LPs_score
