@@ -26,6 +26,7 @@ class PropertyInferenceInterface():
         self.test_dataset = None
         self.model = None
         self.robustified_model = None 
+        self.twisted_model = None 
 
         self.LPs_set = None        
         self.differentation_lines = [1, 1, 1, 1] 
@@ -129,14 +130,14 @@ class PropertyInferenceInterface():
         '''
 
         # Create an untrained robustified CNN
-        self.robustified_model = robustified_CNN(dropout_rate)
+        self.twisted_model = robustified_CNN(dropout_rate)
         self.model.train()
-        self.robustified_model.train()
+        self.twisted_model.train()
 
         # Load the original model 
         import copy
         original_state = copy.deepcopy(self.model.state_dict())
-        for name, param in self.robustified_model.state_dict().items():
+        for name, param in self.twisted_model.state_dict().items():
             if name not in original_state:
                 print('Not in original_state:', name)
                 continue
@@ -145,7 +146,7 @@ class PropertyInferenceInterface():
 
         # Retraining 
         X, Y = self.train_dataset
-        model = self.robustified_model
+        model = self.twisted_model
         model.train()
 
         loss_func, optimizer = nn.CrossEntropyLoss(), torch.optim.Adam(model.parameters(), lr=1e-3)
@@ -234,7 +235,9 @@ class PropertyInferenceInterface():
         
         self.model = model
 
-    def eval_model(self, dataset_type, on_robustified_model=False):
+    def eval_model(self, dataset_type, on_robustified_model=False, on_twisted_model=False):
+        assert not (on_twisted_model and on_robustified_model)
+
         if dataset_type == 'train':
             X, Y = self.train_dataset
         else: 
@@ -242,6 +245,8 @@ class PropertyInferenceInterface():
 
         if on_robustified_model:
             model = self.robustified_model
+        elif on_twisted_model:
+            model = self.twisted_model
         else:
             model = self.model
 
@@ -257,7 +262,6 @@ class PropertyInferenceInterface():
         correct = (predictions == labels.numpy()).sum().item()
         acc = correct/total
             
-        print('Model (', dataset_type, ') accurancy:', acc)
         return acc
 
     def generate_LPs(self):
@@ -328,12 +332,20 @@ class PropertyInferenceInterface():
 
         return (is_benign, LP_status, LP_risk_score)
 
-    def evaluate_algorithm_on_test_set(self, verbose=True):
+    def evaluate_algorithm_on_test_set(self, verbose=True, on_robustified_model=False, on_twisted_model=False):
+        assert not (on_twisted_model and on_robustified_model)
+
         self._set_differentation_lines(95)
-        B_num_count, B_correct_count, B_valid_count, B_LPs, B_LPs_score = self._evaluate_benign_samples(verbose)
-        A_num_count, A_correct_count, A_valid_count, A_LPs, A_LPs_score = self._evaluate_adversarial_samples(verbose)
-        B_detect_ratio, A_detect_ratio = B_valid_count/B_correct_count, A_valid_count/A_correct_count
-        return (B_detect_ratio, A_detect_ratio), (B_LPs, A_LPs), (B_LPs_score, A_LPs_score)
+        B_num_count, B_correct_count, B_valid_count, B_LPs, B_LPs_score = self._evaluate_benign_samples(verbose, on_robustified_model, on_twisted_model)
+        A_num_count, A_correct_count, A_success_count, A_AA_count, A_BB_count, A_LPs, A_LPs_score = self._evaluate_adversarial_samples(verbose, on_robustified_model, on_twisted_model)
+        A_non_success_count = A_correct_count - A_success_count
+
+        B_accuracy, B_FNR = B_correct_count/B_num_count, B_valid_count/B_correct_count 
+        A_accuracy, A_AST = A_correct_count/A_num_count, A_success_count/A_correct_count
+        A_TNR, A_TPR = A_BB_count/A_non_success_count, A_AA_count/A_success_count
+
+        assert A_accuracy == B_accuracy
+        return (B_accuracy, B_FNR), (A_accuracy, A_AST, A_TNR, A_TPR), (B_LPs, A_LPs), (B_LPs_score, A_LPs_score)
 
     def _set_differentation_lines(self, qr):
         ''' Private function
@@ -371,7 +383,7 @@ class PropertyInferenceInterface():
         # Store in PI
         self.differentation_lines = differentation_lines
 
-    def _evaluate_benign_samples(self, verbose):
+    def _evaluate_benign_samples(self, verbose, on_robustified_model, on_twisted_model):
         ''' Private function 
         - Samples are extracted from the test dataset
         total_count   : # of samples extracted from dataset
@@ -381,7 +393,13 @@ class PropertyInferenceInterface():
 
         # Load (test) dataset and model 
         X, Y = self.test_dataset
-        model = (self.model).eval()
+
+        if on_robustified_model:
+            model = (self.robustified_model).eval()
+        elif on_twisted_model:
+            model = (self.twisted_model).eval()
+        else:
+            model = (self.model).eval()
 
         # Create intermediate variables 
         num_count, correct_count, valid_count = len(X), len(X), 0
@@ -415,12 +433,14 @@ class PropertyInferenceInterface():
             print('# of correctly classified samples'.ljust(NUM_OF_CHAR_INDENT), ':', correct_count)
             print('# of correctly classified samples')
             print('     which are indentified as "benign"'.ljust(NUM_OF_CHAR_INDENT), ':', valid_count)
+            print()
+            print('Accuracy'.ljust(NUM_OF_CHAR_INDENT), ':', round((correct_count/num_count), 3), '(', correct_count, '/', num_count, ')')
             print('True Negative Rate, TNR (B -> B)'.ljust(NUM_OF_CHAR_INDENT), ':', round((valid_count/correct_count), 3), '(', valid_count, '/', correct_count, ')')
             print()
 
         return num_count, correct_count, valid_count, LPs, LPs_score
 
-    def _evaluate_adversarial_samples(self, verbose):
+    def _evaluate_adversarial_samples(self, verbose, on_robustified_model, on_twisted_model):
         ''' Private function 
         - Samples are extracted from the test dataset
         total_count   : # of samples extracted from dataset
@@ -441,7 +461,12 @@ class PropertyInferenceInterface():
 
         # Load (test) dataset and model 
         X, Y = self.test_dataset
-        model = (self.model).eval()
+        if on_robustified_model:
+            model = (self.robustified_model).eval()
+        elif on_twisted_model:
+            model = (self.twisted_model).eval()
+        else:
+            model = (self.model).eval()
 
         # Create intermediate variables 
         LPs, LPs_score = [], []
@@ -526,7 +551,5 @@ class PropertyInferenceInterface():
             print()
             print('Attack success rate'.ljust(NUM_OF_CHAR_INDENT), ':', round(AST, 3), '(', success_count, '/', correct_count, ')')
 
-        # valid_count = AA_count + BB_count (PENDING)
-        valid_count = AA_count + BB_count 
-        return num_count, correct_count, valid_count, LPs, LPs_score
+        return num_count, correct_count, success_count, AA_count, BB_count, LPs, LPs_score
 

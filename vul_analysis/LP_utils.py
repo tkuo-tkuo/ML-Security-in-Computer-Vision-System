@@ -19,7 +19,7 @@ def extract_all_LP(model, model_type, x):
         h1 = F.relu(model.conv1(x))
         LPs.append(return_LP_from_output(h1))
 
-        h2 = F.relu(F.max_pool2d(model.conv2(F.dropout2d(h1, p=0.02)), 2))
+        h2 = F.relu(F.max_pool2d(model.conv2(h1), 2))
         LPs.append(return_LP_from_output(h2))
 
         h3 = F.relu(F.max_pool2d(model.conv3(h2), 2))
