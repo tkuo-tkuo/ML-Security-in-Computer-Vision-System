@@ -1,4 +1,4 @@
-import math
+import math, copy
 import numpy as np
 
 import torch
@@ -16,69 +16,30 @@ from LP_utils import *
 
 class PropertyInferenceInterface():
 
-    def __init__(self):
+    def __init__(self, meta_params):
+        # Load meat parameters
+        self.meta_params = meta_params
+
+        # Initialization 
         MNIST_train_dataset = torchvision.datasets.MNIST(root='./data', transform=transforms.ToTensor(), train=True, download=True)
         MNIST_test_dataset = torchvision.datasets.MNIST(root='./data', transform=transforms.ToTensor(), train=False, download=True)
         self.train_loader = torch.utils.data.DataLoader(dataset=MNIST_train_dataset, batch_size=50000, shuffle=False)
         self.test_loader = torch.utils.data.DataLoader(dataset=MNIST_test_dataset, batch_size=10000, shuffle=False)
-        self.meta_params = {}
         self.train_dataset = None
         self.test_dataset = None
+
         self.model = None
-        self.robustified_model = None 
+        self.retrained_model = None 
         self.twisted_model = None 
 
         self.LPs_set = None        
-        self.differentation_lines = [1, 1, 1, 1] 
+        self.differentation_lines = None 
 
-    def print_meta_params(self):
-        ''' Debug function
-        - Print all meta parameters line by line 
-        '''
-        for key in self.meta_params.keys():
-            print((str(key)).ljust(20), ':', self.meta_params[key])
-
-    def print_dataset_shape(self):
-        ''' Debug function
-        - Print shape of dataset (train & test)
-        '''
-        print('Train dataset')
-        print(self.train_dataset[0].shape, self.train_dataset[1].shape)
-        print('Test dataset')
-        print(self.test_dataset[0].shape, self.test_dataset[1].shape)
-        
-    # Debug Information
-    def print_some_samples(self):
-        ''' Debug function
-        - Print shape of dataset (train & test)
-        '''
-        import math
-        import matplotlib.pyplot as plt
-        X, _ = self.train_dataset
-        for i in range(32):
-            data = (X[i]).reshape(28, 28)
-            plt.subplot(8, 4, (1+i))
-            plt.axis('off')
-            plt.imshow(data, cmap='gray')
-
-        plt.show()
-
-    def set_meta_params(self, meta_params):
-        ''' Initialization function
-        - Store all meta parameters in PI 
-        '''
-        self.meta_params = meta_params
-
-    def prepare_dataset(self):
-        ''' Initialization function
-        - Load train and test dataset 
-        '''
+        # Prepare dataset 
         self._create_train_dataset()
         self._create_test_dataset()
 
     def _create_train_dataset(self):
-        ''' Private function 
-        '''
         X, Y = None, None 
         
         for (samples, labels) in self.train_loader:
@@ -96,8 +57,6 @@ class PropertyInferenceInterface():
         self.train_dataset = (X, Y)
 
     def _create_test_dataset(self):
-        ''' Private function 
-        '''
         X, Y = None, None 
 
         for (samples, labels) in self.test_loader:
@@ -114,46 +73,30 @@ class PropertyInferenceInterface():
         
         self.test_dataset = (X, Y)
 
-    def set_model(self, model):
-        self.model = model
-
     def store_model(self, model_name):
         torch.save(self.model, model_name)
 
     def load_model(self, model_name):
         self.model = torch.load(model_name)
 
-    def generate_twisted_model(self, model_type, num_of_epochs=10, dropout_rate=None):
-        ''' 
-        - Currently,CNN only (FC should be added in the future) 
-        - Add a dropout layer & Fine-tune weights  
-        '''
+    def generate_model(self, num_of_epochs=15):
+        model_type = self.meta_params['model_type']
+        if model_type == 'naive':
+            model = NaiveC()
+        elif model_type == 'normal':
+            model = NormalC()
+        elif model_type == 'CNN':
+            model = CNN()
 
-        # Create an untrained robustified CNN
-        self.twisted_model = robustified_CNN(dropout_rate)
-        self.model.train()
-        self.twisted_model.train()
-
-        # Load the original model 
-        import copy
-        original_state = copy.deepcopy(self.model.state_dict())
-        for name, param in self.twisted_model.state_dict().items():
-            if name not in original_state:
-                print('Not in original_state:', name)
-                continue
-            
-            param.copy_(original_state[name])
-
-        # Retraining 
         X, Y = self.train_dataset
-        model = self.twisted_model
+        
         model.train()
 
+        # Training
         loss_func, optimizer = nn.CrossEntropyLoss(), torch.optim.Adam(model.parameters(), lr=1e-3)
         for epoch in range(num_of_epochs):
-            print(epoch)
+            print('Generate', model_type, 'model, epoch', epoch, '...')
             for idx, data in enumerate(X):
-
                 # Transform from numpy to torch & correct the shape (expand dimension) and type (float32 and int64)
                 data = torch.from_numpy(np.expand_dims(data, axis=0).astype(np.float32))
                 label = torch.from_numpy(np.array([Y[idx]]).astype(np.int64))
@@ -166,14 +109,15 @@ class PropertyInferenceInterface():
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
+        
+        self.model = model
 
-    def generate_robustified_model(self, model_type, num_of_epochs=15, dropout_rate=None):
+    def generate_retrained_model(self, model_type, num_of_epochs=15, dropout_rate=None):
         ''' 
-        - Change the architecture & Train a new model from scratches 
+        - Change the architecture & Retrain a new model from scratches 
         '''
 
         X, Y = self.train_dataset
-
         if model_type == 'FC':
             model = robustified_FC(dropout_rate)
         elif model_type == 'CNN':
@@ -182,12 +126,12 @@ class PropertyInferenceInterface():
             pass 
 
         model.train()
+
         # Training
         loss_func, optimizer = nn.CrossEntropyLoss(), torch.optim.Adam(model.parameters(), lr=1e-3)
         for epoch in range(num_of_epochs):
-            # print(epoch)
+            print('Generate retrained', model_type, 'model, epoch', epoch, '...')
             for idx, data in enumerate(X):
-
                 # Transform from numpy to torch & correct the shape (expand dimension) and type (float32 and int64)
                 data = torch.from_numpy(np.expand_dims(data, axis=0).astype(np.float32))
                 label = torch.from_numpy(np.array([Y[idx]]).astype(np.int64))
@@ -201,56 +145,66 @@ class PropertyInferenceInterface():
                 loss.backward()
                 optimizer.step()
         
-        self.robustified_model = model
+        self.retrained_model = model
 
-    def generate_model(self, num_of_epochs=15):
-        if self.meta_params['model_type'] == 'naive':
-            model = NaiveC()
-        elif self.meta_params['model_type'] == 'normal':
-            model = NormalC()
-        elif self.meta_params['model_type'] == 'CNN':
-            model = CNN()
+    def generate_twisted_model(self, model_type, num_of_epochs=15, dropout_rate=None):
+        ''' 
+        - Currently,CNN only (FC should be added in the future) 
+        - Add a dropout layer & Fine-tune weights  
+        '''
 
+        # Create an untrained robustified CNN
+        twisted_model = robustified_CNN(dropout_rate)
+        original_model = copy.deepcopy(self.model)
+        original_model.train()
+        twisted_model.train()
+
+        # Load the original model 
+        original_state = original_model.state_dict()
+        for name, param in twisted_model.state_dict().items():
+            if name not in original_state:
+                print('Not in original_state:', name)
+                continue
+            
+            param.copy_(original_state[name])
+
+        # Retraining 
         X, Y = self.train_dataset
-        
-        model.train()
-        # Training
-        loss_func, optimizer = nn.CrossEntropyLoss(), torch.optim.Adam(model.parameters(), lr=1e-3)
+        loss_func, optimizer = nn.CrossEntropyLoss(), torch.optim.Adam(twisted_model.parameters(), lr=1e-3)
         for epoch in range(num_of_epochs):
-            print(epoch)
+            print('Generate twisted', model_type, 'model, epoch', epoch, '...')
             for idx, data in enumerate(X):
-
                 # Transform from numpy to torch & correct the shape (expand dimension) and type (float32 and int64)
                 data = torch.from_numpy(np.expand_dims(data, axis=0).astype(np.float32))
                 label = torch.from_numpy(np.array([Y[idx]]).astype(np.int64))
         
                 # Forwarding
-                prediction = model.forward(data)
+                prediction = twisted_model.forward(data)
                 loss = loss_func(prediction, label)
 
                 # Optimization (back-propogation)
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
-        
-        self.model = model
 
-    def eval_model(self, dataset_type, on_robustified_model=False, on_twisted_model=False):
-        assert not (on_twisted_model and on_robustified_model)
+        self.twisted_model = twisted_model
+
+    def eval_model(self, dataset_type, on_retrained_model=False, on_twisted_model=False):
+        assert not (on_twisted_model and on_retrained_model)
 
         if dataset_type == 'train':
             X, Y = self.train_dataset
         else: 
             X, Y = self.test_dataset
 
-        if on_robustified_model:
-            model = self.robustified_model
+        if on_retrained_model:
+            model = copy.deepcopy(self.retrained_model)
         elif on_twisted_model:
-            model = self.twisted_model
+            model = copy.deepcopy(self.twisted_model)
         else:
-            model = self.model
+            model = copy.deepcopy(self.model)
 
-        model.eval()
+        model.eval() # unsure 
         datas = torch.from_numpy(X.astype(np.float32))
         labels = torch.from_numpy(Y.astype(np.int64))
         
@@ -270,9 +224,10 @@ class PropertyInferenceInterface():
         '''
         X, Y = self.train_dataset
 
-        NUM_MNIST_CLASSES = 10 
+        NUM_MNIST_CLASSES = 10 # should be further adjusted 
         num_output_classes = NUM_MNIST_CLASSES
 
+        # Initialize LPs_set 
         LPs_set = []
         for i in range(num_output_classes):
             LPs_set.append([])
@@ -280,6 +235,7 @@ class PropertyInferenceInterface():
             for _ in range(self.meta_params['num_of_LPs']):
                 LPs_set[i].append([])
             
+        # Extract and store LP(s)
         for i in range(len(X)):
             x, y = X[i], Y[i]
             LPs = extract_all_LP(self.model, self.meta_params['model_type'], x)
@@ -300,12 +256,13 @@ class PropertyInferenceInterface():
         ps = extract_all_LP(self.model, self.meta_params['model_type'], x)
 
         # Create intermediate values 
-        LP_status, LP_risk_score = [], []
+        LP_status, LP_risk_score, is_benign = [], [], None
         differentiation_lines = self.differentation_lines
         
         # Go through layer by layer 
         for i in range(len(PS)):
-            differentiation_line, P, p = differentiation_lines[i], np.array(PS[i]), np.array(ps[i])
+            differentiation_line = None if (differentiation_lines is None) else differentiation_lines[i] 
+            P, p = np.array(PS[i]), np.array(ps[i])
 
             # Compute score (the method to compute score can be further adjusted)
             prob_P = np.sum(P, axis=0)/(P.shape[0])
@@ -314,15 +271,17 @@ class PropertyInferenceInterface():
 
             # If score is lower than differentiation line, then it's 'benign'. 
             # Otherwise, it's 'adversarial'.
-            status = 'benign' if risk_score < differentiation_line else 'adversarial'
+            if not (differentiation_line is None): 
+                status = 'benign' if risk_score < differentiation_line else 'adversarial'
+                LP_status.append(status)
 
-            LP_status.append(status)
             LP_risk_score.append(risk_score)
 
         # Decide whether a given sample x is 'benign' or 'adversarial'
         # -> the benign_condition should be further adjusted 
-        benign_condition = ('benign' == LP_status[0] and 'benign' == LP_status[1] and 'benign' == LP_status[2])
-        is_benign = True if benign_condition else False  
+        if not (differentiation_lines is None):
+            benign_condition = ('benign' == LP_status[0] and 'benign' == LP_status[1] and 'benign' == LP_status[2])
+            is_benign = True if benign_condition else False  
 
         # Debug information 
         # if is_benign:
@@ -332,12 +291,12 @@ class PropertyInferenceInterface():
 
         return (is_benign, LP_status, LP_risk_score)
 
-    def evaluate_algorithm_on_test_set(self, verbose=True, on_robustified_model=False, on_twisted_model=False):
-        assert not (on_twisted_model and on_robustified_model)
+    def evaluate_algorithm_on_test_set(self, verbose=True, on_retrained_model=False, on_twisted_model=False):
+        assert not (on_twisted_model and on_retrained_model)
 
         self._set_differentation_lines(95)
-        B_num_count, B_correct_count, B_valid_count, B_LPs, B_LPs_score = self._evaluate_benign_samples(verbose, on_robustified_model, on_twisted_model)
-        A_num_count, A_correct_count, A_success_count, A_AA_count, A_BB_count, A_LPs, A_LPs_score = self._evaluate_adversarial_samples(verbose, on_robustified_model, on_twisted_model)
+        B_num_count, B_correct_count, B_valid_count, B_LPs, B_LPs_score = self._evaluate_benign_samples(verbose, on_retrained_model, on_twisted_model)
+        A_num_count, A_correct_count, A_success_count, A_AA_count, A_BB_count, A_LPs, A_LPs_score = self._evaluate_adversarial_samples(verbose, on_retrained_model, on_twisted_model)
         A_non_success_count = A_correct_count - A_success_count
 
         B_accuracy, B_FNR = B_correct_count/B_num_count, B_valid_count/B_correct_count 
@@ -383,7 +342,7 @@ class PropertyInferenceInterface():
         # Store in PI
         self.differentation_lines = differentation_lines
 
-    def _evaluate_benign_samples(self, verbose, on_robustified_model, on_twisted_model):
+    def _evaluate_benign_samples(self, verbose, on_retrained_model, on_twisted_model):
         ''' Private function 
         - Samples are extracted from the test dataset
         total_count   : # of samples extracted from dataset
@@ -394,12 +353,12 @@ class PropertyInferenceInterface():
         # Load (test) dataset and model 
         X, Y = self.test_dataset
 
-        if on_robustified_model:
-            model = (self.robustified_model).eval()
+        if on_retrained_model:
+            model = copy.deepcopy(self.retrained_model).eval()
         elif on_twisted_model:
-            model = (self.twisted_model).eval()
+            model = copy.deepcopy(self.twisted_model).eval()
         else:
-            model = (self.model).eval()
+            model = copy.deepcopy(self.model).eval()
 
         # Create intermediate variables 
         num_count, correct_count, valid_count = len(X), len(X), 0
@@ -440,12 +399,11 @@ class PropertyInferenceInterface():
 
         return num_count, correct_count, valid_count, LPs, LPs_score
 
-    def _evaluate_adversarial_samples(self, verbose, on_robustified_model, on_twisted_model):
+    def _evaluate_adversarial_samples(self, verbose, on_retrained_model, on_twisted_model):
         ''' Private function 
         - Samples are extracted from the test dataset
         total_count   : # of samples extracted from dataset
         correct_count : # of samples (classified correctly)
-        valid_count   : # of samples (classified correctly & classified as benign)
         '''
 
         # Create attack for generating adversarial samples         
@@ -461,16 +419,16 @@ class PropertyInferenceInterface():
 
         # Load (test) dataset and model 
         X, Y = self.test_dataset
-        if on_robustified_model:
-            model = (self.robustified_model).eval()
+        if on_retrained_model:
+            model = copy.deepcopy(self.retrained_model).eval()
         elif on_twisted_model:
-            model = (self.twisted_model).eval()
+            model = copy.deepcopy(self.twisted_model).eval()
         else:
-            model = (self.model).eval()
+            model = copy.deepcopy(self.model).eval()
 
         # Create intermediate variables 
         LPs, LPs_score = [], []
-        num_count, correct_count, valid_count = len(X), len(X), 0
+        num_count, correct_count = len(X), len(X)
         success_count, non_success_count = 0, 0
         BB_count, BA_count, AA_count, AB_count = 0, 0, 0, 0
         eps, eps_incre_unit, eps_upper_bound = 0, 0.01, 1 

@@ -1,9 +1,10 @@
 import numpy as np
 import torch
 import torch.nn.functional as F
+import copy
 
 def return_LP_from_output(h):
-    h_ = h.detach().numpy()
+    h_ = (h.clone()).detach().numpy() 
     h_[h_>0] = True
     h_ = h_.astype(np.int64)
     squ_h_ = (h_).reshape(-1)

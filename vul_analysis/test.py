@@ -3,6 +3,7 @@ import warnings
 import random
 
 import property_inference_interface
+from LP_utils import * 
 
 ###########################################
 # Global variables (control)
@@ -29,9 +30,7 @@ class TestPI(unittest.TestCase):
 
     def setUp(self):
         warnings.simplefilter('ignore')
-        self.PI = property_inference_interface.PropertyInferenceInterface()
-        self.PI.set_meta_params(META_PARAMS)
-        self.PI.prepare_dataset()
+        self.PI = property_inference_interface.PropertyInferenceInterface(META_PARAMS)
         self.PI.load_model(MODEL_PT_FILE)
 
     '''
@@ -111,10 +110,61 @@ class TestPI(unittest.TestCase):
             self.assertEqual(o[random_ind], t[random_ind])
 
     '''
-    test _create_train_dataset/_create_test_dataset
+    test _create_train_dataset & _create_test_dataset
     '''
+    @unittest.skipIf(DEV, 'Test on DEV unittests only')
     def test_PI_prepare_dataset_func(self):
-        pass 
+        # sub-unittest 1
+        META_PARAMS_copy = copy.deepcopy(META_PARAMS)
+        META_PARAMS_copy['size_of_train_set'] = 500
+        META_PARAMS_copy['size_of_test_set'] = 50
+
+        PI = property_inference_interface.PropertyInferenceInterface(META_PARAMS_copy)
+        (train_X, train_Y) = PI.train_dataset
+        self.assertTupleEqual(train_X.shape, (500, 1, 28, 28))
+        self.assertTupleEqual(train_Y.shape, (500, ))
+        (test_X, test_Y) = PI.test_dataset
+        self.assertTupleEqual(test_X.shape, (50, 1, 28, 28))
+        self.assertTupleEqual(test_Y.shape, (50, ))
+
+        # sub-unittest 2
+        META_PARAMS_copy = copy.deepcopy(META_PARAMS)
+        META_PARAMS_copy['size_of_train_set'] = 100
+        META_PARAMS_copy['size_of_test_set'] = 10
+        META_PARAMS_copy['flatten'] = True
+
+        PI = property_inference_interface.PropertyInferenceInterface(META_PARAMS_copy)
+        (train_X, train_Y) = PI.train_dataset
+        self.assertTupleEqual(train_X.shape, (100, 1*28*28))
+        self.assertTupleEqual(train_Y.shape, (100, ))
+        (test_X, test_Y) = PI.test_dataset
+        self.assertTupleEqual(test_X.shape, (10, 1*28*28))
+        self.assertTupleEqual(test_Y.shape, (10, ))
+
+    '''
+    test LP_utils/return_LP_from_output
+    We want to ensure return_LP_from_output:
+    1. perform correct computation (return correct results)
+    2. do not have side-effect 
+    '''
+    @unittest.skipIf(DEV, 'Test on DEV unittests only')
+    def test_LP_utils_return_LP_from_output_func(self):
+        # Create a Tensor 
+        SHAPE, RETURN_SHAPE = (3, 3, 3, 3), 3*3*3*3
+        t1 = torch.rand(SHAPE) + 1e-3
+        t2 = torch.zeros(SHAPE)
+        t1_, t2_ = t1.clone(), t2.clone() # for side-effect checking
+
+        # Check return 
+        r1, r2 = np.array(return_LP_from_output(t1)), np.array(return_LP_from_output(t2))
+        oracle_r1 = (torch.ones(RETURN_SHAPE).numpy()).astype(np.int64)
+        oracle_r2 = (torch.zeros(RETURN_SHAPE).numpy()).astype(np.int64)
+        self.assertTrue(np.array_equal(r1, oracle_r1))
+        self.assertTrue(np.array_equal(r2, oracle_r2))
+
+        # Check side-effect 
+        self.assertTrue(torch.all(torch.eq(t1, t1_)).item())
+        self.assertTrue(torch.all(torch.eq(t2, t2_)).item())
 
 if __name__ == '__main__':
     unittest.main()
