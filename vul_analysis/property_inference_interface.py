@@ -31,6 +31,7 @@ class PropertyInferenceInterface():
         self.model = None
         self.retrained_model = None 
         self.twisted_model = None 
+        self.dropout_rate = None
 
         self.LPs_set = None        
         self.differentation_lines = None 
@@ -79,6 +80,9 @@ class PropertyInferenceInterface():
     def load_model(self, model_name):
         self.model = torch.load(model_name)
 
+    def set_dropout_rate(self, dropout_rate):
+        self.dropout_rate = dropout_rate
+
     def generate_model(self, num_of_epochs=15):
         model_type = self.meta_params['model_type']
         if model_type == 'naive':
@@ -112,16 +116,15 @@ class PropertyInferenceInterface():
         
         self.model = model
 
-    def generate_retrained_model(self, model_type, num_of_epochs=15, dropout_rate=None):
+    def generate_retrained_model(self, model_type, num_of_epochs=15):
         ''' 
         - Change the architecture & Retrain a new model from scratches 
         '''
-
         X, Y = self.train_dataset
         if model_type == 'FC':
-            model = robustified_FC(dropout_rate)
+            model = robustified_FC(self.dropout_rate)
         elif model_type == 'CNN':
-            model = robustified_CNN(dropout_rate)
+            model = robustified_CNN(self.dropout_rate)
         else: 
             pass 
 
@@ -147,14 +150,14 @@ class PropertyInferenceInterface():
         
         self.retrained_model = model
 
-    def generate_twisted_model(self, model_type, num_of_epochs=15, dropout_rate=None):
+    def generate_twisted_model(self, model_type, num_of_epochs=15):
         ''' 
         - Currently,CNN only (FC should be added in the future) 
         - Add a dropout layer & Fine-tune weights  
         '''
 
         # Create an untrained robustified CNN
-        twisted_model = robustified_CNN(dropout_rate)
+        twisted_model = robustified_CNN(self.dropout_rate)
         original_model = copy.deepcopy(self.model)
         original_model.train()
         twisted_model.train()
@@ -218,11 +221,20 @@ class PropertyInferenceInterface():
             
         return acc
 
-    def generate_LPs(self):
+    def generate_LPs(self, on_retrained_model=False, on_twisted_model=False):
         ''' 
         - Generate the provanence set for each output class
         '''
         X, Y = self.train_dataset
+        
+        if on_retrained_model:
+            model = copy.deepcopy(self.retrained_model)
+        elif on_twisted_model:
+            model = copy.deepcopy(self.twisted_model)
+        else:
+            model = copy.deepcopy(self.model)
+        model.eval()
+        model_type = self.meta_params['model_type']
 
         NUM_MNIST_CLASSES = 10 # should be further adjusted 
         num_output_classes = NUM_MNIST_CLASSES
@@ -238,13 +250,13 @@ class PropertyInferenceInterface():
         # Extract and store LP(s)
         for i in range(len(X)):
             x, y = X[i], Y[i]
-            LPs = extract_all_LP(self.model, self.meta_params['model_type'], x)
+            LPs = extract_all_LP(model, model_type, x, self.dropout_rate) 
             for i in range(len(LPs)):
                 (LPs_set[y])[i].append(LPs[i])
 
         self.LPs_set = LPs_set
 
-    def property_match(self, x, y, verbose=True):
+    def property_match(self, x, y, on_retrained_model, on_twisted_model, verbose=True):
         ''' 
         - Given a sample and its classified outcome, (x, y)
         - We compare provanence of x (p) to the provanence set of y (P)
@@ -252,61 +264,72 @@ class PropertyInferenceInterface():
         '''
         # Get the provanence set according to the output class y = model(x)
         PS = self.LPs_set[y]
+
         # Get the provanence of x 
-        ps = extract_all_LP(self.model, self.meta_params['model_type'], x)
+        if on_retrained_model:
+            model = copy.deepcopy(self.retrained_model)
+        elif on_twisted_model:
+            model = copy.deepcopy(self.twisted_model)
+        else:
+            model = copy.deepcopy(self.model)
+        model.eval()
+        model_type = self.meta_params['model_type']
+        ps = extract_all_LP(model, model_type, x, self.dropout_rate) 
 
         # Create intermediate values 
         LP_status, LP_risk_score, is_benign = [], [], None
-        differentiation_lines = self.differentation_lines
-        
-        # Go through layer by layer 
-        for i in range(len(PS)):
-            differentiation_line = None if (differentiation_lines is None) else differentiation_lines[i] 
-            P, p = np.array(PS[i]), np.array(ps[i])
+        differentation_lines = self.differentation_lines
 
-            # Compute score (the method to compute score can be further adjusted)
-            prob_P = np.sum(P, axis=0)/(P.shape[0])
-            abs_diff = np.absolute(prob_P-p)
-            risk_score = np.sum(abs_diff)
+        # Case 1: self.differentation_lines is None 
+        # -> compute risk_score only 
+        if (differentation_lines is None): 
+            for i in range(len(PS)):
+                P, p = np.array(PS[i]), np.array(ps[i])
+                prob_P = np.sum(P, axis=0)/(P.shape[0])
+                abs_diff = np.absolute(prob_P-p)
+                risk_score = np.sum(abs_diff)
+                LP_risk_score.append(risk_score)
+        # Case 2: self.differentation_lines exists
+        # -> compute risk_score and status (by comparing to differentation_lines)
+        else:     
+            for i in range(len(PS)):
+                P, p, differentation_line = np.array(PS[i]), np.array(ps[i]), differentation_lines[i]
 
-            # If score is lower than differentiation line, then it's 'benign'. 
-            # Otherwise, it's 'adversarial'.
-            if not (differentiation_line is None): 
-                status = 'benign' if risk_score < differentiation_line else 'adversarial'
+                # Compute score (the method to compute score can be further adjusted)
+                prob_P = np.sum(P, axis=0)/(P.shape[0])
+                abs_diff = np.absolute(prob_P-p)
+                risk_score = np.sum(abs_diff)
+
+                # If score is lower than differentiation line, then it's 'benign'. 
+                # Otherwise, it's 'adversarial'.
+                status = 'benign' if risk_score < differentation_line else 'adversarial'
                 LP_status.append(status)
+                LP_risk_score.append(risk_score)
 
-            LP_risk_score.append(risk_score)
-
-        # Decide whether a given sample x is 'benign' or 'adversarial'
-        # -> the benign_condition should be further adjusted 
-        if not (differentiation_lines is None):
+            # Decide whether a given sample x is 'benign' or 'adversarial'
+            # -> the benign_condition should be further adjusted 
             benign_condition = ('benign' == LP_status[0] and 'benign' == LP_status[1] and 'benign' == LP_status[2])
             is_benign = True if benign_condition else False  
-
-        # Debug information 
-        # if is_benign:
-        #     print(LP_status, 'benign')
-        # else:
-        #     print(LP_status, 'adversarial')
 
         return (is_benign, LP_status, LP_risk_score)
 
     def evaluate_algorithm_on_test_set(self, verbose=True, on_retrained_model=False, on_twisted_model=False):
         assert not (on_twisted_model and on_retrained_model)
 
-        self._set_differentation_lines(95)
+        self._set_differentation_lines(95, on_retrained_model, on_twisted_model)
         B_num_count, B_correct_count, B_valid_count, B_LPs, B_LPs_score = self._evaluate_benign_samples(verbose, on_retrained_model, on_twisted_model)
         A_num_count, A_correct_count, A_success_count, A_AA_count, A_BB_count, A_LPs, A_LPs_score = self._evaluate_adversarial_samples(verbose, on_retrained_model, on_twisted_model)
         A_non_success_count = A_correct_count - A_success_count
 
         B_accuracy, B_FNR = B_correct_count/B_num_count, B_valid_count/B_correct_count 
         A_accuracy, A_AST = A_correct_count/A_num_count, A_success_count/A_correct_count
-        A_TNR, A_TPR = A_BB_count/A_non_success_count, A_AA_count/A_success_count
+        A_TNR = None if A_non_success_count == 0 else A_BB_count/A_non_success_count
+        A_TPR = None if A_success_count == 0 else A_AA_count/A_success_count
 
         assert A_accuracy == B_accuracy
         return (B_accuracy, B_FNR), (A_accuracy, A_AST, A_TNR, A_TPR), (B_LPs, A_LPs), (B_LPs_score, A_LPs_score)
 
-    def _set_differentation_lines(self, qr):
+    def _set_differentation_lines(self, qr, on_retrained_model, on_twisted_model):
         ''' Private function
         - Set the differentiation lines according to training dataset,
         - Apply differentation lines on B (normal test samples) and A (adversarial test samples)
@@ -329,7 +352,7 @@ class PropertyInferenceInterface():
                 continue
 
             # Collect LP_risk_score among train dataset 
-            _, _, LP_risk_score = self.property_match(x, y_, False) 
+            _, _, LP_risk_score = self.property_match(x, y_, on_retrained_model, on_twisted_model, verbose=False) 
             LPs_score.append(LP_risk_score)
 
         # Compute differentation lines 
@@ -378,7 +401,7 @@ class PropertyInferenceInterface():
                 continue
 
             # Generate experimental result 
-            is_benign, LP_status, LP_risk_score = self.property_match(x, y_, verbose) 
+            is_benign, LP_status, LP_risk_score = self.property_match(x, y_, on_retrained_model, on_twisted_model, verbose) 
 
             # Record experimental info 
             LPs.append(LP_status)
@@ -466,9 +489,9 @@ class PropertyInferenceInterface():
                 adv_x_ = torch.from_numpy(adv_x_)
                 output_ = model.forward(adv_x_)
                 adv_y = (output_.max(1, keepdim=True)[1]).item()
-                is_benign, LP_status, LP_risk_score = self.property_match(adv_x, adv_y, verbose) 
+                is_benign, LP_status, LP_risk_score = self.property_match(adv_x, adv_y, on_retrained_model, on_twisted_model, verbose) 
             else:
-                is_benign, LP_status, LP_risk_score = self.property_match(x, y_, verbose) 
+                is_benign, LP_status, LP_risk_score = self.property_match(x, y_, on_retrained_model, on_twisted_model, verbose) 
 
             LPs.append(LP_status)
             LPs_score.append(LP_risk_score)

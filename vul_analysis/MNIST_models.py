@@ -90,12 +90,12 @@ class robustified_CNN(nn.Module):
 
     def forward(self, x):
         x = F.relu(self.conv1(x)) # (24, 24, 16)
-
-        x = F.dropout2d(x, p=self.dropout_rate)
-
         x = F.relu(F.max_pool2d(self.conv2(x), 2)) # (20, 20, 16) -> (10, 10, 16)
         x = F.relu(F.max_pool2d(self.conv3(x), 2)) # (6, 6, 32) -> (3, 3, 32)
         x = x.view(-1, 3*3*32)
+
+        x = F.dropout(x, p=self.dropout_rate) # This statement is combined with LP_utils/extract_all_LP
+
         x = F.relu(self.fc1(x))
         x = self.fc2(x)
         return F.log_softmax(x, dim=1)

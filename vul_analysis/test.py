@@ -15,8 +15,8 @@ DEV = False
 ###########################################
 META_PARAMS = {
     'num_of_LPs': 4,
-    'size_of_train_set': 1000,
-    'size_of_test_set': 100,
+    'size_of_train_set': 100,
+    'size_of_test_set': 10,
     'flatten': False, 
     'model_type': 'CNN',
     'adv_attack': 'i_FGSM',
@@ -40,10 +40,9 @@ class TestPI(unittest.TestCase):
     '''
     @unittest.skipIf(DEV, 'Test on DEV unittests only')
     def test_PI_generate_twisted_model_func＿1(self):
-        NUM_OF_TWIST_MODEL_TRAIN = 0 
-
         # Generate twisted model 
-        self.PI.generate_twisted_model(MODEL_TYPE, NUM_OF_TWIST_MODEL_TRAIN, dropout_rate=0)
+        self.PI.set_dropout_rate(0)
+        self.PI.generate_twisted_model(MODEL_TYPE, 0)
 
         # Return the original model accurancy
         original_train_acc = self.PI.eval_model('train')
@@ -64,19 +63,17 @@ class TestPI(unittest.TestCase):
     '''
     @unittest.skipIf(DEV, 'Test on DEV unittests only')
     def test_PI_generate_twisted_model_func＿2(self):
-        NUM_OF_TWIST_MODEL_TRAIN = 0 
-
         # Generate twisted model 
-        self.PI.generate_LPs()
-        self.PI.generate_twisted_model(MODEL_TYPE, NUM_OF_TWIST_MODEL_TRAIN, dropout_rate=0)
+        self.PI.set_dropout_rate(0)
+        self.PI.generate_twisted_model(MODEL_TYPE, 0)
 
         # Return the original model FNR
+        self.PI.generate_LPs()
         (_, original_B_FNR), _, _, _ = self.PI.evaluate_algorithm_on_test_set(verbose=False)
          
         # Return the twisted model FNR 
         import copy
-        self.PI.model = copy.deepcopy(self.PI.twisted_model)
-        (_, twisted_B_FNR), _, _, _ = self.PI.evaluate_algorithm_on_test_set(verbose=False)
+        (_, twisted_B_FNR), _, _, _ = self.PI.evaluate_algorithm_on_test_set(verbose=False, on_twisted_model=True)
 
         # Check 
         self.assertEqual(original_B_FNR, twisted_B_FNR)        
@@ -88,11 +85,9 @@ class TestPI(unittest.TestCase):
     '''
     @unittest.skipIf(DEV, 'Test on DEV unittests only')
     def test_PI_generate_twisted_model_func＿3(self):
-        NUM_OF_TWIST_MODEL_TRAIN = 0 
-
         # Generate twisted model 
-        self.PI.generate_LPs()
-        self.PI.generate_twisted_model(MODEL_TYPE, NUM_OF_TWIST_MODEL_TRAIN, dropout_rate=0)
+        self.PI.set_dropout_rate(0)
+        self.PI.generate_twisted_model(MODEL_TYPE, 0)
 
         # Return weights 
         import copy
@@ -165,6 +160,16 @@ class TestPI(unittest.TestCase):
         # Check side-effect 
         self.assertTrue(torch.all(torch.eq(t1, t1_)).item())
         self.assertTrue(torch.all(torch.eq(t2, t2_)).item())
+
+    '''
+    test LP_utils/extract_all_LP
+    '''
+    def test_LP__utils_extract_all_LP(self):
+        self.PI.set_dropout_rate(0.1)
+        self.PI.generate_twisted_model(MODEL_TYPE, 5)
+        self.PI.generate_LPs(on_retrained_model=False, on_twisted_model=True)
+
+
 
 if __name__ == '__main__':
     unittest.main()
