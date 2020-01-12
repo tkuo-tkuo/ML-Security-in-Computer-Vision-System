@@ -1,5 +1,6 @@
 
-    Experiment 15: Enhanced Relation between PIs and dropout layer, 0.01 interval to 0.2 (adv_attack=i_FGSM, y/y'=y', model=CNN, qr=95, approach=insertion and slight tuning)
+    Experiment 15: (Enhanced) Relation between PIs and dropout rate (before last layer), 0.01 interval to 0.2  
+    (adv_attack=i_FGSM, y/y'=y', model=CNN, qr=95, approach=insertion and slight tuning)
   
     Layer: Before the last (FC) layer 
     num_of_train_epoches (twisted): 10
