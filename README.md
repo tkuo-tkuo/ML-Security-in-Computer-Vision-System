@@ -86,6 +86,12 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 
 [Exp13: Relation between PIs and dropout layer (adv_attack=i_FGSM, y/y'=y', model=CNN, qr=95, approach=insertion and slight tuning)](pages/exp13.md)
 
+[Exp14: (Enhanced) Relation between PIs and dropout layer (adv_attack=i_FGSM, y/y'=y', model=CNN, qr=95, approach=insertion and slight tuning](pages/exp14.md) 
+
+[Exp15: title](pages/exp15.md) 
+
+[Exp16: title](pages/exp16.md) 
+
 **Observations (CNN)** <br/>
 - (to be updated)
 
