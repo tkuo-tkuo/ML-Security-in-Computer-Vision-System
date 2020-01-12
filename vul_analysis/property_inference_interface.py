@@ -321,13 +321,13 @@ class PropertyInferenceInterface():
         A_num_count, A_correct_count, A_success_count, A_AA_count, A_BB_count, A_LPs, A_LPs_score = self._evaluate_adversarial_samples(verbose, on_retrained_model, on_twisted_model)
         A_non_success_count = A_correct_count - A_success_count
 
-        B_accuracy, B_FNR = B_correct_count/B_num_count, B_valid_count/B_correct_count 
+        B_accuracy, B_TNR = B_correct_count/B_num_count, B_valid_count/B_correct_count 
         A_accuracy, A_AST = A_correct_count/A_num_count, A_success_count/A_correct_count
         A_TNR = None if A_non_success_count == 0 else A_BB_count/A_non_success_count
         A_TPR = None if A_success_count == 0 else A_AA_count/A_success_count
 
-        assert A_accuracy == B_accuracy
-        return (B_accuracy, B_FNR), (A_accuracy, A_AST, A_TNR, A_TPR), (B_LPs, A_LPs), (B_LPs_score, A_LPs_score)
+        # assert A_accuracy == B_accuracy
+        return (B_accuracy, B_TNR), (A_accuracy, A_AST, A_TNR, A_TPR), (B_LPs, A_LPs), (B_LPs_score, A_LPs_score)
 
     def _set_differentation_lines(self, qr, on_retrained_model, on_twisted_model):
         ''' Private function
@@ -412,10 +412,10 @@ class PropertyInferenceInterface():
             NUM_OF_CHAR_INDENT = 50 
             print('Evaluate on benign samples with test set')
             print('# of samples'.ljust(NUM_OF_CHAR_INDENT), ':', num_count)
-            print('# of correctly classified samples'.ljust(NUM_OF_CHAR_INDENT), ':', correct_count)
-            print('# of correctly classified samples')
-            print('     which are indentified as "benign"'.ljust(NUM_OF_CHAR_INDENT), ':', valid_count)
-            print()
+            # print('# of correctly classified samples'.ljust(NUM_OF_CHAR_INDENT), ':', correct_count)
+            # print('# of correctly classified samples')
+            # print('     which are indentified as "benign"'.ljust(NUM_OF_CHAR_INDENT), ':', valid_count)
+            # print()
             print('Accuracy'.ljust(NUM_OF_CHAR_INDENT), ':', round((correct_count/num_count), 3), '(', correct_count, '/', num_count, ')')
             print('True Negative Rate, TNR (B -> B)'.ljust(NUM_OF_CHAR_INDENT), ':', round((valid_count/correct_count), 3), '(', valid_count, '/', correct_count, ')')
             print()
@@ -514,22 +514,24 @@ class PropertyInferenceInterface():
         if verbose:
             NUM_OF_CHAR_INDENT = 50 
             print('Evaluate on adversarial samples with test set')
-            print('# of samples'.ljust(NUM_OF_CHAR_INDENT), ':', num_count)
-            print('# of correctly classified samples'.ljust(NUM_OF_CHAR_INDENT), ':', correct_count)
-            print('# of correctly classified samples')
-            print('which are NOT succesfully attacked -> "benign"'.ljust(NUM_OF_CHAR_INDENT), ':', non_success_count)
-            print('B -> B count'.ljust(NUM_OF_CHAR_INDENT), ':', BB_count)
-            print('B -> A count'.ljust(NUM_OF_CHAR_INDENT), ':', BA_count)
-            print('True Negative Rate, TNR (B -> B)'.ljust(NUM_OF_CHAR_INDENT), ':', round((BB_count/non_success_count), 3), '(', BB_count, '/', non_success_count, ')')
+            # print('# of samples'.ljust(NUM_OF_CHAR_INDENT), ':', num_count)
+            # print('# of correctly classified samples'.ljust(NUM_OF_CHAR_INDENT), ':', correct_count)
+            # print('# of correctly classified samples')
+            # print('which are NOT succesfully attacked -> "benign"'.ljust(NUM_OF_CHAR_INDENT), ':', non_success_count)
+            # print('B -> B count'.ljust(NUM_OF_CHAR_INDENT), ':', BB_count)
+            # print('B -> A count'.ljust(NUM_OF_CHAR_INDENT), ':', BA_count)
+            if not (non_success_count == 0): 
+                print('True Negative Rate, TNR (B -> B)'.ljust(NUM_OF_CHAR_INDENT), ':', round((BB_count/non_success_count), 3), '(', BB_count, '/', non_success_count, ')')
 
-            print()
-            print('# of correctly classified samples')
-            print('which are succesfully attacked -> "adversarial"'.ljust(NUM_OF_CHAR_INDENT), ':', success_count)
-            print('A -> B count'.ljust(NUM_OF_CHAR_INDENT), ':', AB_count)
-            print('A -> A count'.ljust(NUM_OF_CHAR_INDENT), ':', AA_count)
-            print('True Positive Rate, TPR (A -> A)'.ljust(NUM_OF_CHAR_INDENT), ':', round((AA_count/success_count), 3), '(', AA_count, '/', success_count, ')')
+            # print()
+            # print('# of correctly classified samples')
+            # print('which are succesfully attacked -> "adversarial"'.ljust(NUM_OF_CHAR_INDENT), ':', success_count)
+            # print('A -> B count'.ljust(NUM_OF_CHAR_INDENT), ':', AB_count)
+            # print('A -> A count'.ljust(NUM_OF_CHAR_INDENT), ':', AA_count)
+            if not (success_count == 0): 
+                print('True Positive Rate, TPR (A -> A)'.ljust(NUM_OF_CHAR_INDENT), ':', round((AA_count/success_count), 3), '(', AA_count, '/', success_count, ')')
 
-            print()
+            # print()
             print('Attack success rate'.ljust(NUM_OF_CHAR_INDENT), ':', round(AST, 3), '(', success_count, '/', correct_count, ')')
 
         return num_count, correct_count, success_count, AA_count, BB_count, LPs, LPs_score

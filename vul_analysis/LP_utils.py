@@ -11,12 +11,12 @@ def return_LP_from_output(h):
     LP = squ_h_.astype(np.int64)
     return list(LP)
 
-def extract_all_LP(model, model_type, x):
+def extract_all_LP(model, model_type, x, dropout_rate=0):
+    x = torch.from_numpy(np.expand_dims(x, axis=0).astype(np.float32))
     LPs = []
 
-    # Grab the information
+    # Normal CNN
     if model_type == 'CNN':
-        x = torch.from_numpy(np.expand_dims(x, axis=0).astype(np.float32))
         h1 = F.relu(model.conv1(x))
         LPs.append(return_LP_from_output(h1))
 
@@ -27,10 +27,13 @@ def extract_all_LP(model, model_type, x):
         LPs.append(return_LP_from_output(h3))
 
         h3 = h3.view(-1, 3*3*32)
+        h3 = F.dropout(h3, p=dropout_rate) # this statement is combined with MNIST_models/robustified_CNN/forward 
+
         h4 = F.relu(model.fc1(h3))
         LPs.append(return_LP_from_output(h4))
+
+    # Normal FC 
     else:
-        x = torch.from_numpy(np.expand_dims(x, axis=0).astype(np.float32))
         h1 = model.relu(model.layer1(x))
         LPs.append(return_LP_from_output(h1))
 

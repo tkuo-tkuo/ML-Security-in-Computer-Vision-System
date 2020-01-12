@@ -1,6 +1,7 @@
 import unittest
 import warnings
 import random
+import copy
 
 import property_inference_interface
 from LP_utils import * 
@@ -8,7 +9,7 @@ from LP_utils import *
 ###########################################
 # Global variables (control)
 ###########################################
-DEV = False
+DEV = False #develop 
 
 ###########################################
 # Global variables (meta parameters)
@@ -35,7 +36,7 @@ class TestPI(unittest.TestCase):
 
     '''
     Func 'generate_twisted_model' should have 
-    the same accurancy & FNR (B -> B) as original model.
+    the same accurancy & TNR (B -> B) as original model.
     Here we compare the accurancy. 
     '''
     @unittest.skipIf(DEV, 'Test on DEV unittests only')
@@ -58,8 +59,8 @@ class TestPI(unittest.TestCase):
 
     '''
     Func 'generate_twisted_model' should have 
-    the same accurancy & FNR (B -> B) as original model.
-    Here we compare the FNR. 
+    the same accurancy & TNR (B -> B) as original model.
+    Here we compare the TNR. 
     '''
     @unittest.skipIf(DEV, 'Test on DEV unittests only')
     def test_PI_generate_twisted_model_func＿2(self):
@@ -67,16 +68,16 @@ class TestPI(unittest.TestCase):
         self.PI.set_dropout_rate(0)
         self.PI.generate_twisted_model(MODEL_TYPE, 0)
 
-        # Return the original model FNR
+        # Return the original model TNR
         self.PI.generate_LPs()
-        (_, original_B_FNR), _, _, _ = self.PI.evaluate_algorithm_on_test_set(verbose=False)
+        (_, original_B_TNR), _, _, _ = self.PI.evaluate_algorithm_on_test_set(verbose=False) 
          
-        # Return the twisted model FNR 
+        # Return the twisted model TNR 
         import copy
-        (_, twisted_B_FNR), _, _, _ = self.PI.evaluate_algorithm_on_test_set(verbose=False, on_twisted_model=True)
+        (_, twisted_B_TNR), _, _, _ = self.PI.evaluate_algorithm_on_test_set(verbose=False, on_twisted_model=True)
 
         # Check 
-        self.assertEqual(original_B_FNR, twisted_B_FNR)        
+        self.assertEqual(original_B_TNR, twisted_B_TNR)        
         
     '''
     Func 'generate_twisted_model' should have 
@@ -160,16 +161,6 @@ class TestPI(unittest.TestCase):
         # Check side-effect 
         self.assertTrue(torch.all(torch.eq(t1, t1_)).item())
         self.assertTrue(torch.all(torch.eq(t2, t2_)).item())
-
-    '''
-    test LP_utils/extract_all_LP
-    '''
-    def test_LP__utils_extract_all_LP(self):
-        self.PI.set_dropout_rate(0.1)
-        self.PI.generate_twisted_model(MODEL_TYPE, 5)
-        self.PI.generate_LPs(on_retrained_model=False, on_twisted_model=True)
-
-
 
 if __name__ == '__main__':
     unittest.main()
