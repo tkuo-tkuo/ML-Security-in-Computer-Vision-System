@@ -11,3 +11,5 @@
 <img src="../Images/Exp16/ASR_vs_dropout_3.png" width="900" height="150"/>
 <img src="../Images/Exp16/ASR_vs_dropout_4.png" width="900" height="150"/>
 <img src="../Images/Exp16/ASR_vs_dropout_5.png" width="900" height="150"/>
+<img src="../Images/Exp16/ASR_vs_dropout_6.png" width="900" height="150"/>
+
