@@ -12,7 +12,8 @@
 <details>
   <summary>Architectures of models (all CNN networks)</summary>
   
-  (more)
+  <img src="../README_images/CNN_architecture.png" align="center"/>
+  <img src="../README_images/CNN_losefunc_and_opt.png" align="center"/>
   
 </details>
 
