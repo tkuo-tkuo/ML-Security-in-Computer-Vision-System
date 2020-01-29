@@ -66,144 +66,349 @@ def generate_new_datas(args):
 
     return None 
 
-def property_match(self, x, y, verbose=True):
-    Py = self.LPs_set[y]
-    LPs = extract_all_LP(self.model, self.meta_params['model_type'], x)
-
-    #############################################
-    # Original Method 
-    # result == 1 -> the given input is considered as 'benign'
-    # result == 0 -> the given input is considered as 'adversarial'
-    #############################################
+def property_match(self, x, y, on_retrained_model, on_twisted_model, verbose=True):
+    ''' 
+    - Given a sample and its classified outcome, (x, y)
+    - We compare provanence of x (p) to the provanence set of y (P)
+    - Then, we compute the risk score & decide whether a given sample, x, is 'benign' or 'adversarial' 
     '''
-    LP_status = []
-    LP_risk_score = []
+    # Get the provanence set according to the output class y = model(x)
+    PS = self.LPs_set[y]
 
-    for i in range(len(LPs)):
-        LP_i = Py[i]
-        p_i = LPs[i]
-        
-        status = 'adversarial'
-        if p_i in LP_i:
-            status = 'benign'
+    # Get the provanence of x
+    if on_retrained_model:
+        model = copy.deepcopy(self.retrained_model)
+    elif on_twisted_model:
+        model = copy.deepcopy(self.twisted_model)
+    else:
+        model = copy.deepcopy(self.model)
+    model.eval()
+    model_type = self.meta_params['model_type']
+    ps = extract_all_LP(model, model_type, x, self.dropout_rate)
 
-        LP_status.append(status)
-        if status == 'benign':
-            LP_risk_score.append(1)
-        else:
-            LP_risk_score.append(0)
+    # Create intermediate values
+    LP_status, LP_risk_score, is_benign = [], [], None
+    differentation_lines = self.differentation_lines
 
-    
-    result = 1
-    if 'adversarial' == LP_status[0] and 'adversarial' == LP_status[1]:
-        result = 0
+    # Case 1: self.differentation_lines is None
+    # -> compute risk_score only
+    if (differentation_lines is None):
+        for i in range(len(PS)):
+            P, p = np.array(PS[i]), np.array(ps[i])
+            prob_P = np.sum(P, axis=0)/(P.shape[0])
+            abs_diff = np.absolute(prob_P-p)
+            risk_score = np.sum(abs_diff)
+            LP_risk_score.append(risk_score)
+    # Case 2: self.differentation_lines exists
+    # -> compute risk_score and status (by comparing to differentation_lines)
+    else:
+        for i in range(len(PS)):
+            P, p, differentation_line = np.array(
+                PS[i]), np.array(ps[i]), differentation_lines[i]
+
+            # Compute score (the method to compute score can be further adjusted)
+            prob_P = np.sum(P, axis=0)/(P.shape[0])
+            abs_diff = np.absolute(prob_P-p)
+            risk_score = np.sum(abs_diff)
+
+            # If score is lower than differentiation line, then it's 'benign'.
+            # Otherwise, it's 'adversarial'.
+            status = 'benign' if risk_score < differentation_line else 'adversarial'
+            LP_status.append(status)
+            LP_risk_score.append(risk_score)
+
+        # Decide whether a given sample x is 'benign' or 'adversarial'
+        # -> the benign_condition should be further adjusted
+        benign_condition = (
+            'benign' == LP_status[0] and 'benign' == LP_status[1] and 'benign' == LP_status[2])
+        is_benign = True if benign_condition else False
+
+    return (is_benign, LP_status, LP_risk_score)
+
+def evaluate_algorithm_on_test_set(self, verbose=True):
+    assert not (on_twisted_model and on_retrained_model)
+
+    self._set_differentation_lines(
+        95, on_retrained_model, on_twisted_model)
+    B_num_count, B_correct_count, B_valid_count, B_LPs, B_LPs_score = self._evaluate_benign_samples(
+        verbose, on_retrained_model, on_twisted_model)
+    A_num_count, A_correct_count, A_success_count, A_AA_count, A_BB_count, A_LPs, A_LPs_score = self._evaluate_adversarial_samples(
+        verbose, on_retrained_model, on_twisted_model)
+    A_non_success_count = A_correct_count - A_success_count
+
+    B_accuracy, B_TNR = B_correct_count/B_num_count, B_valid_count/B_correct_count
+    A_accuracy, A_ASR = A_correct_count/A_num_count, A_success_count/A_correct_count
+    A_TNR = None if A_non_success_count == 0 else A_BB_count/A_non_success_count
+    A_TPR = None if A_success_count == 0 else A_AA_count/A_success_count
+
+    return (B_accuracy, B_TNR), (A_accuracy, A_ASR, A_TNR, A_TPR), (B_LPs, A_LPs), (B_LPs_score, A_LPs_score)
+
+def _set_differentation_lines(self, qr, on_retrained_model, on_twisted_model):
+    ''' Private function
+    - Set the differentiation lines according to training dataset,
+    - Apply differentation lines on B (normal test samples) and A (adversarial test samples)
+    '''
+
+    # Load (train) dataset and model
+    X, Y = self.train_dataset
+    model = (self.model).eval()
+
+    # Create intermediate variables
+    LPs_score = []
+
+    for i in range(len(X)):
+        x, y = X[i], Y[i]
+
+        # Filter out samples can not be correctly classified by the given model
+        output = model.forward(torch.from_numpy(
+            np.expand_dims(x, axis=0).astype(np.float32)))
+        y_ = (output.max(1, keepdim=True)[1]).item()
+        if y_ != y:
+            continue
+
+        # Collect LP_risk_score among train dataset
+        _, _, LP_risk_score = self.property_match(
+            x, y_, on_retrained_model, on_twisted_model, verbose=False)
+        LPs_score.append(LP_risk_score)
+
+    # Compute differentation lines
+    LPs_score = np.array(LPs_score)
+    differentation_lines = []
+    for i in range(LPs_score.shape[1]):
+        LP_score = LPs_score[:, i]
+        differentation_lines.append(np.percentile(LP_score, qr))
+
+    # Store in PI
+    self.differentation_lines = differentation_lines
+
+def _evaluate_benign_samples(self, verbose, on_retrained_model, on_twisted_model):
+    ''' Private function 
+    - Samples are extracted from the test dataset
+    total_count   : # of samples extracted from dataset
+    correct_count : # of samples (classified correctly)
+    valid_count   : # of samples (classified correctly & classified as benign)
+    '''
+
+    # Load (test) dataset and model
+    X, Y = self.test_dataset
+
+    if on_retrained_model:
+        model = copy.deepcopy(self.retrained_model).eval()
+    elif on_twisted_model:
+        model = copy.deepcopy(self.twisted_model).eval()
+    else:
+        model = copy.deepcopy(self.model).eval()
+
+    # Create intermediate variables
+    num_count, correct_count, valid_count = len(X), len(X), 0
+    LPs, LPs_score = [], []
+
+    for i in range(correct_count):
+        if self.meta_params['is_debug']:
+            print('Evaluate', i, 'th benign sample ...')
+
+        x, y = X[i], Y[i]
+
+        # Filter out samples can not be correctly classified by the given model
+        output = model.forward(torch.from_numpy(
+            np.expand_dims(x, axis=0).astype(np.float32)))
+        y_ = (output.max(1, keepdim=True)[1]).item()
+        if y_ != y:
+            correct_count -= 1
+            continue
+
+        # Generate experimental result
+        is_benign, LP_status, LP_risk_score = self.property_match(
+            x, y_, on_retrained_model, on_twisted_model, verbose)
+
+        # Record experimental info
+        LPs.append(LP_status)
+        LPs_score.append(LP_risk_score)
+        valid_count += 1 if is_benign else 0
 
     if verbose:
-        if result == 1:
-            print(LP_status, 'benign')
+        NUM_OF_CHAR_INDENT = 50
+        print('Evaluate on benign samples with test set')
+        print('# of samples'.ljust(NUM_OF_CHAR_INDENT), ':', num_count)
+        # print('# of correctly classified samples'.ljust(NUM_OF_CHAR_INDENT), ':', correct_count)
+        # print('# of correctly classified samples')
+        # print('     which are indentified as "benign"'.ljust(NUM_OF_CHAR_INDENT), ':', valid_count)
+        # print()
+        print('Accuracy'.ljust(NUM_OF_CHAR_INDENT), ':', round(
+            (correct_count/num_count), 3), '(', correct_count, '/', num_count, ')')
+        print('True Negative Rate, TNR (B -> B)'.ljust(NUM_OF_CHAR_INDENT), ':',
+                round((valid_count/correct_count), 3), '(', valid_count, '/', correct_count, ')')
+        print()
+
+    return num_count, correct_count, valid_count, LPs, LPs_score
+
+def _evaluate_adversarial_samples(self, verbose, on_retrained_model, on_twisted_model):
+        ''' Private function 
+        - Samples are extracted from the test dataset
+        total_count   : # of samples extracted from dataset
+        correct_count : # of samples (classified correctly)
+        '''
+
+        # Create attack for generating adversarial samples
+        import attacker
+        if self.meta_params['adv_attack'] == 'i_FGSM':
+            A = attacker.iterative_FGSM_attacker()
+        elif self.meta_params['adv_attack'] == 'JSMA':
+            A = attacker.JSMA_attacker()
+        elif self.meta_params['adv_attack'] == 'CW_L2':
+            A = attacker.CW_L2_attacker()
         else:
-            print(LP_status, 'adversarial')
+            A = NotImplemented
 
-    return (result, LP_status, LP_risk_score)
-    '''
-    #############################################
-
-    #############################################
-    # Experimental: Method 1 & 2
-    #############################################
-    LP_status = []
-    LP_risk_score = []
-    differentiation_lines = self.differentation_lines
-    for i in range(len(LPs)):
-        differentiation_line = differentiation_lines[i]
-        LP_i = np.array(Py[i])
-        p_i = np.array(LPs[i])
-
-        prob_LP_i = np.sum(LP_i, axis=0) / LP_i.shape[0]
-        diff = prob_LP_i - p_i
-        abs_diff = np.absolute(diff)
-        # abs_diff[abs_diff<0.9] = 0
-        risk_score = np.sum(abs_diff)
-        
-        status = 'adversarial'
-        if risk_score < differentiation_line:
-            status = 'benign'
-
-        LP_status.append(status)
-        LP_risk_score.append(risk_score)
-
-    result = 0
-    if 'benign' == LP_status[0] and 'benign' == LP_status[1] and 'benign' == LP_status[2]:
-        result = 1    
-
-    '''
-    if verbose:
-        if result == 1:
-            print(LP_status, 'benign')
+        # Load (test) dataset and model
+        X, Y = self.test_dataset
+        if on_retrained_model:
+            model = copy.deepcopy(self.retrained_model).eval()
+        elif on_twisted_model:
+            model = copy.deepcopy(self.twisted_model).eval()
         else:
-            print(LP_status, 'adversarial')
-    '''
+            model = copy.deepcopy(self.model).eval()
 
-    return (result, LP_status, LP_risk_score)
-    #############################################
+        # Create intermediate variables
+        LPs, LPs_score = [], []
+        num_count, correct_count = len(X), len(X)
+        success_count, non_success_count = 0, 0
+        BB_count, BA_count, AA_count, AB_count = 0, 0, 0, 0
 
-
-    #############################################
-    # Experimental: Method 3 & 4
-    #############################################
-    '''
-    LP_status = []
-    LP_risk_score = []
-    prob_diff_lines = [-800, -600, -150, 1e-4]
-    for i in range(len(LPs)):
-        prob_diff_line = prob_diff_lines[i]
-        LP_i = np.array(Py[i])
-        p_i = np.array(LPs[i])
-
-        # compute probability of LP_i
-        prob_LP_i = np.sum(LP_i, axis=0) / LP_i.shape[0]
-
-        # To avoid 0 probability in either prob_LP_i or prob_LP_i_0
-        prob_LP_i[prob_LP_i==1.0] = 1.0 - (1/(prob_LP_i.shape[0] + 1))
-        prob_LP_i[prob_LP_i==0.0] = 0.0 + (1/(prob_LP_i.shape[0] + 1))
-        prob_LP_i_0 = 1 - prob_LP_i
-
-        # This section is for Method 4
-        # offset = 0.1
-        # weights = np.array(prob_LP_i) 
-        # weights[weights <= (0.5-offset)] = -1
-        # weights[weights >= (0.5+offset)] = -1
-        # weights[weights != -1] = 0
-        # weights[weights == -1] = 1
-        # 
-
-        B_prob = 0
-        for i, neuron_activation in enumerate(p_i):
-            # This section is for Method 4
-            # use weights[i] for Method 4
-            #
-            if neuron_activation == 1:
-                B_prob += math.log(prob_LP_i[i]) * weights[i]
+        for i in range(correct_count):
+            iterative = False
+            if iterative:
+                eps, eps_incre_unit, eps_upper_bound = 0, 0.01, 1  # if iterative
             else:
-                B_prob += math.log(prob_LP_i_0[i]) * weights[i]
+                eps = 0.25  # if not iterative
 
-        status = 'adversarial'
-        if B_prob > prob_diff_line:
-            status = 'benign'
+            # Debug information
+            if self.meta_params['is_debug']:
+                print('Evaluate', i, 'th adversarial sample via',
+                      self.meta_params['adv_attack'], '...')
 
-        LP_status.append(status)
-        LP_risk_score.append(B_prob)
+            x, y = X[i], Y[i]
+            adv_x, adv_y = None, None
 
-    result = 0
-    if 'benign' == LP_status[0] and 'benign' == LP_status[1] and 'benign' == LP_status[2]:
-        result = 1    
+            # Filter out samples can not be correctly classified by the given model
+            output = model.forward(torch.from_numpy(
+                np.expand_dims(x, axis=0).astype(np.float32)))
+            y_ = (output.max(1, keepdim=True)[1]).item()
+            if y_ != y:
+                correct_count -= 1
+                continue
 
-    if verbose:
-        if result == 1:
-            print(LP_status, 'benign')
-        else:
-            print(LP_status, 'adversarial')
+            # Iterative attack process start, slightly increase eps until larger than the upper bound
+            if iterative:
+                is_attack_successful = False
+                while (not is_attack_successful):
+                    eps += eps_incre_unit
+                    if eps > eps_upper_bound:
+                        break
 
-    return (result, LP_status, LP_risk_score)
+                    adv_x, is_att_success = A.create_adv_input(
+                        x, y, model, eps)
+                    if is_att_success:
+                        is_attack_successful = True
+                        adv_x = (adv_x.detach().numpy())[0]
+            else:
+                adv_x, is_attack_successful = A.create_adv_input(
+                    x, y, model, eps)
+                adv_x = (adv_x.detach().numpy())[0]
+
+            # Debug information
+            if is_attack_successful:
+                adv_x_ = np.expand_dims(adv_x, axis=0).astype(np.float32)
+                adv_x_ = torch.from_numpy(adv_x_)
+                output_ = model.forward(adv_x_)
+                adv_y = (output_.max(1, keepdim=True)[1]).item()
+                is_benign, LP_status, LP_risk_score = self.property_match(
+                    adv_x, adv_y, on_retrained_model, on_twisted_model, verbose)
+            else:
+                is_benign, LP_status, LP_risk_score = self.property_match(
+                    x, y_, on_retrained_model, on_twisted_model, verbose)
+
+            # LPs.append(LP_status)
+            # LPs_score.append(LP_risk_score)
+
+            # B
+            if (not is_attack_successful):
+                non_success_count += 1
+                BB_count += 1 if is_benign else 0
+                BA_count += 1 if (not is_benign) else 0
+            # A
+            else:
+                success_count += 1
+                AB_count += 1 if is_benign else 0
+                AA_count += 1 if (not is_benign) else 0
+
+                # expExp: current we only record information from succesfully attacked samples
+                LPs.append(LP_status)
+                LPs_score.append(LP_risk_score)
+
+        # Record AST
+        assert (success_count+non_success_count) == correct_count
+        AST = success_count/correct_count
+
+        if verbose:
+            NUM_OF_CHAR_INDENT = 50
+            print('Evaluate on adversarial samples with test set')
+            # print('# of samples'.ljust(NUM_OF_CHAR_INDENT), ':', num_count)
+            # print('# of correctly classified samples'.ljust(NUM_OF_CHAR_INDENT), ':', correct_count)
+            # print('# of correctly classified samples')
+            # print('which are NOT succesfully attacked -> "benign"'.ljust(NUM_OF_CHAR_INDENT), ':', non_success_count)
+            # print('B -> B count'.ljust(NUM_OF_CHAR_INDENT), ':', BB_count)
+            # print('B -> A count'.ljust(NUM_OF_CHAR_INDENT), ':', BA_count)
+            if not (non_success_count == 0):
+                print('True Negative Rate, TNR (B -> B)'.ljust(NUM_OF_CHAR_INDENT), ':', round(
+                    (BB_count/non_success_count), 3), '(', BB_count, '/', non_success_count, ')')
+
+            # print()
+            # print('# of correctly classified samples')
+            # print('which are succesfully attacked -> "adversarial"'.ljust(NUM_OF_CHAR_INDENT), ':', success_count)
+            # print('A -> B count'.ljust(NUM_OF_CHAR_INDENT), ':', AB_count)
+            # print('A -> A count'.ljust(NUM_OF_CHAR_INDENT), ':', AA_count)
+            if not (success_count == 0):
+                print('True Positive Rate, TPR (A -> A)'.ljust(NUM_OF_CHAR_INDENT), ':',
+                      round((AA_count/success_count), 3), '(', AA_count, '/', success_count, ')')
+
+            # print()
+            print('Attack success rate'.ljust(NUM_OF_CHAR_INDENT), ':',
+                  round(AST, 3), '(', success_count, '/', correct_count, ')')
+
+        return num_count, correct_count, success_count, AA_count, BB_count, LPs, LPs_score
+
+def generate_LPs(self, on_retrained_model=False, on_twisted_model=False):
+    ''' 
+    - Generate the provanence set for each output class
     '''
-    #############################################
+    X, Y = self.train_dataset
+    
+    if on_retrained_model:
+        model = copy.deepcopy(self.retrained_model)
+    elif on_twisted_model:
+        model = copy.deepcopy(self.twisted_model)
+    else:
+        model = copy.deepcopy(self.model)
+    model.eval()
+    model_type = self.meta_params['model_type']
+
+    NUM_MNIST_CLASSES = 10 # should be further adjusted 
+    num_output_classes = NUM_MNIST_CLASSES
+
+    # Initialize LPs_set 
+    LPs_set = []
+    for i in range(num_output_classes):
+        LPs_set.append([])
+    for i in range(num_output_classes):
+        for _ in range(self.meta_params['num_of_LPs']):
+            LPs_set[i].append([])
+        
+    # Extract and store LP(s)
+    for i in range(len(X)):
+        x, y = X[i], Y[i]
+        LPs = extract_all_LP(model, model_type, x, self.dropout_rate) 
+        for i in range(len(LPs)):
+            (LPs_set[y])[i].append(LPs[i])
+
+    self.LPs_set = LPs_set

@@ -13,42 +13,33 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 
 '''
-Improved version of the classicial FGSM (Fast Gradient Sign Method) attack
-Category: Targeted, Gradient-based
+Classicial FGSM (Fast Gradient Sign Method) attack
+Category: Untargeted, Gradient-based
 '''
-class iterative_FGSM_attacker():
+class FGSM_attacker():
 
-    def fgsm_attack(self, image, epsilon, data_grad):
-        
-        # Collect the element-wise sign of the data gradient
-        sign_data_grad = data_grad.sign()
-        # Create the perturbed image by adjusting each pixel of the input image
-        perturbed_image = image + (epsilon * sign_data_grad)
-        # Return the perturbed image
-        return perturbed_image
-
-    def create_adv_input(self, x, y, model, epsilon):
+    def create_adv_input(self, x, y, model):
+        # Prepare copied model 
         model = copy.deepcopy(model)
 
+        # Prepare input and corresponding label 
         data = torch.from_numpy(np.expand_dims(x, axis=0).astype(np.float32))
-        target = np.array([y]).astype(np.int64)
-        target = torch.from_numpy(target)
-
+        target = torch.from_numpy(np.array([y]).astype(np.int64))
         data.requires_grad = True
-        output = model.forward(data)
-
-        loss = F.nll_loss(output, target)
-        model.zero_grad()
-        loss.backward()
-        data_grad = data.grad.data
-        perturbed_data = self.fgsm_attack(data, epsilon, data_grad)
+        
+        from advertorch.attacks import GradientSignAttack
+        adversary = GradientSignAttack(model, loss_fn=nn.CrossEntropyLoss())
+        perturbed_data = adversary.perturb(data, target)
 
         # Have to be different
         output = model.forward(perturbed_data)
         final_pred = output.max(1, keepdim=True)[1] # get the index of the max log-probability
+        
+        if final_pred.item() == target.item():
+            return perturbed_data, 0
+        else:
+            return perturbed_data, 1
 
-        is_attack_successful = False if final_pred.item() == target.item() else True
-        return perturbed_data, is_attack_successful
 
 '''
 Jacobian Saliency Map Attack
@@ -59,7 +50,7 @@ class JSMA_attacker():
     def __init__(self):
         self.num_classes = 10
 
-    def create_adv_input(self, x, y, model, epsilon):
+    def create_adv_input(self, x, y, model):
         model = copy.deepcopy(model)
 
         target_y = random.randint(0, 9)
@@ -92,18 +83,19 @@ Illustration: Currently, the most powerful attack among widely-adopted adversari
 class CW_L2_attacker():
     
     def __init__(self):
-        self.num_classes = 2
+        self.num_classes = 10
 
-    def create_adv_input(self, x, y, model, epsilon):
+    def create_adv_input(self, x, y, model):
+        # Prepare copied model 
         model = copy.deepcopy(model)
 
+        # Prepare input and corresponding label 
         data = torch.from_numpy(np.expand_dims(x, axis=0).astype(np.float32))
-        target = np.array([y]).astype(np.int64)
-        target = torch.from_numpy(target)
+        target = torch.from_numpy(np.array([y]).astype(np.int64))
         data.requires_grad = True
         
         from advertorch.attacks import CarliniWagnerL2Attack
-        adversary = CarliniWagnerL2Attack(model, self.num_classes, loss_fn=nn.CrossEntropyLoss())
+        adversary = CarliniWagnerL2Attack(model, self.num_classes, max_iterations=100, abort_early=True)
         perturbed_data = adversary.perturb(data, target)
 
         # Have to be different
