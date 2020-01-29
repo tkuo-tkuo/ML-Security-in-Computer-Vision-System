@@ -221,6 +221,43 @@ class PropertyInferenceInterface():
             
         return acc
 
+    def generate_signatures(self, is_benign=True, type_of_attack=None, num_of_signatures=None, eps=0.5):
+        X, Y = self.train_dataset
+        model = copy.deepcopy(self.model)
+
+        if not is_benign: 
+            import attacker
+            if type_of_attack == 'i_FGSM':
+                A = attacker.iterative_FGSM_attacker()
+            elif type_of_attack == 'JSMA':
+                A = attacker.JSMA_attacker()
+            elif type_of_attack == 'CW_L2':
+                A = attacker.CW_L2_attacker()
+            else:
+                A = NotImplemented
+
+        model.eval()
+        set_of_signatures = []
+
+        if not (num_of_signatures is None): X, Y = X[:num_of_signatures], Y[:num_of_signatures]
+
+        for i in range(len(X)):
+            print(i)
+            x, y = X[i], Y[i]
+
+            if not is_benign:
+                adv_x, is_att_success = A.create_adv_input(x, y, model, eps)
+                if is_att_success: 
+                    adv_x = (adv_x.detach().numpy())[0]
+                    singatures = extract_signature_from_CNN(model, adv_x)
+                else:
+                    continue 
+            else:
+                singatures = extract_signature_from_CNN(model, x) 
+            set_of_signatures.append(singatures)
+
+        return set_of_signatures
+
     def generate_LPs(self, on_retrained_model=False, on_twisted_model=False):
         ''' 
         - Generate the provanence set for each output class
@@ -322,12 +359,12 @@ class PropertyInferenceInterface():
         A_non_success_count = A_correct_count - A_success_count
 
         B_accuracy, B_TNR = B_correct_count/B_num_count, B_valid_count/B_correct_count 
-        A_accuracy, A_AST = A_correct_count/A_num_count, A_success_count/A_correct_count
+        A_accuracy, A_ASR = A_correct_count/A_num_count, A_success_count/A_correct_count
         A_TNR = None if A_non_success_count == 0 else A_BB_count/A_non_success_count
         A_TPR = None if A_success_count == 0 else A_AA_count/A_success_count
 
         # assert A_accuracy == B_accuracy
-        return (B_accuracy, B_TNR), (A_accuracy, A_AST, A_TNR, A_TPR), (B_LPs, A_LPs), (B_LPs_score, A_LPs_score)
+        return (B_accuracy, B_TNR), (A_accuracy, A_ASR, A_TNR, A_TPR), (B_LPs, A_LPs), (B_LPs_score, A_LPs_score)
 
     def _set_differentation_lines(self, qr, on_retrained_model, on_twisted_model):
         ''' Private function
@@ -454,9 +491,12 @@ class PropertyInferenceInterface():
         num_count, correct_count = len(X), len(X)
         success_count, non_success_count = 0, 0
         BB_count, BA_count, AA_count, AB_count = 0, 0, 0, 0
-        eps, eps_incre_unit, eps_upper_bound = 0, 0.01, 1 
 
         for i in range(correct_count):
+            iterative = False 
+            if iterative: eps, eps_incre_unit, eps_upper_bound = 0, 0.01, 1 # if iterative 
+            else: eps = 0.25 # if not iterative 
+
             # Debug information 
             if self.meta_params['is_debug']:
                 print('Evaluate', i, 'th adversarial sample via', self.meta_params['adv_attack'], '...')
@@ -472,16 +512,20 @@ class PropertyInferenceInterface():
                 continue
 
             # Iterative attack process start, slightly increase eps until larger than the upper bound 
-            is_attack_successful = False
-            while (not is_attack_successful):
-                eps += eps_incre_unit
-                if eps > eps_upper_bound:
-                    break  
+            if iterative:
+                is_attack_successful = False
+                while (not is_attack_successful):
+                    eps += eps_incre_unit
+                    if eps > eps_upper_bound:
+                        break  
 
-                adv_x, is_att_success = A.create_adv_input(x, y, model, eps)
-                if is_att_success:
-                    is_attack_successful = True
-                    adv_x = (adv_x.detach().numpy())[0]
+                    adv_x, is_att_success = A.create_adv_input(x, y, model, eps)
+                    if is_att_success:
+                        is_attack_successful = True
+                        adv_x = (adv_x.detach().numpy())[0]
+            else:
+                adv_x, is_attack_successful = A.create_adv_input(x, y, model, eps)
+                adv_x = (adv_x.detach().numpy())[0]
 
             # Debug information 
             if is_attack_successful:
@@ -493,8 +537,8 @@ class PropertyInferenceInterface():
             else:
                 is_benign, LP_status, LP_risk_score = self.property_match(x, y_, on_retrained_model, on_twisted_model, verbose) 
 
-            LPs.append(LP_status)
-            LPs_score.append(LP_risk_score)
+            # LPs.append(LP_status)
+            # LPs_score.append(LP_risk_score)
 
             # B 
             if (not is_attack_successful):
@@ -506,7 +550,11 @@ class PropertyInferenceInterface():
                 success_count += 1
                 AB_count += 1 if is_benign else 0
                 AA_count += 1 if (not is_benign) else 0
-                
+
+                # expExp: current we only record information from succesfully attacked samples 
+                LPs.append(LP_status)
+                LPs_score.append(LP_risk_score)
+
         # Record AST 
         assert (success_count+non_success_count)==correct_count
         AST = success_count/correct_count
@@ -535,4 +583,3 @@ class PropertyInferenceInterface():
             print('Attack success rate'.ljust(NUM_OF_CHAR_INDENT), ':', round(AST, 3), '(', success_count, '/', correct_count, ')')
 
         return num_count, correct_count, success_count, AA_count, BB_count, LPs, LPs_score
-

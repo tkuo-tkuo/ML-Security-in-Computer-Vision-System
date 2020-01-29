@@ -85,8 +85,12 @@ class robustified_CNN(nn.Module):
         self.dropout_rate = None
         if dropout_rate is None:
             self.dropout_rate = 0.2
+            print('dropout rate not specified, create robustified CNN with dropout rate 0.2')
         else: 
             self.dropout_rate = dropout_rate
+            print('create robustified CNN with dropout rate', self.dropout_rate)
+
+
 
     def forward(self, x):
         x = F.relu(self.conv1(x)) # (24, 24, 16)

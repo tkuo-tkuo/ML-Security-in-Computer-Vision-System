@@ -1,3 +1,5 @@
+import copy, random
+
 import tensorflow as tf
 import keras 
 import numpy as np
@@ -9,8 +11,6 @@ import torch.optim as optim
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
-
-import random
 
 '''
 Improved version of the classicial FGSM (Fast Gradient Sign Method) attack
@@ -28,6 +28,8 @@ class iterative_FGSM_attacker():
         return perturbed_image
 
     def create_adv_input(self, x, y, model, epsilon):
+        model = copy.deepcopy(model)
+
         data = torch.from_numpy(np.expand_dims(x, axis=0).astype(np.float32))
         target = np.array([y]).astype(np.int64)
         target = torch.from_numpy(target)
@@ -44,11 +46,9 @@ class iterative_FGSM_attacker():
         # Have to be different
         output = model.forward(perturbed_data)
         final_pred = output.max(1, keepdim=True)[1] # get the index of the max log-probability
-        
-        if final_pred.item() == target.item():
-            return perturbed_data, 0
-        else:
-            return perturbed_data, 1
+
+        is_attack_successful = False if final_pred.item() == target.item() else True
+        return perturbed_data, is_attack_successful
 
 '''
 Jacobian Saliency Map Attack
@@ -60,6 +60,8 @@ class JSMA_attacker():
         self.num_classes = 10
 
     def create_adv_input(self, x, y, model, epsilon):
+        model = copy.deepcopy(model)
+
         target_y = random.randint(0, 9)
         while y == target_y:
             target_y = random.randint(0, 9)
@@ -93,6 +95,8 @@ class CW_L2_attacker():
         self.num_classes = 2
 
     def create_adv_input(self, x, y, model, epsilon):
+        model = copy.deepcopy(model)
+
         data = torch.from_numpy(np.expand_dims(x, axis=0).astype(np.float32))
         target = np.array([y]).astype(np.int64)
         target = torch.from_numpy(target)
