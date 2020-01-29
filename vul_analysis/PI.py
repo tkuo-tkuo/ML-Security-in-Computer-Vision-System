@@ -14,11 +14,12 @@ from MNIST_models import NaiveC, NormalC, CNN, robustified_FC, robustified_CNN
 from dataset_utils import *
 from LP_utils import *
 
-class PropertyInferenceInterface():
+class PIInterface():
 
     def __init__(self, meta_params):
         # Load meat parameters
         self.meta_params = meta_params
+        self.train_dataset, self.test_dataset = None, None 
 
         # Initialization 
         MNIST_train_dataset = torchvision.datasets.MNIST(root='./data', transform=transforms.ToTensor(), train=True, download=True)
