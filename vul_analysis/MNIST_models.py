@@ -108,17 +108,19 @@ def eval_model(model, dataset):
 
     return acc
         
-def train_guard_model(guard_model, train_benign_dataset, train_adv_dataset_1, train_adv_dataset_2, epoches):
+def train_guard_model(guard_model, train_benign_dataset, train_adv_dataset_1, train_adv_dataset_2, train_adv_dataset_3, epoches):
     X = train_benign_dataset
     X1_ = train_adv_dataset_1
     X2_ = train_adv_dataset_2
+    X3_ = train_adv_dataset_3
     loss_func, optimizer = nn.BCEWithLogitsLoss(), torch.optim.Adam(guard_model.parameters())
+    skip_rate = 0.4 
 
     accs, losses = [], []
     
     for epoch in range(epoches):
         total_loss = None 
-        b_correct_count, a1_correct_count, a2_correct_count = 0, 0, 0
+        b_correct_count, a1_correct_count, a2_correct_count, a3_correct_count = 0, 0, 0, 0
         for i in range(len(X)):
             x = X[i]
             f1 = torch.from_numpy(np.array(x[0])).float()
@@ -137,9 +139,10 @@ def train_guard_model(guard_model, train_benign_dataset, train_adv_dataset_1, tr
             if (prediction == 0): b_correct_count += 1
                 
             # Optimization (back-propogation)
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+            if random.random() < (1-skip_rate):
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
                 
         for i in range(len(X1_)):
             x = X1_[i]
@@ -159,9 +162,10 @@ def train_guard_model(guard_model, train_benign_dataset, train_adv_dataset_1, tr
             if (prediction == 1): a1_correct_count += 1
 
             # Optimization (back-propogation)
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+            if random.random() < (1-skip_rate):
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
             
         for i in range(len(X2_)):
             x = X2_[i]
@@ -181,27 +185,53 @@ def train_guard_model(guard_model, train_benign_dataset, train_adv_dataset_1, tr
             if (prediction == 1): a2_correct_count += 1
 
             # Optimization (back-propogation)
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+            if random.random() < (1-skip_rate):
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
 
-        acc = (b_correct_count+a1_correct_count+a2_correct_count)/(len(X)+len(X1_)+len(X2_))
+        for i in range(len(X3_)):
+            x = X3_[i]
+            f1 = torch.from_numpy(np.array(x[0])).float()
+            f2 = torch.from_numpy(np.array(x[1])).float()
+            f3 = torch.from_numpy(np.array(x[2])).float()
+            f4 = np.expand_dims(x[3], axis=2)
+            f4 = torch.from_numpy(f4).float()
+            outputs = guard_model.forward(f1, f2, f3, f4)
+            label = torch.from_numpy(np.array([[0, 1]])).float()
+
+            loss = loss_func(outputs, label)
+            if i == 0: total_loss = loss 
+            else: total_loss += loss
+                
+            prediction = (outputs.max(1, keepdim=True)[1]).item()     
+            if (prediction == 1): a3_correct_count += 1
+
+            # Optimization (back-propogation)
+            if random.random() < (1-skip_rate):
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
+
+        acc = (b_correct_count+a1_correct_count+a2_correct_count+a3_correct_count)/(len(X)+len(X1_)+len(X2_)+len(X3_))
         print('epoch:', (epoch+1), 'loss:', total_loss)    
         print('benign correct:', b_correct_count, '/', len(X))
         print('adv (FGSM) correct:', a1_correct_count, '/', len(X1_))
         print('adv (JSMA) correct:', a2_correct_count, '/', len(X2_))
+        print('adv (CWL2) correct:', a3_correct_count, '/', len(X3_))
         print('acc:', acc)
         accs.append(acc)
         losses.append(total_loss)
         
     return accs, losses
 
-def test_guard_model(guard_model, test_benign_dataset, test_adv_dataset_1, test_adv_dataset_2):
+def test_guard_model(guard_model, test_benign_dataset, test_adv_dataset_1, test_adv_dataset_2, test_adv_dataset_3):
     X = test_benign_dataset
     X1_ = test_adv_dataset_1
     X2_ = test_adv_dataset_2
+    X3_ = test_adv_dataset_3
 
-    b_correct_count, a1_correct_count, a2_correct_count = 0, 0, 0
+    b_correct_count, a1_correct_count, a2_correct_count, a3_correct_count = 0, 0, 0, 0
     for i in range(len(X)):
         x = X[i]
         f1 = torch.from_numpy(np.array(x[0])).float()
@@ -241,8 +271,22 @@ def test_guard_model(guard_model, test_benign_dataset, test_adv_dataset_1, test_
         prediction = (outputs.max(1, keepdim=True)[1]).item()     
         if (prediction == 1): a2_correct_count += 1
 
-    acc = (b_correct_count+a1_correct_count+a2_correct_count)/(len(X)+len(X1_)+len(X2_))
-    print('benign correct:', b_correct_count, 'num of benign samples:', len(X))
-    print('adv (FGSM) correct:', a1_correct_count, 'num of adv samples:', len(X1_))
-    print('adv (JSMA) correct:', a2_correct_count, 'num of adv samples:', len(X2_))
+    for i in range(len(X3_)):
+        x = X3_[i]
+        f1 = torch.from_numpy(np.array(x[0])).float()
+        f2 = torch.from_numpy(np.array(x[1])).float()
+        f3 = torch.from_numpy(np.array(x[2])).float()
+        f4 = np.expand_dims(x[3], axis=2)
+        f4 = torch.from_numpy(f4).float()
+        outputs = guard_model.forward(f1, f2, f3, f4)
+        label = torch.from_numpy(np.array([[0, 1]])).float()
+
+        prediction = (outputs.max(1, keepdim=True)[1]).item()     
+        if (prediction == 1): a3_correct_count += 1
+
+    acc = (b_correct_count+a1_correct_count+a2_correct_count+a3_correct_count)/(len(X)+len(X1_)+len(X2_)+len(X3_))
+    print('benign correct:', b_correct_count, '/', len(X), b_correct_count/len(X))
+    print('adv (FGSM) correct:', a1_correct_count, '/', len(X1_), a1_correct_count/len(X1_))
+    print('adv (JSMA) correct:', a2_correct_count, '/', len(X2_), a2_correct_count/len(X2_))
+    print('adv (CWL2) correct:', a3_correct_count, '/', len(X3_), a3_correct_count/len(X3_))
     print('acc:', acc)
