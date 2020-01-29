@@ -244,9 +244,3 @@
 
 <img src="../Images/Exp14/4/exp_14_1_85.png" align="left" border="0" width="150" height="140"/>
 <img src="../Images/Exp14/4/exp_14_2_85.png" width="650" height="140"/> 
-    
-<img src="../Images/Exp14/4/exp_14_1_90.png" align="left" border="0" width="150" height="140"/>
-<img src="../Images/Exp14/4/exp_14_2_90.png" width="650" height="140"/>
-
-<img src="../Images/Exp14/4/exp_14_1_95.png" align="left" border="0" width="150" height="140"/>
-<img src="../Images/Exp14/4/exp_14_2_95.png" width="650" height="140"/> 
