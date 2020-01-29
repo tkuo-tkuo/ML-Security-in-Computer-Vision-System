@@ -88,8 +88,13 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 
 [Exp14: (debug: uninit eps) Relation between attack success rate and dropout layer (adv_attack=i_FGSM, y/y'=y', model=CNN, qr=95, approach=insertion and slight tuning)](pages/exp14.md)
 
-**Observations (CNN)** <br/>
-- (to be updated)
+<details>
+  <summary>Observations (CNN)</summary>
+
+  - With simple dropout layer inserted, it will exactly enhance the difficulty to distinguish the propogation patterns between benign samples and adversarial samples (reverse against our anticipation). 
+  - By setting differentiation line for each layer, we can already have the strong capability to identify benign samples and adversarial samples clearly (b->b and a->a are both > 0.9). **However, JSMA and CWL2 attacks are not yet tested.**
+
+</details>
 
 ### To-Do List 
 
