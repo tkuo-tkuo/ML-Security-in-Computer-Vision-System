@@ -105,15 +105,17 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 
 </details>
 
-### To-Do List 
+### PPRD (Propogation Pattern RNN Detection) 
 
-[To-Do list page](pages/todo.md)
+(more) 
 
 ## Appendix 
 
 [Appendix 1.1 Architectures](pages/appendix1_1.md) 
 
 [Appendix 1.2 Original Rule-based Method & 4 potential improvements](pages/appendix1_2.md)
+
+[To-Do list page](pages/todo.md)
 
 ## References 
 [1] Florian Tramer, Nicolas Papernot, Ian Goodfellow, Dan Boneh, and Patrick McDaniel. The space of transferable adversarial examples. arXiv preprint arXiv:1704.03453, 2017. <br />
