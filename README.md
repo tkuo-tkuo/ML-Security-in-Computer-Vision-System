@@ -33,7 +33,8 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 
 ### ReLU 
 
-**Experimental data collections (ReLU)** <br/>
+<details>
+  <summary>Experimental data collections (ReLU)</summary>
 
 [Table 1: TPR & TNR by LP_1 (adv_a=i_FGSM)](pages/table1.md)
 
@@ -41,7 +42,10 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 
 [Table 3: TPR & TNR by input augmentation (adv_a=i_FGSM, LPs=1, y/y'=y)](pages/table3.md)
 
-**Experiments  (ReLU)** 
+</details>
+
+<details>
+  <summary>Experiments (ReLU)</summary>
 
 [Exp 1: Relationship between h and FPR & FNR (adv_a=i_FGSM, LPs=1, y/y'=y)](pages/exp1.md)
 
@@ -50,6 +54,8 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 [Exp 3: Relationship between single LP_i and FPR & FNR (adv_a=i_FGSM, y/y'=y)](pages/exp3.md)
 
 [Exp 4: Relationship between LP_i combinations and FPR & FNR (adv_a=i_FGSM, y/y'=y)](pages/exp4.md)
+
+</details>
 
 <details>
   <summary>Observations (ReLU)</summary>
@@ -66,7 +72,8 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 
 ### CNN
 
-**Experiments (CNN)**
+<details>
+  <summary>Experiments (CNN)</summary>
 
 [Exp 5: Potential Method 1 & Integrated LPs judgement (adv_attack=i_FGSM, y/y'=y', model=CNN)](pages/exp5.md)
 
@@ -87,6 +94,8 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 [Exp13: Relation between PIs and dropout layer (adv_attack=i_FGSM, y/y'=y', model=CNN, qr=95, approach=insertion and slight tuning)](pages/exp13.md)
 
 [Exp14: (debug: uninit eps) Relation between attack success rate and dropout layer (adv_attack=i_FGSM, y/y'=y', model=CNN, qr=95, approach=insertion and slight tuning)](pages/exp14.md)
+
+</details>
 
 <details>
   <summary>Observations (CNN)</summary>
