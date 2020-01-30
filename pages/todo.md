@@ -1,8 +1,8 @@
 **Top Priority (most urgent)** <br/>
 PropogationPattern-based RNN Detection -> PPRD
-- Try to test whether i_FGSM can generalize to the same type of attack under PPRD 
-- Try to solve the problem (simple PPRD approach can not generalize to other types of attacks, like l2 can not generalize to l0)
-- Try to open another section in README called PPRD 
+- Genereate sufficient singatures of adv samples for later re-usage (use adv attacks with high ASR among 14 adv attacks)
+- Try to test whether PPRD can generate in the same type 
+- Try to test whether PPRD can generate among different types (l1, l2, linf, etc)
 
 Others 
 - Try One-class SVM (OSVM)
