@@ -5,8 +5,9 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 
 <details>
   <summary>Adversarial attacks</summary>
-  We randomly extract 15 samples from MNIST dataset & generate 15 adv samples by various adv attacks (include the original one on the leftmost). As we can see, expect the leftmost column, the rest 14 columns represent the digit could be misclassified by machine learning models (if not all black). 
-  <img src="README_images/adv_samples_demo.png" align="center" border="0"/>
+  We randomly extract 15 samples from MNIST dataset & generate 15 adv samples by various adv attacks (include the original one on the leftmost). As we can see, expect the leftmost column, the rest 14 columns represent the digit could be misclassified by machine learning models (if not all black). <br/>
+  
+  <img src="README_images/adv_samples_demo.png" align="center">
   
 </details> 
 
