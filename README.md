@@ -1,6 +1,21 @@
 # Final Year Thesis
 Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 
+## Introduction 
+
+<details>
+  <summary>Adversarial attacks</summary>
+  We randomly extract 15 samples from MNIST dataset & generate 15 adv samples by various adv attacks (include the original one on the leftmost). As we can see, expect the leftmost column, the rest 14 columns represent the digit could be misclassified by machine learning models (if not all black). 
+  <img src="README_images/adv_samples_demo.png" align="center" border="0"/>
+  
+</details> 
+
+<details>
+  <summary>Layer signatures</summary>
+  more
+  
+</details> 
+
 ## Research on adversarial detection/robustification via LP (Layer Provenance)
 
 <details>
@@ -124,4 +139,6 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 [4] Mahloujifar, S., Zhang, X., Mahmoody, M., and Evans, D. Empirically measuring concentration: Fundamental limits on intrinsic robustness. Safe Machine Learning workshop at ICLR, 2019. <br />
 [5] Divya Gopinath, Hayes Converse, Corina S. Pasareanu, and Ankur Taly. Property Inference for Deep Neural Networks. ASE, 2019. <br />
 [6] Shiqing Ma, Yingqi Liu, Guanhong Tao, Wen-Chuan Lee, and Xiangyu Zhang. 2019. “NIC: Detecting Adversarial Samples with Neural Network Invariant Checking” in Proceedings of the 26th Network and Distributed System Security Symposium, 2019. <br />
+[7] Gavin Weiguang Ding, Luyu Wang, and Xiaomeng Jin. AdverTorch v0.1: An adversarial robustness toolbox based on
+pytorch. arXiv preprint arXiv:1902.07623, 2019. <br/> 
 
