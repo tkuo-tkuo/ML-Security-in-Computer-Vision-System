@@ -48,9 +48,9 @@ class PIInterface():
 
         if not is_benign:
             import attacker
-            if type_of_attack == 'FGSM': A = attacker.FGSM_attacker()
-            elif type_of_attack == 'JSMA': A = attacker.JSMA_attacker()
-            elif type_of_attack == 'CW_L2': A = attacker.CW_L2_attacker()
+            if type_of_attack == 'FGSM': A = attacker.FGSMAttacker()
+            elif type_of_attack == 'JSMA': A = attacker.JSMAAttacker()
+            elif type_of_attack == 'CWL2': A = attacker.CWL2Attacker()
             else: A = NotImplemented
 
         model.eval()
