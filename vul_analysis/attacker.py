@@ -114,7 +114,8 @@ class L1PGDAttack():
     '''
     def __init__(self):
         self.eps = 10.0
-        self.nb_iter = 100
+        self.nb_iter = 300
+        self.eps_iter = 0.3
     
     def create_adv_input(self, x, y, model):
         # Prepare copied model 
@@ -126,7 +127,7 @@ class L1PGDAttack():
         data.requires_grad = True
         
         from advertorch.attacks import L1PGDAttack
-        adversary = L1PGDAttack(model.forward, eps=self.eps, nb_iter=self.nb_iter)
+        adversary = L1PGDAttack(model.forward, eps=self.eps, nb_iter=self.nb_iter, eps_iter=self.eps_iter)
         perturbed_data = adversary.perturb(data, target)
 
         # Have to be different
@@ -145,7 +146,8 @@ class L2PGDAttack():
     '''
     def __init__(self):
         self.eps = 0.5
-        self.nb_iter = 100
+        self.nb_iter = 300
+        self.eps_iter = 0.3
     
     def create_adv_input(self, x, y, model):
         # Prepare copied model 
@@ -157,7 +159,7 @@ class L2PGDAttack():
         data.requires_grad = True
         
         from advertorch.attacks import L2PGDAttack
-        adversary = L2PGDAttack(model.forward, eps=self.eps, nb_iter=self.nb_iter)
+        adversary = L2PGDAttack(model.forward, eps=self.eps, nb_iter=self.nb_iter, eps_iter=self.eps_iter)
         perturbed_data = adversary.perturb(data, target)
 
         # Have to be different
@@ -204,7 +206,8 @@ class L2BasicIterativeAttack():
     '''
     def __init__(self):
         self.eps = 0.5
-        self.nb_iter = 50
+        self.nb_iter = 100
+        self.eps_iter = 0.3
     
     def create_adv_input(self, x, y, model):
         # Prepare copied model 
@@ -216,7 +219,7 @@ class L2BasicIterativeAttack():
         data.requires_grad = True
         
         from advertorch.attacks import L2BasicIterativeAttack
-        adversary = L2BasicIterativeAttack(model.forward, eps=self.eps, nb_iter=self.nb_iter)
+        adversary = L2BasicIterativeAttack(model.forward, eps=self.eps, nb_iter=self.nb_iter, eps_iter=self.eps_iter)
         perturbed_data = adversary.perturb(data, target)
 
         # Have to be different
@@ -297,6 +300,9 @@ class DDNL2Attack():
     classadvertorch.attacks.DDNL2Attack(predict, nb_iter=100, gamma=0.05, init_norm=1.0, quantize=True, 
     levels=256, clip_min=0.0, clip_max=1.0, targeted=False, loss_fn=None)[source]
     '''
+    def __init__(self):
+        self.nb_iter = 500
+
     def create_adv_input(self, x, y, model):
         # Prepare copied model 
         model = copy.deepcopy(model)
@@ -307,7 +313,7 @@ class DDNL2Attack():
         data.requires_grad = True
         
         from advertorch.attacks import DDNL2Attack
-        adversary = DDNL2Attack(model.forward)
+        adversary = DDNL2Attack(model.forward, nb_iter=self.nb_iter)
         perturbed_data = adversary.perturb(data, target)
 
         # Have to be different
@@ -327,6 +333,7 @@ class LBFGSAttack():
 
     def __init__(self):
         self.num_classes = 10
+        self.max_iterations = 500
         
     def create_adv_input(self, x, y, model):
         # Prepare copied model 
@@ -338,7 +345,7 @@ class LBFGSAttack():
         data.requires_grad = True
         
         from advertorch.attacks import LBFGSAttack
-        adversary = LBFGSAttack(model.forward, self.num_classes)
+        adversary = LBFGSAttack(model.forward, self.num_classes, max_iterations=self.max_iterations)
         perturbed_data = adversary.perturb(data, target)
 
         # Have to be different
@@ -355,6 +362,8 @@ class SinglePixelAttack():
     classadvertorch.attacks.SinglePixelAttack(predict, max_pixels=100, clip_min=0.0, loss_fn=None, 
     clip_max=1.0, comply_with_foolbox=False, targeted=False)
     '''
+    def __init__(self):
+        self.max_pixels = 250
         
     def create_adv_input(self, x, y, model):
         # Prepare copied model 
@@ -366,7 +375,7 @@ class SinglePixelAttack():
         data.requires_grad = True
         
         from advertorch.attacks import SinglePixelAttack
-        adversary = SinglePixelAttack(model.forward)
+        adversary = SinglePixelAttack(model.forward, max_pixels=self.max_pixels)
         perturbed_data = adversary.perturb(data, target)
 
         # Have to be different
@@ -384,6 +393,9 @@ class LocalSearchAttack():
     r=1.5, loss_fn=None, d=5, t=5, k=1, round_ub=10, seed_ratio=0.1, max_nb_seeds=128, 
     comply_with_foolbox=False, targeted=False)
     '''
+
+    def __init__(self):
+        self.round_ub = 100
         
     def create_adv_input(self, x, y, model):
         # Prepare copied model 
@@ -395,7 +407,7 @@ class LocalSearchAttack():
         data.requires_grad = True
         
         from advertorch.attacks import LocalSearchAttack
-        adversary = LocalSearchAttack(model.forward)
+        adversary = LocalSearchAttack(model.forward, round_ub=self.round_ub)
         perturbed_data = adversary.perturb(data, target)
 
         # Have to be different
