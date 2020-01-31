@@ -55,10 +55,14 @@ class Guard(nn.Module):
         x4 = f4.view(-1, 64) # 1, 64
         
         h1 = self.relu(self.xh1(x1))
+        h1 = F.dropout2d(h1, p=0.1)
         h2 = self.relu(torch.add(self.hh12(h1), self.xh2(x2)))
+        h2 = F.dropout2d(h2, p=0.1)
         h3 = self.relu(torch.add(self.hh23(h2), self.xh3(x3)))
+        h3 = F.dropout2d(h3, p=0.1)
         h3 = h3.view(-1, 8*3*3)
         h4 = self.relu(torch.add(self.hh34(h3), self.xh4(x4)))
+        h4 = F.dropout(h4, p=0.1)
         outputs = self.hy(h4)
         return outputs
     
@@ -117,60 +121,57 @@ def preprocess(x):
     return f1, f2, f3, f4
         
 
-def train_guard_model(guard_model, set_of_train_dataset, adv_types, epoches):
+def train_guard_model(guard_model, set_of_train_dataset, set_of_test_dataset, adv_types, epoches):
     loss_func, optimizer = nn.BCEWithLogitsLoss(), torch.optim.Adam(guard_model.parameters())
-    skip_rate = 0.4 
+    train_accs, test_accs, losses = [], [], []
 
-    accs, losses = [], []
     for epoch in range(epoches):
         total_loss = None 
-        total_correct_count, total_count = 0, 0 
-        for train_dataset, adv_type in zip(set_of_train_dataset, adv_types):
-            current_count = 0
-            for singatures in train_dataset:
-                f1, f2, f3, f4 = preprocess(singatures)
-                outputs = guard_model.forward(f1, f2, f3, f4)
+        # labeling ...
+        train_dataset, train_labels = [], []
+        for dataset, adv_type in zip(set_of_train_dataset, adv_types):
+            for singatures in dataset:
+                train_dataset.append(singatures)
                 if adv_type == 'None': label = torch.from_numpy(np.array([[1, 0]])).float()
                 else: label = torch.from_numpy(np.array([[0, 1]])).float()
+                train_labels.append(label)
+  
+        # shuffling 
+        shuffle_indexs = np.arange(len(train_dataset))
+        np.random.shuffle(shuffle_indexs)
 
-                # for recording the training process 
-                loss = loss_func(outputs, label)
-                if total_loss is None: total_loss = loss 
-                else: total_loss += loss
-                
-                prediction = (outputs.max(1, keepdim=True)[1]).item()     
-                if adv_type == 'None': 
-                    if (prediction == 0): 
-                        current_count += 1
-                else: 
-                    if (prediction == 1): 
-                        current_count += 1
-                
-                # Optimization (back-propogation)
-                if random.random() < (1-skip_rate):
-                    optimizer.zero_grad()
-                    loss.backward()
-                    optimizer.step()
+        # training 
+        for index in shuffle_indexs:
+            singatures, label = train_dataset[index], train_labels[index]
+            f1, f2, f3, f4 = preprocess(singatures)
+            outputs = guard_model.forward(f1, f2, f3, f4)
 
-            # record the current train set acc
-            if adv_type == 'None': 
-                print('benign correct:', current_count, '/', len(train_dataset))
-            else:
-                print('adv (', adv_type, ') correct:', current_count, '/', len(train_dataset))
-
-            total_correct_count += current_count
-            total_count += len(train_dataset)
-
-        acc = total_correct_count/total_count
+            # for recording the training process 
+            loss = loss_func(outputs, label)
+            if total_loss is None: total_loss = loss 
+            else: total_loss += loss
+            
+            # Optimization (back-propogation)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            
+        train_acc = test_guard_model(guard_model, set_of_train_dataset, adv_types, verbose=True)
+        print()
+        test_acc = test_guard_model(guard_model, set_of_test_dataset, adv_types, verbose=True)
+        print()
         print('epoch:', (epoch+1), 'loss:', total_loss.item())    
-        print('acc:', acc)
-        accs.append(acc)
+        print('acc (train):', train_acc)
+        print('acc (test):', test_acc)
+        print()
+        train_accs.append(train_acc)
+        test_accs.append(test_acc)
         losses.append(total_loss)
         
-    return accs, losses
+    return train_accs, test_accs, losses
 
-def test_guard_model(guard_model, set_of_test_dataset, adv_types):
-    total_correct_count, total_count = 0, 0 
+def test_guard_model(guard_model, set_of_test_dataset, adv_types, verbose=True):
+    total_train_correct_count, total_train_count = 0, 0 
     for test_dataset, adv_type in zip(set_of_test_dataset, adv_types):
         current_count = 0
         for singatures in test_dataset:
@@ -188,13 +189,17 @@ def test_guard_model(guard_model, set_of_test_dataset, adv_types):
                     current_count += 1
             
         # record the current train set acc
-        if adv_type == 'None': 
-            print('benign correct:', current_count, '/', len(test_dataset))
-        else:
-            print('adv (', adv_type, ') correct:', current_count, '/', len(test_dataset))
+        if verbose: 
+            if adv_type == 'None': 
+                print('benign correct:', current_count, '/', len(test_dataset))
+            else:
+                print('adv (', adv_type, ') correct:', current_count, '/', len(test_dataset))
 
-        total_correct_count += current_count
-        total_count += len(test_dataset)
+        total_train_correct_count += current_count
+        total_train_count += len(test_dataset)
 
-    acc = total_correct_count/total_count
-    print('acc:', acc)
+    acc = total_train_correct_count/total_train_count
+    if verbose: 
+        print('acc:', acc)
+
+    return acc 
