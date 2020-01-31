@@ -107,186 +107,94 @@ def eval_model(model, dataset):
     acc = correct/total
 
     return acc
+
+def preprocess(x):
+    f1 = torch.from_numpy(np.array(x[0])).float()
+    f2 = torch.from_numpy(np.array(x[1])).float()
+    f3 = torch.from_numpy(np.array(x[2])).float()
+    f4 = np.expand_dims(x[3], axis=2)
+    f4 = torch.from_numpy(f4).float()
+    return f1, f2, f3, f4
         
-def train_guard_model(guard_model, train_benign_dataset, train_adv_dataset_1, train_adv_dataset_2, train_adv_dataset_3, epoches):
-    X = train_benign_dataset
-    X1_ = train_adv_dataset_1
-    X2_ = train_adv_dataset_2
-    X3_ = train_adv_dataset_3
+
+def train_guard_model(guard_model, set_of_train_dataset, adv_types, epoches):
     loss_func, optimizer = nn.BCEWithLogitsLoss(), torch.optim.Adam(guard_model.parameters())
     skip_rate = 0.4 
 
     accs, losses = [], []
-    
     for epoch in range(epoches):
         total_loss = None 
-        b_correct_count, a1_correct_count, a2_correct_count, a3_correct_count = 0, 0, 0, 0
-        for i in range(len(X)):
-            x = X[i]
-            f1 = torch.from_numpy(np.array(x[0])).float()
-            f2 = torch.from_numpy(np.array(x[1])).float()
-            f3 = torch.from_numpy(np.array(x[2])).float()
-            f4 = np.expand_dims(x[3], axis=2)
-            f4 = torch.from_numpy(f4).float()
-            outputs = guard_model.forward(f1, f2, f3, f4)
-            label = torch.from_numpy(np.array([[1, 0]])).float()
+        total_correct_count, total_count = 0, 0 
+        for train_dataset, adv_type in zip(set_of_train_dataset, adv_types):
+            current_count = 0
+            for singatures in train_dataset:
+                f1, f2, f3, f4 = preprocess(singatures)
+                outputs = guard_model.forward(f1, f2, f3, f4)
+                if adv_type == 'None': label = torch.from_numpy(np.array([[1, 0]])).float()
+                else: label = torch.from_numpy(np.array([[0, 1]])).float()
 
-            loss = loss_func(outputs, label)
-            if i == 0: total_loss = loss 
-            else: total_loss += loss
+                # for recording the training process 
+                loss = loss_func(outputs, label)
+                if total_loss is None: total_loss = loss 
+                else: total_loss += loss
                 
-            prediction = (outputs.max(1, keepdim=True)[1]).item()     
-            if (prediction == 0): b_correct_count += 1
+                prediction = (outputs.max(1, keepdim=True)[1]).item()     
+                if adv_type == 'None': 
+                    if (prediction == 0): 
+                        current_count += 1
+                else: 
+                    if (prediction == 1): 
+                        current_count += 1
                 
-            # Optimization (back-propogation)
-            if random.random() < (1-skip_rate):
-                optimizer.zero_grad()
-                loss.backward()
-                optimizer.step()
-                
-        for i in range(len(X1_)):
-            x = X1_[i]
-            f1 = torch.from_numpy(np.array(x[0])).float()
-            f2 = torch.from_numpy(np.array(x[1])).float()
-            f3 = torch.from_numpy(np.array(x[2])).float()
-            f4 = np.expand_dims(x[3], axis=2)
-            f4 = torch.from_numpy(f4).float()
-            outputs = guard_model.forward(f1, f2, f3, f4)
-            label = torch.from_numpy(np.array([[0, 1]])).float()
+                # Optimization (back-propogation)
+                if random.random() < (1-skip_rate):
+                    optimizer.zero_grad()
+                    loss.backward()
+                    optimizer.step()
 
-            loss = loss_func(outputs, label)
-            if i == 0: total_loss = loss 
-            else: total_loss += loss
-                
-            prediction = (outputs.max(1, keepdim=True)[1]).item()     
-            if (prediction == 1): a1_correct_count += 1
+            # record the current train set acc
+            if adv_type == 'None': 
+                print('benign correct:', current_count, '/', len(train_dataset))
+            else:
+                print('adv (', adv_type, ') correct:', current_count, '/', len(train_dataset))
 
-            # Optimization (back-propogation)
-            if random.random() < (1-skip_rate):
-                optimizer.zero_grad()
-                loss.backward()
-                optimizer.step()
-            
-        for i in range(len(X2_)):
-            x = X2_[i]
-            f1 = torch.from_numpy(np.array(x[0])).float()
-            f2 = torch.from_numpy(np.array(x[1])).float()
-            f3 = torch.from_numpy(np.array(x[2])).float()
-            f4 = np.expand_dims(x[3], axis=2)
-            f4 = torch.from_numpy(f4).float()
-            outputs = guard_model.forward(f1, f2, f3, f4)
-            label = torch.from_numpy(np.array([[0, 1]])).float()
+            total_correct_count += current_count
+            total_count += len(train_dataset)
 
-            loss = loss_func(outputs, label)
-            if i == 0: total_loss = loss 
-            else: total_loss += loss
-                
-            prediction = (outputs.max(1, keepdim=True)[1]).item()     
-            if (prediction == 1): a2_correct_count += 1
-
-            # Optimization (back-propogation)
-            if random.random() < (1-skip_rate):
-                optimizer.zero_grad()
-                loss.backward()
-                optimizer.step()
-
-        for i in range(len(X3_)):
-            x = X3_[i]
-            f1 = torch.from_numpy(np.array(x[0])).float()
-            f2 = torch.from_numpy(np.array(x[1])).float()
-            f3 = torch.from_numpy(np.array(x[2])).float()
-            f4 = np.expand_dims(x[3], axis=2)
-            f4 = torch.from_numpy(f4).float()
-            outputs = guard_model.forward(f1, f2, f3, f4)
-            label = torch.from_numpy(np.array([[0, 1]])).float()
-
-            loss = loss_func(outputs, label)
-            if i == 0: total_loss = loss 
-            else: total_loss += loss
-                
-            prediction = (outputs.max(1, keepdim=True)[1]).item()     
-            if (prediction == 1): a3_correct_count += 1
-
-            # Optimization (back-propogation)
-            if random.random() < (1-skip_rate):
-                optimizer.zero_grad()
-                loss.backward()
-                optimizer.step()
-
-        acc = (b_correct_count+a1_correct_count+a2_correct_count+a3_correct_count)/(len(X)+len(X1_)+len(X2_)+len(X3_))
-        print('epoch:', (epoch+1), 'loss:', total_loss)    
-        print('benign correct:', b_correct_count, '/', len(X))
-        print('adv (FGSM) correct:', a1_correct_count, '/', len(X1_))
-        print('adv (JSMA) correct:', a2_correct_count, '/', len(X2_))
-        print('adv (CWL2) correct:', a3_correct_count, '/', len(X3_))
+        acc = total_correct_count/total_count
+        print('epoch:', (epoch+1), 'loss:', total_loss.item())    
         print('acc:', acc)
         accs.append(acc)
         losses.append(total_loss)
         
     return accs, losses
 
-def test_guard_model(guard_model, test_benign_dataset, test_adv_dataset_1, test_adv_dataset_2, test_adv_dataset_3):
-    X = test_benign_dataset
-    X1_ = test_adv_dataset_1
-    X2_ = test_adv_dataset_2
-    X3_ = test_adv_dataset_3
+def test_guard_model(guard_model, set_of_test_dataset, adv_types):
+    total_correct_count, total_count = 0, 0 
+    for test_dataset, adv_type in zip(set_of_test_dataset, adv_types):
+        current_count = 0
+        for singatures in test_dataset:
+            f1, f2, f3, f4 = preprocess(singatures)
+            outputs = guard_model.forward(f1, f2, f3, f4)
+            if adv_type == 'None': label = torch.from_numpy(np.array([[1, 0]])).float()
+            else: label = torch.from_numpy(np.array([[0, 1]])).float()
 
-    b_correct_count, a1_correct_count, a2_correct_count, a3_correct_count = 0, 0, 0, 0
-    for i in range(len(X)):
-        x = X[i]
-        f1 = torch.from_numpy(np.array(x[0])).float()
-        f2 = torch.from_numpy(np.array(x[1])).float()
-        f3 = torch.from_numpy(np.array(x[2])).float()
-        f4 = np.expand_dims(x[3], axis=2)
-        f4 = torch.from_numpy(f4).float()
-        outputs = guard_model.forward(f1, f2, f3, f4)
-        label = torch.from_numpy(np.array([[1, 0]])).float()
-
-        prediction = (outputs.max(1, keepdim=True)[1]).item()     
-        if (prediction == 0): b_correct_count += 1
-
-    for i in range(len(X1_)):
-        x = X1_[i]
-        f1 = torch.from_numpy(np.array(x[0])).float()
-        f2 = torch.from_numpy(np.array(x[1])).float()
-        f3 = torch.from_numpy(np.array(x[2])).float()
-        f4 = np.expand_dims(x[3], axis=2)
-        f4 = torch.from_numpy(f4).float()
-        outputs = guard_model.forward(f1, f2, f3, f4)
-        label = torch.from_numpy(np.array([[0, 1]])).float()
-
-        prediction = (outputs.max(1, keepdim=True)[1]).item()     
-        if (prediction == 1): a1_correct_count += 1
+            prediction = (outputs.max(1, keepdim=True)[1]).item()     
+            if adv_type == 'None': 
+                if (prediction == 0): 
+                    current_count += 1
+            else: 
+                if (prediction == 1): 
+                    current_count += 1
             
-    for i in range(len(X2_)):
-        x = X2_[i]
-        f1 = torch.from_numpy(np.array(x[0])).float()
-        f2 = torch.from_numpy(np.array(x[1])).float()
-        f3 = torch.from_numpy(np.array(x[2])).float()
-        f4 = np.expand_dims(x[3], axis=2)
-        f4 = torch.from_numpy(f4).float()
-        outputs = guard_model.forward(f1, f2, f3, f4)
-        label = torch.from_numpy(np.array([[0, 1]])).float()
+        # record the current train set acc
+        if adv_type == 'None': 
+            print('benign correct:', current_count, '/', len(test_dataset))
+        else:
+            print('adv (', adv_type, ') correct:', current_count, '/', len(test_dataset))
 
-        prediction = (outputs.max(1, keepdim=True)[1]).item()     
-        if (prediction == 1): a2_correct_count += 1
+        total_correct_count += current_count
+        total_count += len(test_dataset)
 
-    for i in range(len(X3_)):
-        x = X3_[i]
-        f1 = torch.from_numpy(np.array(x[0])).float()
-        f2 = torch.from_numpy(np.array(x[1])).float()
-        f3 = torch.from_numpy(np.array(x[2])).float()
-        f4 = np.expand_dims(x[3], axis=2)
-        f4 = torch.from_numpy(f4).float()
-        outputs = guard_model.forward(f1, f2, f3, f4)
-        label = torch.from_numpy(np.array([[0, 1]])).float()
-
-        prediction = (outputs.max(1, keepdim=True)[1]).item()     
-        if (prediction == 1): a3_correct_count += 1
-
-    acc = (b_correct_count+a1_correct_count+a2_correct_count+a3_correct_count)/(len(X)+len(X1_)+len(X2_)+len(X3_))
-    print('benign correct:', b_correct_count, '/', len(X), b_correct_count/len(X))
-    print('adv (FGSM) correct:', a1_correct_count, '/', len(X1_), a1_correct_count/len(X1_))
-    print('adv (JSMA) correct:', a2_correct_count, '/', len(X2_), a2_correct_count/len(X2_))
-    print('adv (CWL2) correct:', a3_correct_count, '/', len(X3_), a3_correct_count/len(X3_))
+    acc = total_correct_count/total_count
     print('acc:', acc)

@@ -64,7 +64,7 @@ class PIInterface():
         start = time.clock()
         adv_x, is_att_success = A.create_adv_input(x, y, model)
         end = time.clock()
-        print('time for', adv_type.ljust(8),'sample generation', round(end-start, 3))
+        # print('time for', adv_type.ljust(8),'sample generation', round(end-start, 3))
 
         if is_att_success:
             adv_x = (adv_x.detach().numpy())[0]
@@ -80,12 +80,18 @@ class PIInterface():
         set_of_signatures = []
 
         for i in range(len(X)):
+            print(adv_type, i+1)
             x, y = X[i], Y[i]
-            adv_x = self.generate_adv_img(x, y, model, adv_type)
 
-            if adv_x is None: singatures = extract_signature_from_CNN(model, x)
-            else: singatures = extract_signature_from_CNN(model, adv_x)
+            if adv_type is None: 
+                singatures = extract_signature_from_CNN(model, x)
+                set_of_signatures.append(singatures)
+            elif not (adv_type is None): 
+                adv_x = self.generate_adv_img(x, y, model, adv_type)
 
-            set_of_signatures.append(singatures)
+                if adv_x is None: continue
+
+                singatures = extract_signature_from_CNN(model, adv_x)
+                set_of_signatures.append(singatures)
 
         return set_of_signatures

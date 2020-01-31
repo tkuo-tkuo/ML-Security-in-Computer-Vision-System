@@ -17,6 +17,8 @@ class FGSMAttacker():
     classadvertorch.attacks.GradientSignAttack(predict, loss_fn=None, eps=0.3, clip_min=0.0, 
     clip_max=1.0, targeted=False)
     '''
+    def __init__(self):
+        self.eps = 0.6
 
     def create_adv_input(self, x, y, model):
         # Prepare copied model 
@@ -28,7 +30,7 @@ class FGSMAttacker():
         data.requires_grad = True
         
         from advertorch.attacks import GradientSignAttack
-        adversary = GradientSignAttack(model.forward)
+        adversary = GradientSignAttack(model.forward, eps=self.eps)
         perturbed_data = adversary.perturb(data, target)
 
         # Have to be different
@@ -114,8 +116,8 @@ class L1PGDAttack():
     '''
     def __init__(self):
         self.eps = 10.0
-        self.nb_iter = 300
-        self.eps_iter = 0.3
+        self.nb_iter = 500
+        self.eps_iter = 0.5
     
     def create_adv_input(self, x, y, model):
         # Prepare copied model 
@@ -146,8 +148,8 @@ class L2PGDAttack():
     '''
     def __init__(self):
         self.eps = 0.5
-        self.nb_iter = 300
-        self.eps_iter = 0.3
+        self.nb_iter = 500
+        self.eps_iter = 0.5
     
     def create_adv_input(self, x, y, model):
         # Prepare copied model 
@@ -206,8 +208,8 @@ class L2BasicIterativeAttack():
     '''
     def __init__(self):
         self.eps = 0.5
-        self.nb_iter = 100
-        self.eps_iter = 0.3
+        self.nb_iter = 500
+        self.eps_iter = 0.5
     
     def create_adv_input(self, x, y, model):
         # Prepare copied model 
@@ -301,7 +303,7 @@ class DDNL2Attack():
     levels=256, clip_min=0.0, clip_max=1.0, targeted=False, loss_fn=None)[source]
     '''
     def __init__(self):
-        self.nb_iter = 500
+        self.nb_iter = 1000
 
     def create_adv_input(self, x, y, model):
         # Prepare copied model 
@@ -333,7 +335,7 @@ class LBFGSAttack():
 
     def __init__(self):
         self.num_classes = 10
-        self.max_iterations = 500
+        self.max_iterations = 1000
         
     def create_adv_input(self, x, y, model):
         # Prepare copied model 
@@ -363,7 +365,7 @@ class SinglePixelAttack():
     clip_max=1.0, comply_with_foolbox=False, targeted=False)
     '''
     def __init__(self):
-        self.max_pixels = 250
+        self.max_pixels = 500
         
     def create_adv_input(self, x, y, model):
         # Prepare copied model 
@@ -395,7 +397,7 @@ class LocalSearchAttack():
     '''
 
     def __init__(self):
-        self.round_ub = 100
+        self.round_ub = 200
         
     def create_adv_input(self, x, y, model):
         # Prepare copied model 
