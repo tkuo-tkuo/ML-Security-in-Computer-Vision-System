@@ -123,7 +123,14 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 
 ### PPRD (Propogation Pattern RNN Detection) 
 
-(more) 
+<details>
+  <summary>Experiments (PPRD)</summary>
+  
+  [Exp15: PPRD training process (to_int=False, train=all types, test=all types. model=CNN) pending](pages/exp15.md)
+  
+  [Exp16: PPRD training process (to_int=False, train=ENL1/CWL2/LINFPGD, test=all types. model=CNN) pending](pages/exp16.md)
+  
+</details> 
 
 ## Appendix 
 
