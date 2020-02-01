@@ -124,6 +124,7 @@ def preprocess(x):
 def train_guard_model(guard_model, set_of_train_dataset, set_of_test_dataset, adv_types, epoches):
     loss_func, optimizer = nn.BCEWithLogitsLoss(), torch.optim.Adam(guard_model.parameters())
     train_accs, test_accs, losses = [], [], []
+    set_train_sub_accs, set_test_sub_accs = [], []
 
     for epoch in range(epoches):
         total_loss = None 
@@ -156,9 +157,9 @@ def train_guard_model(guard_model, set_of_train_dataset, set_of_test_dataset, ad
             loss.backward()
             optimizer.step()
             
-        train_acc = test_guard_model(guard_model, set_of_train_dataset, adv_types, verbose=True)
+        train_acc, train_sub_accs = test_guard_model(guard_model, set_of_train_dataset, adv_types, verbose=False)
         print()
-        test_acc = test_guard_model(guard_model, set_of_test_dataset, adv_types, verbose=True)
+        test_acc, test_sub_accs = test_guard_model(guard_model, set_of_test_dataset, adv_types, verbose=False)
         print()
         print('epoch:', (epoch+1), 'loss:', total_loss.item())    
         print('acc (train):', train_acc)
@@ -166,12 +167,15 @@ def train_guard_model(guard_model, set_of_train_dataset, set_of_test_dataset, ad
         print()
         train_accs.append(train_acc)
         test_accs.append(test_acc)
+        set_train_sub_accs.append(train_sub_accs)
+        set_test_sub_accs.append(test_sub_accs)
         losses.append(total_loss)
         
-    return train_accs, test_accs, losses
+    return train_accs, test_accs, losses, set_train_sub_accs, set_test_sub_accs
 
 def test_guard_model(guard_model, set_of_test_dataset, adv_types, verbose=True):
     total_train_correct_count, total_train_count = 0, 0 
+    sub_accs = []
     for test_dataset, adv_type in zip(set_of_test_dataset, adv_types):
         current_count = 0
         for singatures in test_dataset:
@@ -195,6 +199,7 @@ def test_guard_model(guard_model, set_of_test_dataset, adv_types, verbose=True):
             else:
                 print('adv (', adv_type, ') correct:', current_count, '/', len(test_dataset))
 
+        sub_accs.append(current_count/len(test_dataset))
         total_train_correct_count += current_count
         total_train_count += len(test_dataset)
 
@@ -202,4 +207,4 @@ def test_guard_model(guard_model, set_of_test_dataset, adv_types, verbose=True):
     if verbose: 
         print('acc:', acc)
 
-    return acc 
+    return acc, sub_accs
