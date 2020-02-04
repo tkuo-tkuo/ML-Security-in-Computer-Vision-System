@@ -126,9 +126,11 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 <details>
   <summary>Experiments (PPRD)</summary>
   
-  [Exp15: PPRD training process (to_int=False, train=all types, test=all types. model=CNN)](pages/exp15.md)
+  [Exp15: PPRD training process (to_int=False, train=all, test=all. model=CNN)](pages/exp15.md)
   
-  [Exp16: PPRD training process (to_int=False, train=ENL1/CWL2/LINFPGD, test=all types. model=CNN)](pages/exp16.md)
+  [Exp16: PPRD training process (to_int=False, train=ENL1/CWL2/LINFPGD, test=all types, model=CNN)](pages/exp16.md)
+
+  [Exp17: one-PPRD training process (to_int=False, train=all, test=all. model=CNN)](pages/exp17.md)
   
 </details> 
 
