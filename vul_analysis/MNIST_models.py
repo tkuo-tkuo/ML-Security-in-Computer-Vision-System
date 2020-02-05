@@ -26,7 +26,7 @@ class CNN(nn.Module):
         x = self.fc2(x)
         return F.log_softmax(x, dim=1)
 
-class Guard(nn.Module):
+class SubGuard(nn.Module):
     def __init__(self):
         super().__init__()
         self.relu = nn.ReLU()
@@ -45,27 +45,76 @@ class Guard(nn.Module):
         self.hh12 = nn.Conv2d(8, 8, 15)
         self.hh23 = nn.Conv2d(8, 8, 8)
         self.hh34 = nn.Linear(8*3*3, 64)
-        
+                
         self.hy = nn.Linear(64, 2)
 
     def forward(self, f1, f2, f3, f4):
-        x1 = self.relu(self.pre_l1_conv1(f1)) # 1, 8, 24, 24 
-        x2 = self.relu(self.pre_l2_conv1(f2)) # 1, 8, 10, 10
-        x3 = self.relu(self.pre_l3_conv1(f3)) # 1, 8, 3, 3
-        x4 = f4.view(-1, 64) # 1, 64
+        x1 = self.relu(self.pre_l1_conv1(f1))   # 1, 8, 24, 24 
+        x2 = self.relu(self.pre_l2_conv1(f2))   # 1, 8, 10, 10
+        x3 = self.relu(self.pre_l3_conv1(f3))   # 1, 8, 3, 3
+        x4 = f4.view(-1, 64)                    # 1, 64
+
+        LN = nn.GroupNorm(8, 8)
+        x1 = LN(x1)
+        LN = nn.GroupNorm(8, 8)
+        x2 = LN(x2)
+        LN = nn.GroupNorm(8, 8)
+        x3 = LN(x3)
+        LN = nn.LayerNorm(x4.size()[1:])
+        x4 = LN(x4)
         
         h1 = self.relu(self.xh1(x1))
-        h1 = F.dropout2d(h1, p=0.1)
+        # h1 = self.relu(x1)
+        # h1 = F.dropout2d(h1, p=0.2)
+        
         h2 = self.relu(torch.add(self.hh12(h1), self.xh2(x2)))
-        h2 = F.dropout2d(h2, p=0.1)
+        # h2 = self.relu(torch.add(self.hh12(h1), x2))
+        # h2 = F.dropout2d(h2, p=0.2)
+
         h3 = self.relu(torch.add(self.hh23(h2), self.xh3(x3)))
-        h3 = F.dropout2d(h3, p=0.1)
+        # h3 = self.relu(torch.add(self.hh23(h2), x3))
+        # h3 = F.dropout2d(h3, p=0.2)
+
         h3 = h3.view(-1, 8*3*3)
         h4 = self.relu(torch.add(self.hh34(h3), self.xh4(x4)))
-        h4 = F.dropout(h4, p=0.1)
+        # h4 = self.relu(torch.add(self.hh34(h3), x4))
+        h4 = F.dropout(h4, p=0.2)
+
         outputs = self.hy(h4)
+
         return outputs
-    
+
+class Guard(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.sub_guard_0 = SubGuard()
+        self.sub_guard_1 = SubGuard()
+        self.sub_guard_2 = SubGuard()
+        self.sub_guard_3 = SubGuard()
+        self.sub_guard_4 = SubGuard()
+        self.sub_guard_5 = SubGuard()
+        self.sub_guard_6 = SubGuard()
+        self.sub_guard_7 = SubGuard()
+        self.sub_guard_8 = SubGuard()
+        self.sub_guard_9 = SubGuard()
+        self.to_final_state = nn.Linear(20, 2)
+
+    def forward(self, f1, f2, f3, f4):
+        outputs0 = self.sub_guard_0(f1, f2, f3, f4)
+        outputs1 = self.sub_guard_1(f1, f2, f3, f4)
+        outputs2 = self.sub_guard_2(f1, f2, f3, f4)
+        outputs3 = self.sub_guard_3(f1, f2, f3, f4)
+        outputs4 = self.sub_guard_4(f1, f2, f3, f4)
+        outputs5 = self.sub_guard_5(f1, f2, f3, f4)
+        outputs6 = self.sub_guard_6(f1, f2, f3, f4)
+        outputs7 = self.sub_guard_7(f1, f2, f3, f4)
+        outputs8 = self.sub_guard_8(f1, f2, f3, f4)
+        outputs9 = self.sub_guard_9(f1, f2, f3, f4)
+        combined_outputs = torch.cat((outputs0, outputs1, outputs2, outputs3, outputs4, outputs5, outputs6, outputs7, outputs8, outputs9), 1)
+        outputs = self.to_final_state(combined_outputs)
+
+        return outputs
+
 def store_model(model, model_name):
     torch.save(model, model_name)
 
@@ -84,8 +133,8 @@ def train(train_dataset, model, loss_func, opt, num_of_epochs):
             label = torch.from_numpy(np.array([Y[idx]]).astype(np.int64))
 
             # Forwarding
-            prediction = model.forward(data)
-            loss = loss_func(prediction, label)
+            outputs = model.forward(data)
+            loss = loss_func(outputs, label)
 
             # Optimization (back-propogation)
             if random.random() < 0.6:
@@ -99,17 +148,20 @@ def train(train_dataset, model, loss_func, opt, num_of_epochs):
 
 def eval_model(model, dataset):
     X, Y = dataset
-    datas = torch.from_numpy(X.astype(np.float32))
-    labels = torch.from_numpy(Y.astype(np.int64))
+    correct_count = 0
+    for idx, data in enumerate(X):
+        # Transform from numpy to torch & correct the shape (expand dimension) and type (float32 and int64)
+        data = torch.from_numpy(np.expand_dims(data, axis=0).astype(np.float32))
+        label = torch.from_numpy(np.array([Y[idx]]).astype(np.int64))
 
-    # Forwarding
-    outputs = model.forward(datas).detach().numpy()
-    predictions = np.argmax(outputs, axis=1)
+        # Forwarding
+        outputs = model.forward(data).detach().numpy()
+        prediction = np.argmax(outputs, axis=1)
 
-    total = labels.shape[0]
-    correct = (predictions == labels.numpy()).sum().item()
-    acc = correct/total
+        is_correct = (prediction == label.numpy()).item()
+        if is_correct: correct_count += 1
 
+    acc = correct_count/len(X)
     return acc
 
 def preprocess(x):
@@ -122,20 +174,27 @@ def preprocess(x):
         
 
 def train_guard_model(guard_model, set_of_train_dataset, set_of_test_dataset, adv_types, epoches):
-    loss_func, optimizer = nn.BCEWithLogitsLoss(), torch.optim.Adam(guard_model.parameters())
+    loss_func, optimizer = nn.BCEWithLogitsLoss(), torch.optim.Adam(guard_model.parameters(), lr=1e-3)
     train_accs, test_accs, losses = [], [], []
     set_train_sub_accs, set_test_sub_accs = [], []
 
     for epoch in range(epoches):
+        print(epoch)
         total_loss = None 
         # labeling ...
         train_dataset, train_labels = [], []
         for dataset, adv_type in zip(set_of_train_dataset, adv_types):
             for singatures in dataset:
-                train_dataset.append(singatures)
-                if adv_type == 'None': label = torch.from_numpy(np.array([[1, 0]])).float()
-                else: label = torch.from_numpy(np.array([[0, 1]])).float()
-                train_labels.append(label)
+                if adv_type == 'None': 
+                    for _ in range(2):
+                        train_dataset.append(singatures)
+                        label = torch.from_numpy(np.array([[1, 0]])).float()
+                        train_labels.append(label)
+
+                else: 
+                    train_dataset.append(singatures)
+                    label = torch.from_numpy(np.array([[0, 1]])).float()
+                    train_labels.append(label)
   
         # shuffling 
         shuffle_indexs = np.arange(len(train_dataset))
@@ -157,9 +216,9 @@ def train_guard_model(guard_model, set_of_train_dataset, set_of_test_dataset, ad
             loss.backward()
             optimizer.step()
             
-        train_acc, train_sub_accs = test_guard_model(guard_model, set_of_train_dataset, adv_types, verbose=False)
+        train_acc, train_sub_accs = test_guard_model(guard_model, set_of_train_dataset, adv_types, verbose=True)
         print()
-        test_acc, test_sub_accs = test_guard_model(guard_model, set_of_test_dataset, adv_types, verbose=False)
+        test_acc, test_sub_accs = test_guard_model(guard_model, set_of_test_dataset, adv_types, verbose=True)
         print()
         print('epoch:', (epoch+1), 'loss:', total_loss.item())    
         print('acc (train):', train_acc)
@@ -170,6 +229,9 @@ def train_guard_model(guard_model, set_of_train_dataset, set_of_test_dataset, ad
         set_train_sub_accs.append(train_sub_accs)
         set_test_sub_accs.append(test_sub_accs)
         losses.append(total_loss)
+
+    print('acc (train):', train_acc)
+    print('acc (test):', test_acc)
         
     return train_accs, test_accs, losses, set_train_sub_accs, set_test_sub_accs
 
@@ -208,3 +270,6 @@ def test_guard_model(guard_model, set_of_test_dataset, adv_types, verbose=True):
         print('acc:', acc)
 
     return acc, sub_accs
+
+def sub_guards_eval(model, guards, sample, label):
+    pass 
