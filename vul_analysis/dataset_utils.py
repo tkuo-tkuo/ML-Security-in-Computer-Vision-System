@@ -11,6 +11,7 @@ def create_MNIST_dataset(num_of_train_dataset=50000, num_of_test_dataset=10000, 
     test_X, test_Y = None, None 
 
     # load from torchvision
+    print(num_of_train_dataset, num_of_test_dataset)
     MNIST_train_dataset = torchvision.datasets.MNIST(root='./data', transform=transforms.ToTensor(), train=True, download=True)
     MNIST_test_dataset = torchvision.datasets.MNIST(root='./data', transform=transforms.ToTensor(), train=False, download=True)
     train_loader = torch.utils.data.DataLoader(dataset=MNIST_train_dataset, batch_size=num_of_train_dataset, shuffle=False)
@@ -21,6 +22,7 @@ def create_MNIST_dataset(num_of_train_dataset=50000, num_of_test_dataset=10000, 
         if is_flatten: train_X = samples.reshape(-1, 784).numpy()
         else: train_X = samples.numpy()
         train_Ｙ = labels.numpy()
+        break
 
     train_dataset = (train_X, train_Y)
 
@@ -29,6 +31,7 @@ def create_MNIST_dataset(num_of_train_dataset=50000, num_of_test_dataset=10000, 
         if is_flatten: test_X = samples.reshape(-1, 784).numpy()
         else: test_X = samples.numpy()
         test_Y = labels.numpy()
+        break
         
     test_dataset = (test_X, test_Y) 
 
