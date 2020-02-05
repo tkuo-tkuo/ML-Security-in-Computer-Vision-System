@@ -26,7 +26,7 @@ class CNN(nn.Module):
         x = self.fc2(x)
         return F.log_softmax(x, dim=1)
 
-class SubGuard(nn.Module):
+class Guard(nn.Module):
     def __init__(self):
         super().__init__()
         self.relu = nn.ReLU()
@@ -84,36 +84,36 @@ class SubGuard(nn.Module):
 
         return outputs
 
-class Guard(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.sub_guard_0 = SubGuard()
-        self.sub_guard_1 = SubGuard()
-        self.sub_guard_2 = SubGuard()
-        self.sub_guard_3 = SubGuard()
-        self.sub_guard_4 = SubGuard()
-        self.sub_guard_5 = SubGuard()
-        self.sub_guard_6 = SubGuard()
-        self.sub_guard_7 = SubGuard()
-        self.sub_guard_8 = SubGuard()
-        self.sub_guard_9 = SubGuard()
-        self.to_final_state = nn.Linear(20, 2)
+# class Guard(nn.Module):
+#     def __init__(self):
+#         super().__init__()
+#         self.sub_guard_0 = SubGuard()
+#         self.sub_guard_1 = SubGuard()
+#         self.sub_guard_2 = SubGuard()
+#         self.sub_guard_3 = SubGuard()
+#         self.sub_guard_4 = SubGuard()
+#         self.sub_guard_5 = SubGuard()
+#         self.sub_guard_6 = SubGuard()
+#         self.sub_guard_7 = SubGuard()
+#         self.sub_guard_8 = SubGuard()
+#         self.sub_guard_9 = SubGuard()
+#         self.to_final_state = nn.Linear(20, 2)
 
-    def forward(self, f1, f2, f3, f4):
-        outputs0 = self.sub_guard_0(f1, f2, f3, f4)
-        outputs1 = self.sub_guard_1(f1, f2, f3, f4)
-        outputs2 = self.sub_guard_2(f1, f2, f3, f4)
-        outputs3 = self.sub_guard_3(f1, f2, f3, f4)
-        outputs4 = self.sub_guard_4(f1, f2, f3, f4)
-        outputs5 = self.sub_guard_5(f1, f2, f3, f4)
-        outputs6 = self.sub_guard_6(f1, f2, f3, f4)
-        outputs7 = self.sub_guard_7(f1, f2, f3, f4)
-        outputs8 = self.sub_guard_8(f1, f2, f3, f4)
-        outputs9 = self.sub_guard_9(f1, f2, f3, f4)
-        combined_outputs = torch.cat((outputs0, outputs1, outputs2, outputs3, outputs4, outputs5, outputs6, outputs7, outputs8, outputs9), 1)
-        outputs = self.to_final_state(combined_outputs)
+#     def forward(self, f1, f2, f3, f4):
+#         outputs0 = self.sub_guard_0(f1, f2, f3, f4)
+#         outputs1 = self.sub_guard_1(f1, f2, f3, f4)
+#         outputs2 = self.sub_guard_2(f1, f2, f3, f4)
+#         outputs3 = self.sub_guard_3(f1, f2, f3, f4)
+#         outputs4 = self.sub_guard_4(f1, f2, f3, f4)
+#         outputs5 = self.sub_guard_5(f1, f2, f3, f4)
+#         outputs6 = self.sub_guard_6(f1, f2, f3, f4)
+#         outputs7 = self.sub_guard_7(f1, f2, f3, f4)
+#         outputs8 = self.sub_guard_8(f1, f2, f3, f4)
+#         outputs9 = self.sub_guard_9(f1, f2, f3, f4)
+#         combined_outputs = torch.cat((outputs0, outputs1, outputs2, outputs3, outputs4, outputs5, outputs6, outputs7, outputs8, outputs9), 1)
+#         outputs = self.to_final_state(combined_outputs)
 
-        return outputs
+#         return outputs
 
 def store_model(model, model_name):
     torch.save(model, model_name)

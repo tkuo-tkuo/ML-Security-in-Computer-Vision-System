@@ -107,27 +107,14 @@ class PIInterface():
         model.eval()
         total_count = 0 
         correct_count = 0
-        print(adv_type)
 
         for i in range(len(X)):
-            print(adv_type, i)
             x, y = X[i], Y[i]
 
             if adv_type is None: 
-                ###########################################
-                # TEMP 
-                ###########################################
-                # store
-                fn = 'adv_images/'+'benign'+str(i)
-                np.save(fn, x)
-
-                # load 
-                # fn = 'adv_images/'+'benign'+str(i)+'.npy'
-                # x = np.load(fn)
-                # print(x.shape)
-
-                continue 
-                ###########################################
+                # Load  
+                fn = 'adv_images/'+'benign'+str(i)+'.npy'
+                x = np.load(fn)
 
                 data = torch.from_numpy(np.expand_dims(x, axis=0).astype(np.float32))
                 label = torch.from_numpy(np.array([y]).astype(np.int64))
@@ -144,36 +131,28 @@ class PIInterface():
                     sub_guard = guards[y]
 
                     # test by sub-guard 
-                    # f1, f2, f3, f4 = preprocess(singatures)
-                    # outputs = sub_guard.forward(f1, f2, f3, f4)
-                    # label = torch.from_numpy(np.array([[1, 0]])).float()
-                    # prediction = (outputs.max(1, keepdim=True)[1]).item()     
-                    # if (prediction == 0): 
-                    #     correct_count += 1
-                    #     total_count += 1
-                    # else:
-                    #     total_count += 1
+                    f1, f2, f3, f4 = preprocess(singatures)
+                    outputs = sub_guard.forward(f1, f2, f3, f4)
+                    label = torch.from_numpy(np.array([[1, 0]])).float()
+                    prediction = (outputs.max(1, keepdim=True)[1]).item()     
+                    if (prediction == 0): 
+                        correct_count += 1
+                        total_count += 1
+                    else:
+                        total_count += 1
                 else: 
                     continue
 
             elif not (adv_type is None): 
-                adv_x = self.generate_adv_img(x, y, model, adv_type)
-                if adv_x is None: continue
+                # adv_x = self.generate_adv_img(x, y, model, adv_type)
+                # if adv_x is None: continue
 
-                ###########################################
-                # TEMP 
-                ###########################################
-                # store
-                fn = 'adv_images/'+adv_type+str(i)
-                np.save(fn, adv_x)
-
-                # load 
-                # fn = 'adv_images/'+adv_type+str(i)+'.npy'
-                # adv_x = np.load(fn)
-                # print(adv_x.shape)
-
-                continue 
-                ###########################################
+                # Load (those adv samples successes) 
+                fn = 'adv_images/'+adv_type+str(i)+'.npy'
+                try: 
+                    adv_x = np.load(fn)
+                except: 
+                    continue
 
                 data = torch.from_numpy(np.expand_dims(adv_x, axis=0).astype(np.float32))
                 label = torch.from_numpy(np.array([y]).astype(np.int64))
@@ -184,27 +163,27 @@ class PIInterface():
 
                 # if f(adv) != y: 
                 if not is_correct:
-                    print('ground-truth:', y, label.numpy(), 'f(adv_x):', prediction)
                     # extract singatures
                     singatures = extract_signature_from_CNN(model, adv_x)
-                    # sselect appropriate sub-guard (f(adv) sub-guard)
-                    sub_guard = guards[y]
 
+                    # sselect appropriate sub-guard (f(adv) sub-guard)
+                    class_index = prediction[0]
+                    sub_guard = guards[class_index]
 
                     # test by sub-guard 
-                    # f1, f2, f3, f4 = preprocess(singatures)
-                    # outputs = sub_guard.forward(f1, f2, f3, f4)
-                    # label = torch.from_numpy(np.array([[0, 1]])).float()
+                    f1, f2, f3, f4 = preprocess(singatures)
+                    outputs = sub_guard.forward(f1, f2, f3, f4)
+                    label = torch.from_numpy(np.array([[0, 1]])).float()
 
-                    # prediction = (outputs.max(1, keepdim=True)[1]).item()     
-                    # if (prediction == 1): 
-                    #     correct_count += 1
-                    #     total_count += 1
-                    # else:
-                    #     total_count += 1
+                    prediction = (outputs.max(1, keepdim=True)[1]).item()     
+                    if (prediction == 1): 
+                        correct_count += 1
+                        total_count += 1
+                    else:
+                        total_count += 1
 
                 else: 
                     continue
 
-        # print('correct_count:', correct_count, 'total_count:', total_count)
-        # print('acc:', correct_count/total_count)  
+        print('correct_count:', correct_count, 'total_count:', total_count)
+        print('acc:', correct_count/total_count)  
