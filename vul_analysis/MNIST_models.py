@@ -7,6 +7,8 @@ import numpy as np
 import copy
 import random
 
+import time
+
 class CNN(nn.Module):
 
     def __init__(self):
@@ -179,6 +181,8 @@ def train_guard_model(guard_model, set_of_train_dataset, set_of_test_dataset, ad
     set_train_sub_accs, set_test_sub_accs = [], []
 
     for epoch in range(epoches):
+        start = time.clock()
+
         print(epoch)
         total_loss = None 
         # labeling ...
@@ -229,6 +233,10 @@ def train_guard_model(guard_model, set_of_train_dataset, set_of_test_dataset, ad
         set_train_sub_accs.append(train_sub_accs)
         set_test_sub_accs.append(test_sub_accs)
         losses.append(total_loss)
+
+        end = time.clock()
+        print('one epoch training time in seconds', end-start)
+
 
     print('acc (train):', train_acc)
     print('acc (test):', test_acc)

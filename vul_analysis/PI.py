@@ -11,7 +11,6 @@ from dataset_utils import *
 from LP_utils import *
 import attacker 
 
-import time
 import cv2
 
 from matplotlib import pyplot as plt
@@ -65,10 +64,7 @@ class PIInterface():
 
         if A is NotImplemented: return None 
 
-        start = time.clock()
         adv_x, is_att_success = A.create_adv_input(x, y, model)
-        end = time.clock()
-        # print('time for', adv_type.ljust(8),'sample generation', round(end-start, 3))
 
         if is_att_success:
             adv_x = (adv_x.detach().numpy())[0]
