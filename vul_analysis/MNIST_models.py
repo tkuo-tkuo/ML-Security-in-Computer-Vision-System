@@ -48,7 +48,8 @@ class Guard(nn.Module):
         self.hh23 = nn.Conv2d(8, 8, 8)
         self.hh34 = nn.Linear(8*3*3, 64)
                 
-        self.hy = nn.Linear(64, 2)
+        self.fc1 = nn.Linear(64, 16)
+        self.fc2 = nn.Linear(16, 2)
 
     def forward(self, f1, f2, f3, f4):
         x1 = self.relu(self.pre_l1_conv1(f1))   # 1, 8, 24, 24 
@@ -66,23 +67,21 @@ class Guard(nn.Module):
         x4 = LN(x4)
         
         h1 = self.relu(self.xh1(x1))
-        # h1 = self.relu(x1)
-        # h1 = F.dropout2d(h1, p=0.2)
+        h1 = F.dropout2d(h1, p=0.2)
         
         h2 = self.relu(torch.add(self.hh12(h1), self.xh2(x2)))
-        # h2 = self.relu(torch.add(self.hh12(h1), x2))
-        # h2 = F.dropout2d(h2, p=0.2)
+        h2 = F.dropout2d(h2, p=0.2)
 
         h3 = self.relu(torch.add(self.hh23(h2), self.xh3(x3)))
-        # h3 = self.relu(torch.add(self.hh23(h2), x3))
-        # h3 = F.dropout2d(h3, p=0.2)
+        h3 = F.dropout2d(h3, p=0.2)
 
         h3 = h3.view(-1, 8*3*3)
         h4 = self.relu(torch.add(self.hh34(h3), self.xh4(x4)))
-        # h4 = self.relu(torch.add(self.hh34(h3), x4))
         h4 = F.dropout(h4, p=0.2)
 
-        outputs = self.hy(h4)
+        fc1 = self.relu(self.fc1(h4))
+        fc1 = F.dropout(fc1, p=0.2)
+        outputs = self.fc2(fc1)
 
         return outputs
 
@@ -183,7 +182,6 @@ def train_guard_model(guard_model, set_of_train_dataset, set_of_test_dataset, ad
     for epoch in range(epoches):
         start = time.clock()
 
-        print(epoch)
         total_loss = None 
         # labeling ...
         train_dataset, train_labels = [], []
