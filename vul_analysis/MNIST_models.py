@@ -48,8 +48,8 @@ class Guard(nn.Module):
         self.hh23 = nn.Conv2d(8, 8, 8)
         self.hh34 = nn.Linear(8*3*3, 64)
                 
-        self.fc1 = nn.Linear(64, 16)
-        self.fc2 = nn.Linear(16, 2)
+        self.fc1 = nn.Linear(5544, 64)
+        self.fc2 = nn.Linear(64, 2)
 
     def forward(self, f1, f2, f3, f4):
         x1 = self.relu(self.pre_l1_conv1(f1))   # 1, 8, 24, 24 
@@ -66,7 +66,7 @@ class Guard(nn.Module):
         LN = nn.LayerNorm(x4.size()[1:])
         x4 = LN(x4)
         
-        h1 = self.relu(self.xh1(x1))
+        h1 = self.relu(self.xh1(x1)) 
         h1 = F.dropout2d(h1, p=0.2)
         
         h2 = self.relu(torch.add(self.hh12(h1), self.xh2(x2)))
@@ -79,42 +79,43 @@ class Guard(nn.Module):
         h4 = self.relu(torch.add(self.hh34(h3), self.xh4(x4)))
         h4 = F.dropout(h4, p=0.2)
 
-        fc1 = self.relu(self.fc1(h4))
+        fc0 = torch.cat([h1.view(-1, 8*24*24), h2.view(-1, 8*10*10), h3.view(-1, 8*3*3), h4], 1)
+        fc1 = self.relu(self.fc1(fc0))
         fc1 = F.dropout(fc1, p=0.2)
         outputs = self.fc2(fc1)
 
         return outputs
 
-# class Guard(nn.Module):
-#     def __init__(self):
-#         super().__init__()
-#         self.sub_guard_0 = SubGuard()
-#         self.sub_guard_1 = SubGuard()
-#         self.sub_guard_2 = SubGuard()
-#         self.sub_guard_3 = SubGuard()
-#         self.sub_guard_4 = SubGuard()
-#         self.sub_guard_5 = SubGuard()
-#         self.sub_guard_6 = SubGuard()
-#         self.sub_guard_7 = SubGuard()
-#         self.sub_guard_8 = SubGuard()
-#         self.sub_guard_9 = SubGuard()
-#         self.to_final_state = nn.Linear(20, 2)
+class AssemebleGuard(nn.Module):
+    def __init__(self, sub_guards):
+        super().__init__()
+        self.sub_guard_0 = sub_guards[0]
+        self.sub_guard_1 = sub_guards[1]
+        self.sub_guard_2 = sub_guards[2]
+        self.sub_guard_3 = sub_guards[3]
+        self.sub_guard_4 = sub_guards[4]
+        self.sub_guard_5 = sub_guards[5]
+        self.sub_guard_6 = sub_guards[6]
+        self.sub_guard_7 = sub_guards[7]
+        self.sub_guard_8 = sub_guards[8]
+        self.sub_guard_9 = sub_guards[9]
+        self.to_final_state = nn.Linear(20, 2)
 
-#     def forward(self, f1, f2, f3, f4):
-#         outputs0 = self.sub_guard_0(f1, f2, f3, f4)
-#         outputs1 = self.sub_guard_1(f1, f2, f3, f4)
-#         outputs2 = self.sub_guard_2(f1, f2, f3, f4)
-#         outputs3 = self.sub_guard_3(f1, f2, f3, f4)
-#         outputs4 = self.sub_guard_4(f1, f2, f3, f4)
-#         outputs5 = self.sub_guard_5(f1, f2, f3, f4)
-#         outputs6 = self.sub_guard_6(f1, f2, f3, f4)
-#         outputs7 = self.sub_guard_7(f1, f2, f3, f4)
-#         outputs8 = self.sub_guard_8(f1, f2, f3, f4)
-#         outputs9 = self.sub_guard_9(f1, f2, f3, f4)
-#         combined_outputs = torch.cat((outputs0, outputs1, outputs2, outputs3, outputs4, outputs5, outputs6, outputs7, outputs8, outputs9), 1)
-#         outputs = self.to_final_state(combined_outputs)
+    def forward(self, f1, f2, f3, f4):
+        outputs0 = self.sub_guard_0(f1, f2, f3, f4)
+        outputs1 = self.sub_guard_1(f1, f2, f3, f4)
+        outputs2 = self.sub_guard_2(f1, f2, f3, f4)
+        outputs3 = self.sub_guard_3(f1, f2, f3, f4)
+        outputs4 = self.sub_guard_4(f1, f2, f3, f4)
+        outputs5 = self.sub_guard_5(f1, f2, f3, f4)
+        outputs6 = self.sub_guard_6(f1, f2, f3, f4)
+        outputs7 = self.sub_guard_7(f1, f2, f3, f4)
+        outputs8 = self.sub_guard_8(f1, f2, f3, f4)
+        outputs9 = self.sub_guard_9(f1, f2, f3, f4)
+        combined_outputs = torch.cat((outputs0, outputs1, outputs2, outputs3, outputs4, outputs5, outputs6, outputs7, outputs8, outputs9), 1)
+        outputs = self.to_final_state(combined_outputs)
 
-#         return outputs
+        return outputs
 
 def store_model(model, model_name):
     torch.save(model, model_name)

@@ -183,3 +183,84 @@ class PIInterface():
 
         print('correct_count:', correct_count, 'total_count:', total_count)
         print('acc:', correct_count/total_count)  
+
+    def eval_guard(self, guard, adv_type=None):
+        X, Y = self.test_dataset
+        model = copy.deepcopy(self.model)
+        model.eval()
+        total_count = 0 
+        correct_count = 0
+
+        for i in range(len(X)):
+            x, y = X[i], Y[i]
+
+            if adv_type is None: 
+                # Load  
+                fn = 'adv_images/'+'benign'+str(i)+'.npy'
+                x = np.load(fn)
+
+                data = torch.from_numpy(np.expand_dims(x, axis=0).astype(np.float32))
+                label = torch.from_numpy(np.array([y]).astype(np.int64))
+                # Forwarding
+                outputs = model.forward(data).detach().numpy()
+                prediction = np.argmax(outputs, axis=1)
+                is_correct = (prediction == label.numpy()).item()
+
+                # if f(x) == y: 
+                if is_correct:
+                    # extract singatures
+                    singatures = extract_signature_from_CNN(model, x)
+
+                    # test by sub-guard 
+                    f1, f2, f3, f4 = preprocess(singatures)
+                    outputs = guard.forward(f1, f2, f3, f4)
+                    label = torch.from_numpy(np.array([[1, 0]])).float()
+                    prediction = (outputs.max(1, keepdim=True)[1]).item()     
+                    if (prediction == 0): 
+                        correct_count += 1
+                        total_count += 1
+                    else:
+                        total_count += 1
+                else: 
+                    continue
+
+            elif not (adv_type is None): 
+                # adv_x = self.generate_adv_img(x, y, model, adv_type)
+                # if adv_x is None: continue
+
+                # Load (those adv samples successes) 
+                fn = 'adv_images/'+adv_type+str(i)+'.npy'
+                try: 
+                    adv_x = np.load(fn)
+                except: 
+                    continue
+
+                data = torch.from_numpy(np.expand_dims(adv_x, axis=0).astype(np.float32))
+                label = torch.from_numpy(np.array([y]).astype(np.int64))
+                # Forwarding
+                outputs = model.forward(data).detach().numpy()
+                prediction = np.argmax(outputs, axis=1)
+                is_correct = (prediction == label.numpy()).item()
+
+                # if f(adv) != y: 
+                if not is_correct:
+                    # extract singatures
+                    singatures = extract_signature_from_CNN(model, adv_x)
+
+                    # test by sub-guard 
+                    f1, f2, f3, f4 = preprocess(singatures)
+                    outputs = guard.forward(f1, f2, f3, f4)
+                    label = torch.from_numpy(np.array([[0, 1]])).float()
+
+                    prediction = (outputs.max(1, keepdim=True)[1]).item()     
+                    if (prediction == 1): 
+                        correct_count += 1
+                        total_count += 1
+                    else:
+                        total_count += 1
+
+                else: 
+                    continue
+
+        print('correct_count:', correct_count, 'total_count:', total_count)
+        print('acc:', correct_count/total_count)  
