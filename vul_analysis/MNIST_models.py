@@ -117,6 +117,32 @@ class AssemebleGuard(nn.Module):
 
         return outputs
 
+class LSTM(nn.Module):
+    def __init__(self, input_feature_dim, hidden_feature_dim, hidden_layer_num, batch_size, classes_num):
+        super().__init__()
+        self.input_feature_dim = input_feature_dim
+        self.hidden_feature_dim = hidden_feature_dim
+        self.hidden_layer_num = hidden_layer_num
+        self.batch_size = batch_size
+        self.classes_num = classes_num
+        
+        self.lstm = nn.LSTM(self.input_feature_dim, self.hidden_feature_dim, self.hidden_layer_num)
+        self.fc1 = nn.Linear(self.hidden_feature_dim, 8)
+        self.fc2 = nn.Linear(8, self.classes_num)
+        self.lrelu = nn.LeakyReLU()
+
+    def init_hidden(self):
+        h0 = torch.randn(self.hidden_layer_num,self.batch_size,self.hidden_feature_dim)
+        c0 = torch.randn(self.hidden_layer_num,self.batch_size,self.hidden_feature_dim)
+        return (h0, c0)
+        
+    def forward(self, inputs):
+        hidden = self.init_hidden()
+        output, _ = self.lstm(inputs, hidden)
+        f1 = self.lrelu(self.fc1(output[-1]))
+        f2 = self.fc2(f1)
+        return f2
+
 def store_model(model, model_name):
     torch.save(model, model_name)
 
@@ -174,7 +200,6 @@ def preprocess(x):
     f4 = torch.from_numpy(f4).float()
     return f1, f2, f3, f4
         
-
 def train_guard_model(guard_model, set_of_train_dataset, set_of_test_dataset, adv_types, epoches):
     loss_func, optimizer = nn.BCEWithLogitsLoss(), torch.optim.Adam(guard_model.parameters(), lr=1e-3)
     train_accs, test_accs, losses = [], [], []
@@ -236,10 +261,6 @@ def train_guard_model(guard_model, set_of_train_dataset, set_of_test_dataset, ad
         end = time.clock()
         print('one epoch training time in seconds', end-start)
 
-
-    print('acc (train):', train_acc)
-    print('acc (test):', test_acc)
-        
     return train_accs, test_accs, losses, set_train_sub_accs, set_test_sub_accs
 
 def test_guard_model(guard_model, set_of_test_dataset, adv_types, verbose=True):
@@ -278,5 +299,143 @@ def test_guard_model(guard_model, set_of_test_dataset, adv_types, verbose=True):
 
     return acc, sub_accs
 
-def sub_guards_eval(model, guards, sample, label):
-    pass 
+def LSTM_preprocess(x):
+    f1 = torch.from_numpy(np.array(x[0])).float()
+    f1 = f1.view(-1)
+
+    f2 = torch.from_numpy(np.array(x[1])).float()
+    f2 = f2.view(-1)
+    padding = torch.zeros(f1.shape[0]-f2.shape[0])
+    f2 = torch.cat([f2, padding])
+    
+    f3 = torch.from_numpy(np.array(x[2])).float()
+    f3 = f3.view(-1)
+    padding = torch.zeros(f1.shape[0]-f3.shape[0])
+    f3 = torch.cat([f3, padding])
+    
+    f4 = np.expand_dims(x[3], axis=2)
+    f4 = torch.from_numpy(f4).float()
+    f4 = f4.view(-1)
+    padding = torch.zeros(f1.shape[0]-f4.shape[0])
+    f4 = torch.cat([f4, padding])
+
+    # inputs = torch.cat([f1, f2, f3, f4]).reshape(4, 1, -1)
+    inputs = torch.cat([f4, f3, f2, f1]).reshape(4, 1, -1)
+    return inputs
+
+def train_LSTM_PPRD(lstm, set_of_train_dataset, set_of_test_dataset, adv_types, epoches):
+    '''
+    Pytorch’s LSTM expects all of its inputs to be 3D tensors.
+
+    The first axis is the sequence itself, 
+    the second indexes instances in the mini-batch, 
+    and the third indexes elements of the input.
+    '''
+    optimizer, loss_func = torch.optim.Adam(lstm.parameters()), nn.CrossEntropyLoss()
+    train_accs, test_accs, losses = [], [], []
+    set_train_sub_accs, set_test_sub_accs = [], []
+
+    # labeling 
+    train_dataset, train_labels = [], []
+    for dataset, adv_type in zip(set_of_train_dataset, adv_types):
+        for singatures in dataset:
+            if adv_type == 'None': 
+                train_dataset.append(singatures)
+                label = torch.from_numpy(np.array([[1, 0]])).float()
+                train_labels.append(label)
+
+            else: 
+                train_dataset.append(singatures)
+                label = torch.from_numpy(np.array([[0, 1]])).float()
+                train_labels.append(label)
+                
+    test_dataset, test_labels = [], []
+    for dataset, adv_type in zip(set_of_test_dataset, adv_types):
+        for singatures in dataset:
+            if adv_type == 'None': 
+                test_dataset.append(singatures)
+                label = torch.from_numpy(np.array([[1, 0]])).float()
+                test_labels.append(label)
+
+            else: 
+                test_dataset.append(singatures)
+                label = torch.from_numpy(np.array([[0, 1]])).float()
+                test_labels.append(label)
+
+    for epoch in range(epoches):
+        # shuffling 
+        shuffle_indexs = np.arange(len(train_dataset))
+        np.random.shuffle(shuffle_indexs)
+        
+        total_loss = 0 
+        for index in shuffle_indexs:
+            data, label = train_dataset[index], train_labels[index]
+            inputs = LSTM_preprocess(data)
+            label = np.argmax(label, axis=1)
+
+            output = lstm(inputs)
+            loss = loss_func(output, label)
+
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            
+            if total_loss is None: total_loss = loss
+            else: total_loss += loss
+            print(loss)
+
+                
+        print('epoch:', epoch+1, 'loss:', total_loss.item())
+        train_acc, train_sub_accs = test_LSTM_PPRD(lstm, set_of_train_dataset, adv_types, verbose=False)
+        test_acc, test_sub_accs = test_LSTM_PPRD(lstm, set_of_test_dataset, adv_types, verbose=False)
+        print('acc (train):', train_acc)
+        print('acc (test):', test_acc)
+
+        train_accs.append(train_acc)
+        test_accs.append(test_acc)
+        set_train_sub_accs.append(train_sub_accs)
+        set_test_sub_accs.append(test_sub_accs)
+        losses.append(total_loss)
+        
+        model_name = 'LSTM_PPRD_'+str(epoch+1)
+        torch.save(lstm, model_name)
+
+    return train_accs, test_accs, losses, set_train_sub_accs, set_test_sub_accs
+    
+
+def test_LSTM_PPRD(lstm, set_of_test_dataset, adv_types, verbose=True):
+    total_train_correct_count, total_train_count = 0, 0 
+    sub_accs = []
+    for test_dataset, adv_type in zip(set_of_test_dataset, adv_types):
+        current_count = 0
+        for singatures in test_dataset:
+            inputs = LSTM_preprocess(singatures)
+            outputs = lstm.forward(inputs)
+            if adv_type == 'None': label = torch.from_numpy(np.array([[1, 0]])).float()
+            else: label = torch.from_numpy(np.array([[0, 1]])).float()
+            label = np.argmax(label, axis=1)
+
+            prediction = (outputs.max(1, keepdim=True)[1]).item()     
+            if adv_type == 'None': 
+                if (prediction == 0): 
+                    current_count += 1
+            else: 
+                if (prediction == 1): 
+                    current_count += 1
+            
+        # record the current train set acc
+        if verbose: 
+            if adv_type == 'None': 
+                print('benign correct:', current_count, '/', len(test_dataset))
+            else:
+                print('adv (', adv_type, ') correct:', current_count, '/', len(test_dataset))
+
+        sub_accs.append(current_count/len(test_dataset))
+        total_train_correct_count += current_count
+        total_train_count += len(test_dataset)
+
+    acc = total_train_correct_count/total_train_count
+    if verbose: 
+        print('acc:', acc)
+
+    return acc, sub_accs
