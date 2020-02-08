@@ -151,4 +151,6 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 [6] Shiqing Ma, Yingqi Liu, Guanhong Tao, Wen-Chuan Lee, and Xiangyu Zhang. 2019. “NIC: Detecting Adversarial Samples with Neural Network Invariant Checking” in Proceedings of the 26th Network and Distributed System Security Symposium, 2019. <br />
 [7] Gavin Weiguang Ding, Luyu Wang, and Xiaomeng Jin. AdverTorch v0.1: An adversarial robustness toolbox based on
 pytorch. arXiv preprint arXiv:1902.07623, 2019. <br/> 
+[8] LSTM
+[9] OCC-GAN
 
