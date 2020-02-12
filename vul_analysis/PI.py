@@ -12,6 +12,7 @@ from LP_utils import *
 import attacker 
 
 import cv2
+import pickle
 
 from matplotlib import pyplot as plt
 
@@ -74,6 +75,9 @@ class PIInterface():
 
 
     def generate_signatures(self, adv_type=None):
+        prefixs = ['store_zero/', 'store_one/', 'store_two/', 'store_three/', 'store_four/', 
+                'store_five/', 'store_six/', 'store_seven/', 'store_eight/', 'store_nine/']    
+
         X, Y = self.train_dataset
         model = copy.deepcopy(self.model)
         model.eval()
@@ -82,20 +86,40 @@ class PIInterface():
         for i in range(len(X)):
             print(adv_type, i+1)
             x, y = X[i], Y[i]
-            if y != 9:
-                continue
 
             if adv_type is None: 
+                data = torch.from_numpy(np.expand_dims(x, axis=0).astype(np.float32))
+                output = model(data).detach().numpy()
+                prediction = np.argmax(output, axis=1)
+  
+                if (prediction[0] != y):
+                    continue
+
                 singatures = extract_signature_from_CNN(model, x)
-                set_of_signatures.append(singatures)
+
+                fn = 'store_subs_fadv/'+prefixs[prediction[0]]+'normal_'+str(i+1)+'.txt'
+                print(fn)
+                with open(fn, "wb") as fp:   
+                    pickle.dump(singatures, fp)
+
             elif not (adv_type is None): 
                 adv_x = self.generate_adv_img(x, y, model, adv_type)
                 if adv_x is None: continue
 
-                singatures = extract_signature_from_CNN(model, adv_x)
-                set_of_signatures.append(singatures)
+                data = torch.from_numpy(np.expand_dims(adv_x, axis=0).astype(np.float32))
+                output = model(data).detach().numpy()
+                prediction = np.argmax(output, axis=1)
+  
+                if (prediction[0] == y):
+                    continue
 
-        return set_of_signatures
+                fn = 'store_subs_fadv/'+prefixs[prediction[0]]+adv_type+'_'+str(i+1)+'.txt'
+                print(fn)
+                singatures = extract_signature_from_CNN(model, adv_x)
+                with open(fn, "wb") as fp:   
+                    pickle.dump(singatures, fp)
+
+        # return set_of_signatures
 
     def eval_sub_guards(self, guards, adv_type=None):
         X, Y = self.test_dataset
