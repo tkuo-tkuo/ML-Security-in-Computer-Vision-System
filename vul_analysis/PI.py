@@ -147,6 +147,7 @@ class PIInterface():
                 if is_correct:
                     # extract singatures
                     singatures = extract_signature_from_CNN(model, x)
+
                     # select appropriate sub-guard (ground-truth sub-guard)
                     sub_guard = guards[y]
 
@@ -186,7 +187,7 @@ class PIInterface():
                     # extract singatures
                     singatures = extract_signature_from_CNN(model, adv_x)
 
-                    # sselect appropriate sub-guard (f(adv) sub-guard)
+                    # select appropriate sub-guard (f(adv) sub-guard)
                     class_index = prediction[0]
                     sub_guard = guards[class_index]
 
@@ -207,6 +208,9 @@ class PIInterface():
 
         print('correct_count:', correct_count, 'total_count:', total_count)
         print('acc:', correct_count/total_count)  
+
+        acc = correct_count/total_count
+        return acc
 
     def eval_guard(self, guard, adv_type=None):
         X, Y = self.test_dataset
