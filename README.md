@@ -1,5 +1,7 @@
 # Final Year Thesis
-Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
+Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST <br/>
+This repo. is no longer maintained and updated (May 2020). <br/>
+Full experimental results and reports were stored in HKUST lab servers and may not be accessible here. 
 
 ## Introduction 
 
@@ -142,7 +144,7 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 
 [To-Do list page](pages/todo.md)
 
-## References 
+## (Unofficial) References 
 [1] Florian Tramer, Nicolas Papernot, Ian Goodfellow, Dan Boneh, and Patrick McDaniel. The space of transferable adversarial examples. arXiv preprint arXiv:1704.03453, 2017. <br />
 [2] Ilyas, A., Santurkar, S., Tsipras, D., Engstrom, L., Tran, B., and Madry, A. Adversarial examples are not bugs, they are features. arXiv preprint arXiv:1905.02175, 2019. <br />
 [3] Ma, X., Li, B., Wang, Y., Erfani, S. M., Wijewickrema, S., Schoenebeck, G., Houle, M. E., Song, D., and Bailey, J. Characterizing adversarial subspaces using local intrinsic dimensionality. <br />
@@ -151,6 +153,3 @@ Final Year Thesis Project (COMP4981H) for Computer Science Students in HKUST
 [6] Shiqing Ma, Yingqi Liu, Guanhong Tao, Wen-Chuan Lee, and Xiangyu Zhang. 2019. “NIC: Detecting Adversarial Samples with Neural Network Invariant Checking” in Proceedings of the 26th Network and Distributed System Security Symposium, 2019. <br />
 [7] Gavin Weiguang Ding, Luyu Wang, and Xiaomeng Jin. AdverTorch v0.1: An adversarial robustness toolbox based on
 pytorch. arXiv preprint arXiv:1902.07623, 2019. <br/> 
-[8] LSTM
-[9] OCC-GAN
-
